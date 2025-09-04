@@ -12,8 +12,8 @@ import {
 } from "../controllers/tickets.controller.js";
 import { verifyToken, checkRole } from "../middlewares/auth.middleware.js";
 
-import commentRoutes from "./comments.routes.js";
-import fileRoutes from "./files.routes.js";
+import commentRoutes from "./comments.js";
+import fileRoutes from "./files.js";
 
 const router = Router();
 

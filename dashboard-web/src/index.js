@@ -24,5 +24,5 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/catalogs", catalogRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo ${PORT}`)
-})
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
