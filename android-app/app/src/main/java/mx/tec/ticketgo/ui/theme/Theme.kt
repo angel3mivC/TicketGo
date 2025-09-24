@@ -22,7 +22,8 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Tertiary,
     background = Background,
     onBackground = OnBackground,
-    surface = Background,
+    surface = Surface,
+    onSurface = OnSurface
 )
 
 @Suppress("UnusedReceiverParameter")
@@ -33,6 +34,10 @@ val ColorScheme.errorTextFieldColor: Color get() = Color(0xFFFF4A4A)
 val ColorScheme.alarmColor: Color get() = Color(0xFFFFAEAC)
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.alarmMessageColor: Color get() = Color(0xFFE10600)
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ActiveElement: Color get() = Color (0XFFFF0000)
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.UnactiveElement: Color get() = Color.Black
 
 @Composable
 fun TicketGoTheme(
