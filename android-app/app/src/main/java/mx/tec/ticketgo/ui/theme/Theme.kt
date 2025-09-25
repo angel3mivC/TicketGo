@@ -35,9 +35,11 @@ val ColorScheme.alarmColor: Color get() = Color(0xFFFFAEAC)
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.alarmMessageColor: Color get() = Color(0xFFE10600)
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ActiveElement: Color get() = Color (0XFFFF0000)
+val ColorScheme.ActiveElement: Color get() = Color(0XFFFF0000)
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.UnactiveElement: Color get() = Color.Black
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.EmptyElement: Color get() = Color(0xFFD9D9D9)
 
 @Composable
 fun TicketGoTheme(

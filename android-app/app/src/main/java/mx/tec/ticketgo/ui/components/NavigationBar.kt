@@ -44,10 +44,7 @@ fun RowScope.NavBarItem(navController: NavController, currentRoute: String?, rou
 }
 
 @Composable
-fun NavBar(navController: NavController, middleBottomIcon: ImageVector, middleBottomRoute: String){
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
+fun NavBar(navController: NavController, currentRoute: String?, middleBottomIcon: ImageVector, middleBottomRoute: String){
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.background
     ) {
