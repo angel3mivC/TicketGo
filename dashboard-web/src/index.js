@@ -7,11 +7,13 @@ import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import catalogRoutes from "./routes/catalogs.js";
+import cors from "cors";
 
 const PORT = process.env.PORT || 3000
 
 dotenv.config();
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 
