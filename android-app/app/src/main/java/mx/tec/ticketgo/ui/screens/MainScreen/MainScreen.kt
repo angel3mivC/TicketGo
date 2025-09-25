@@ -2,7 +2,7 @@ package mx.tec.ticketgo.ui.screens.MainScreen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +19,7 @@ fun MainScreen(){
     val navController = rememberNavController()
 
     Scaffold(
-        bottomBar = {NavBar(navController,Triple("formulario", "Formulario", Icons.Default.Home))}
+        bottomBar = {NavBar(navController, Icons.Default.Add, "formulario")}
     ) { innerPadding ->
         NavHost(
             navController = navController,
