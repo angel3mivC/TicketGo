@@ -38,3 +38,14 @@ fun Annoucement(text: String, modifier: Modifier = Modifier){
 fun BodyText(text: String, modifier: Modifier = Modifier){
     AppText(text, modifier, 12.sp, FontWeight.Medium, MaterialTheme.colorScheme.onBackground)
 }
+
+@Composable
+fun SmallText(text: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
+    AppText(
+        text = text,
+        modifier = modifier,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.Normal,
+        color = color
+    )
+}
