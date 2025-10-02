@@ -41,6 +41,9 @@ val ColorScheme.UnactiveElement: Color get() = Color.Black
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.EmptyElement: Color get() = Color(0xFFD9D9D9)
 
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ChipsGreen: Color get() = Color.Green
+
 @Composable
 fun TicketGoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
