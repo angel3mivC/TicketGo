@@ -1,13 +1,17 @@
 package mx.tec.ticketgo.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import mx.tec.ticketgo.ui.theme.Background
 
 @Composable
 fun AppText(text: String, modifier: Modifier = Modifier, fontSize: TextUnit, fontWeight: FontWeight, color: Color){
@@ -48,4 +52,16 @@ fun SmallText(text: String, modifier: Modifier = Modifier, color: Color = Materi
         fontWeight = FontWeight.Normal,
         color = color
     )
+}
+
+@Preview
+@Composable
+fun TextPreview() {
+    Column(modifier = Modifier.background(Color.White)) {
+        Title("Title")
+        Subtitle("Subtitle")
+        Annoucement("Announcement")
+        BodyText("BodyText")
+        SmallText("SmallText")
+    }
 }
