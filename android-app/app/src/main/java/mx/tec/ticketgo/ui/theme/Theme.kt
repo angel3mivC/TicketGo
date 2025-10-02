@@ -43,6 +43,15 @@ val ColorScheme.EmptyElement: Color get() = Color(0xFFD9D9D9)
 
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.ChipsGreen: Color get() = Color.Green
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ChipsYellow: Color get() = Color.Yellow
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ChipsBlue: Color get() = Color.Blue
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ChipsRed: Color get() = Color.Red
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.ChipsGray: Color get() = Color.Gray
+
 
 @Composable
 fun TicketGoTheme(
