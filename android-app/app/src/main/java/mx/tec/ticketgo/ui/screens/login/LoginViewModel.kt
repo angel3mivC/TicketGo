@@ -24,7 +24,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         errorMessage = null
         token = null
 
-        repository.Login(
+        repository.login(
             username,
             password,
             onSuccess = {

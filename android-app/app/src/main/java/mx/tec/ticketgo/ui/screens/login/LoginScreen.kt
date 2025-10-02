@@ -51,7 +51,6 @@ fun LoginScreen(viewModel: LoginViewModel){
             modifier = Modifier.fillMaxWidth(),
             onValueChange = {user = it},
             hint = "Usuario",
-            keyboard = KeyboardType.Text,
             error = viewModel.errorMessage != null
         )
 
@@ -81,10 +80,7 @@ fun LoginScreen(viewModel: LoginViewModel){
         PrimaryButton(
             "Iniciar sesión",
             Modifier.fillMaxWidth(),
-            {
-                viewModel.login(user, password)
-            }
-        )
+        ){ viewModel.login(user, password) }
 
         if (viewModel.isLoading) {
             Spacer(modifier = Modifier.height(20.dp))

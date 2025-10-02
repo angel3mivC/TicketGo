@@ -26,7 +26,7 @@ fun InputTextField(
     hint: String,
     singleLine: Boolean = true,
     error: Boolean = false,
-    keyboard: KeyboardType
+    keyboard: KeyboardType = KeyboardType.Text
 ){
     OutlinedTextField(
         value = value,

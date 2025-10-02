@@ -1,26 +1,31 @@
 package mx.tec.ticketgo.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
-class AuthRepository(context: Context){
+class TicketRepository(context: Context) {
     private val queue = Volley.newRequestQueue(context)
 
-    fun login(
-        username: String,
-        password: String,
-        onSuccess: (String) -> Unit,
+    fun createTicket(
+        title: String,
+        description: String,
+        priorityId: Int,
+        categoryId: Int,
+        status: String,
+        comments: String,
+        onSuccess: (Int) -> Unit,
         onError: (String) -> Unit
-     ){
-        val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com/auth/login"
+    ){
+        val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com/tickets/"
 
         val jsonBody = JSONObject().apply {
-            put("correo", username)
-            put("contraseña", password)
+            put("title", title)
+            put("description", description)
+            put("category_id", categoryId)
+            put("priority_id", priorityId)
         }
 
         val request = JsonObjectRequest(
@@ -29,16 +34,13 @@ class AuthRepository(context: Context){
             jsonBody,
             { response ->
                 try{
-                    val token = response.getString("token")
-                    onSuccess(token)
+                    onSuccess(response.getInt("ticket_id"))
                 }catch (e: Exception){
-                    onError("Error parsing response: ${e.message}")
+                    onError("${e.message}")
                 }
             },
             { error ->
-                Log.e("VolleyError", error.message ?: "Unknown error")
-                onError(error.message ?: "Unknown error")
-
+                onError("${error.message}")
             }
         )
 
