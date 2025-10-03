@@ -112,7 +112,8 @@ class TicketRepository(context: Context) {
                     categoryId = jsonObject.getInt("category_id"),
                     priorityId = jsonObject.getInt("priority_id"),
                     status = jsonObject.getString("status"),
-                    tecnico = jsonObject.optString("tecnico", null)
+                    tecnico = jsonObject.optString("tecnico", null),
+                    startDate = jsonObject.getString("fechaInicio")
                 )
 
                 tickets.add(ticket)

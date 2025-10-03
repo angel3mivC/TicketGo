@@ -8,4 +8,5 @@ data class Ticket(
     val priorityId: Int,
     val status: String,
     val tecnico: String? = null,
+    val startDate: String
 )
