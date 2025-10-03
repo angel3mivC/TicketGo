@@ -33,7 +33,7 @@ fun TicketTecnicoPreview(ticket: Ticket) {
 
         TicketTop(
             titulo = ticket.title,
-            fechaHora = "ID: ${ticket.ticketId}",
+            fechaHora = ticket.startDate,
             estado = ticket.status
         )
 
@@ -66,7 +66,7 @@ fun TicketAdminPreview(ticket: Ticket) {
 
         TicketTop(
             titulo = ticket.title,
-            fechaHora = "ID: ${ticket.ticketId}",  // O puedes no mostrar esto
+            fechaHora = ticket.startDate,
             estado = ticket.status
         )
 

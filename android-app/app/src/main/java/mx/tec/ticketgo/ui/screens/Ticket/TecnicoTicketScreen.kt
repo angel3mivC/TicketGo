@@ -142,7 +142,8 @@ fun PreviewTicket() {
         categoryId = 1,
         priorityId = 3,
         status = "Abierto",
-        tecnico = "Osmar Sanchez"
+        tecnico = "Osmar Sanchez",
+        startDate = "3 sept 2024"
     )
 
     TicketTecnicoPreview(ticket = mockTicket)
