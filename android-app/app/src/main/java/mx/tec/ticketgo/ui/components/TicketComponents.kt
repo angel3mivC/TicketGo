@@ -32,22 +32,36 @@ import mx.tec.ticketgo.ui.theme.ChipsRed
 import mx.tec.ticketgo.ui.theme.ChipsYellow
 
 @Composable
-fun TicketButtomChips(prioridad: String, categoria: String) {
-    val colorPrioridad = when(prioridad) {
+fun TicketButtomChips(prioridad: Int, categoria: Int) {
+    val valorPrioridad = when(prioridad) {
+        1 -> "Baja"
+        2 -> "Media"
+        3 -> "Alta"
+        else -> "Prioridad indefinida"
+    }
+    val colorPrioridad = when(valorPrioridad) {
         "Baja" -> MaterialTheme.colorScheme.ChipsGreen
         "Media" -> MaterialTheme.colorScheme.ChipsYellow
         "Alta" -> MaterialTheme.colorScheme.ChipsRed
         else -> MaterialTheme.colorScheme.outline
     }
+
+    val valorCategoria = when(categoria) {
+        1 -> "Categoría 1"
+        2 -> "Categoría 2"
+        3 -> "Categoría 3"
+        4 -> "Categoría 4"
+        else -> "Categoría indefinida"
+    }
     Row(
         modifier = Modifier.padding(top = 8.dp)
     ) {
         Chip(
-            text = categoria,
+            text = valorCategoria,
             color = Color.DarkGray,
             modifier = Modifier.padding(end = 8.dp)
         )
-        DotChip(prioridad, colorPrioridad)
+        DotChip(valorPrioridad, colorPrioridad)
     }
 }
 

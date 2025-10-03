@@ -29,14 +29,14 @@ fun TicketTecnico(titulo: String, fechaHora: String, estado: String, categoria: 
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .padding(16.dp)
-    ) {
+    ) {/*
         TicketTop(titulo, fechaHora, estado)
         TicketButtomChips(prioridad, categoria)
         Spacer(modifier = Modifier.height(32.dp))
         BodyText("Descripción.LoremIpsumLorem Ipsum. LoremLoremLorem LoremLorem")
         Spacer(modifier = Modifier.height(16.dp))
         EvidenciasTicket({})
-        LineaPunteada()
+        LineaPunteada()*/
 
     }
 }

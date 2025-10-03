@@ -1,5 +1,4 @@
 package mx.tec.ticketgo.ui.components
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,27 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.ui.theme.ChipsBlue
-import mx.tec.ticketgo.ui.theme.ChipsGray
-import mx.tec.ticketgo.ui.theme.ChipsGreen
-import mx.tec.ticketgo.ui.theme.ChipsRed
-import mx.tec.ticketgo.ui.theme.ChipsYellow
+import mx.tec.ticketgo.data.repository.Ticket
 
 
 // Versión alternativa más simple si quieres solo la línea punteada inferior
 @Composable
-fun TicketTecnicoPreview(titulo: String, fechaHora: String, descripcion: String, categoria: String, estado: String, prioridad: String) {
-
+fun TicketTecnicoPreview(ticket: Ticket) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,21 +31,29 @@ fun TicketTecnicoPreview(titulo: String, fechaHora: String, descripcion: String,
             .padding(16.dp)
     ) {
 
-        TicketTop(titulo, fechaHora, estado)
+        TicketTop(
+            titulo = ticket.title,
+            fechaHora = "ID: ${ticket.ticketId}",
+            estado = ticket.status
+        )
 
         BodyText(
-            text = descripcion,
+            text = ticket.description,
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        TicketButtomChips(prioridad, categoria)
+        TicketButtomChips(
+            prioridad = ticket.priorityId,
+            categoria = ticket.categoryId
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
         LineaPunteada()
-
     }
 }
+
 @Composable
-fun TicketAdminPreview(titulo: String, fechaHora: String, descripcion: String, categoria: String, estado: String, prioridad: String, nombre: String) {
+fun TicketAdminPreview(ticket: Ticket) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,37 +64,42 @@ fun TicketAdminPreview(titulo: String, fechaHora: String, descripcion: String, c
             .padding(16.dp)
     ) {
 
-        TicketTop(titulo,fechaHora, estado)
+        TicketTop(
+            titulo = ticket.title,
+            fechaHora = "ID: ${ticket.ticketId}",  // O puedes no mostrar esto
+            estado = ticket.status
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             BodyText(
-                text = descripcion,
+                text = ticket.description,
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .weight(2f)
             )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(1f)
-            ) {
-                InitialsAvatar(nombre = nombre, backgroundColor = getColorForName(nombre))
-                SmallText(nombre)
+
+            ticket.tecnico?.let { nombre ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    InitialsAvatar(
+                        nombre = nombre,
+                        backgroundColor = getColorForName(nombre)
+                    )
+                    SmallText(nombre)
+                }
             }
         }
 
-        TicketButtomChips(prioridad, categoria)
+        TicketButtomChips(
+            prioridad = ticket.priorityId,  // Temporal hasta que arregles el backend
+            categoria = ticket.categoryId   // Temporal hasta que arregles el backend
+        )
         LineaPunteada()
-
     }
 }
 
-
-@Preview()
-@Composable
-fun PreviewTicket() {
-    //TicketAdminPreview("Título", "2 sept 2023 8:35 am", "Descripción. Lorem Ipsum Lorem Impsum", "Garantía", "Abierto", "Media", "Osmar Sanchez")
-    TicketTecnicoPreview("Título", "2 sept 2023 8:35 am", "Descripción. Lorem Ipsum Lorem Impsum", "Garantía", "Abierto", "Alta")
-}
