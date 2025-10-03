@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,30 +24,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.data.repository.Ticket
 import mx.tec.ticketgo.data.repository.TicketRepository
+import mx.tec.ticketgo.ui.components.BodyText
 import mx.tec.ticketgo.ui.components.Chip
-import mx.tec.ticketgo.ui.components.TicketTecnicoPreview
+import mx.tec.ticketgo.ui.components.TicketAdminPreview
 import mx.tec.ticketgo.ui.components.Title
-import org.json.JSONArray
-import org.json.JSONObject
-
 
 
 @Composable
-fun TecnicoTicketScreen() {
-    // 1. Obtener contexto y crear repository
+fun AdminTicketScreen() {
     val context = LocalContext.current
     val repository = remember { TicketRepository(context) }
 
-    // 2. Estados
     var tickets by remember { mutableStateOf<List<Ticket>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // 3. Cargar tickets
     LaunchedEffect(Unit) {
         isLoading = true
         errorMessage = null
@@ -62,14 +57,12 @@ fun TecnicoTicketScreen() {
         }
     }
 
-    // 4. UI
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp)
     ) {
-        // Header con filtros
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -84,7 +77,6 @@ fun TecnicoTicketScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Contenido según estado
         when {
             isLoading -> {
                 Box(
@@ -100,10 +92,10 @@ fun TecnicoTicketScreen() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    val message: String = errorMessage ?: "Error desconocido"
                     Text(
-                        text = message,
-                        color = Color.Red
+                        text = errorMessage ?: "Error",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -113,7 +105,7 @@ fun TecnicoTicketScreen() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No hay tickets disponibles")
+                    BodyText("No hay tickets disponibles")
                 }
             }
 
@@ -124,7 +116,8 @@ fun TecnicoTicketScreen() {
                     items(
                         count = tickets.size
                     ) { index ->
-                        TicketTecnicoPreview(ticket = tickets[index])
+                        val ticket = tickets[index]
+                        TicketAdminPreview(ticket = ticket)
                     }
                 }
             }
@@ -132,18 +125,3 @@ fun TecnicoTicketScreen() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewTicket() {
-    val mockTicket = Ticket(
-        ticketId = 1,
-        title = "Título",
-        description = "Descripción. Lorem Ipsum Lorem Impsum",
-        categoryId = 1,
-        priorityId = 3,
-        status = "Abierto",
-        tecnico = "Osmar Sanchez"
-    )
-
-    TicketTecnicoPreview(ticket = mockTicket)
-}
