@@ -1,4 +1,4 @@
-package mx.tec.ticketgo.data.repository
+package mx.tec.ticketgo.ui.models
 
 data class Ticket(
     val ticketId: Int,

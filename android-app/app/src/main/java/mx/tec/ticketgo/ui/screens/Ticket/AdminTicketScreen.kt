@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.data.repository.Ticket
+import mx.tec.ticketgo.ui.models.Ticket
 import mx.tec.ticketgo.data.repository.TicketRepository
 import mx.tec.ticketgo.ui.components.BodyText
 import mx.tec.ticketgo.ui.components.Chip
@@ -125,3 +125,66 @@ fun AdminTicketScreen() {
     }
 }
 
+val mockTickets = listOf(
+    Ticket(
+        ticketId = 1,
+        title = "Error en inicio de sesión",
+        description = "El usuario no puede iniciar sesión en la plataforma, muestra un error 401.",
+        categoryId = 2,
+        priorityId = 1,
+        status = "Abierto",
+        tecnico = "Carlos López",
+        startDate = "2025-10-05 10:23:00"
+    ),
+    Ticket(
+        ticketId = 2,
+        title = "Pantalla en blanco en módulo de reportes",
+        description = "Al acceder a la sección de reportes, la pantalla queda en blanco sin mostrar datos.",
+        categoryId = 3,
+        priorityId = 2,
+        status = "En progreso",
+        tecnico = "María González",
+        startDate = "2025-10-04 14:10:00"
+    ),
+    Ticket(
+        ticketId = 3,
+        title = "Fallo en conexión a base de datos",
+        description = "El sistema no logra conectarse a la base de datos en producción.",
+        categoryId = 1,
+        priorityId = 3,
+        status = "Cerrado",
+        tecnico = "Luis Fernández",
+        startDate = "2025-10-01 08:45:00"
+    ),
+    Ticket(
+        ticketId = 4,
+        title = "Error al generar facturas PDF",
+        description = "Las facturas se descargan con campos vacíos en el documento.",
+        categoryId = 4,
+        priorityId = 2,
+        status = "Abierto",
+        tecnico = "Ana Torres",
+        startDate = "2025-09-30 16:50:00"
+    ),
+    Ticket(
+        ticketId = 5,
+        title = "Problemas con notificaciones push",
+        description = "Las notificaciones no se envían correctamente a los dispositivos Android.",
+        categoryId = 2,
+        priorityId = 1,
+        status = "En progreso",
+        tecnico = "Jorge Ramírez",
+        startDate = "2025-09-28 11:15:00"
+    )
+)
+
+@Composable
+fun TicketScreenPreview() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(mockTickets.size) { index ->
+                TicketAdminPreview(ticket = mockTickets[index])
+            }
+        }
+    }
+}

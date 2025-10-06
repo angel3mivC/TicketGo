@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.data.repository.Ticket
+import mx.tec.ticketgo.ui.models.Ticket
 
 
 // Versión alternativa más simple si quieres solo la línea punteada inferior

@@ -5,12 +5,13 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import mx.tec.ticketgo.ui.models.Ticket
 import org.json.JSONArray
 import org.json.JSONObject
 
 class TicketRepository(context: Context) {
     private val queue = Volley.newRequestQueue(context)
-    private val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com"
+    private val url = "http://192.168.0.101:3000"
 
     fun createTicket(
         title: String,

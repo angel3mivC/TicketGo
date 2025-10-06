@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.data.repository.Ticket
+import mx.tec.ticketgo.ui.models.Ticket
 import mx.tec.ticketgo.data.repository.TicketRepository
 import mx.tec.ticketgo.ui.components.Chip
 import mx.tec.ticketgo.ui.components.TicketTecnicoPreview
@@ -131,6 +131,8 @@ fun TecnicoTicketScreen() {
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

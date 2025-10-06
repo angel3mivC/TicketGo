@@ -42,15 +42,15 @@ val ColorScheme.UnactiveElement: Color get() = Color.Black
 val ColorScheme.EmptyElement: Color get() = Color(0xFFD9D9D9)
 
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ChipsGreen: Color get() = Color.Green
+val ColorScheme.ChipsGreen: Color get() = Color(0xFF61C800)
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ChipsYellow: Color get() = Color.Yellow
+val ColorScheme.ChipsYellow: Color get() = Color(0xFFFFAE00)
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ChipsBlue: Color get() = Color.Blue
+val ColorScheme.ChipsBlue: Color get() = Color(0xFF0080FF)
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ChipsRed: Color get() = Color.Red
+val ColorScheme.ChipsRed: Color get() = Color(0xFFFF3B3E)
 @Suppress("UnusedReceiverParameter")
-val ColorScheme.ChipsGray: Color get() = Color.Gray
+val ColorScheme.ChipsGray: Color get() = Color(0xFF8B8B8B)
 
 
 @Composable
