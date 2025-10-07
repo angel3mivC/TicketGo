@@ -18,6 +18,8 @@ import mx.tec.ticketgo.ui.screens.Home.HomeScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketViewModel
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
+import mx.tec.ticketgo.ui.screens.login.LoginScreen
+import mx.tec.ticketgo.ui.screens.login.LoginViewModel
 
 @Composable
 fun MainScreen(){
@@ -27,6 +29,8 @@ fun MainScreen(){
 
     val ticketViewModel: TicketViewModel = viewModel()
 
+    val loginViewModel: LoginViewModel = viewModel()
+
     Scaffold(
         topBar = {
             when(currentRoute){
@@ -34,9 +38,9 @@ fun MainScreen(){
                 "historial" -> TopBar("Crear ticket", navController)
             }
         },
-        bottomBar = {NavBar(navController, currentRoute, Icons.Default.Add, "gallery")}
+        //bottomBar = {NavBar(navController, currentRoute, Icons.Default.Add, "gallery")}
     ) { innerPadding ->
-        NavHost(
+        /*NavHost(
             navController = navController,
             startDestination = "inicio",
             modifier = Modifier.padding(innerPadding)
@@ -44,6 +48,11 @@ fun MainScreen(){
             composable("inicio") { HomeScreen() }
             composable("gallery") { GalleryScreen() }
             composable("historial") { TicketFormScreen(ticketViewModel) }
-        }
+        }*/
+
+
+
+
+        LoginScreen(loginViewModel)
     }
 }

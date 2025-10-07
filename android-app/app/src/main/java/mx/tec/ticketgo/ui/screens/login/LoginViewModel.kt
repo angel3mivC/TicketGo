@@ -1,40 +1,50 @@
 package mx.tec.ticketgo.ui.screens.login
 
-import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import mx.tec.ticketgo.data.models.LoginRequest
 import mx.tec.ticketgo.data.repository.AuthRepository
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = AuthRepository(application)
+class LoginViewModel(private val repository: AuthRepository = AuthRepository()): ViewModel() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    var isLoading by mutableStateOf(false)
-        private set
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _token = MutableStateFlow<String?>(null)
+    val token: StateFlow<String?> = _token
 
-    var token by mutableStateOf<String?>(null)
-        private set
+    private val _userRole = MutableStateFlow<Int?>(null)
+    val userRole: StateFlow<Int?> = _userRole
 
-    fun login(username: String, password: String) {
-        isLoading = true
-        errorMessage = null
-        token = null
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val request = LoginRequest(email, password)
+                val result = repository.login(request)
 
-        repository.login(
-            username,
-            password,
-            onSuccess = {
-                isLoading = false
-                token = it
-            },
-            onError = {
-                isLoading = false
-                errorMessage = it
+                result.onSuccess { response ->
+                    _token.value = response.token
+                    _message.value = response.message
+                    _userRole.value = response.user.rol
+                }
+
+                result.onFailure { e ->
+                    _message.value = e.message ?: "Error al iniciar sesión"
+                }
+
+            } finally {
+                _isLoading.value = false
             }
-        )
+        }
+    }
+
+    fun logout(){
+
     }
 }

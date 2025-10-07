@@ -9,6 +9,14 @@ import org.json.JSONObject
 class TicketRepository(context: Context) {
     private val queue = Volley.newRequestQueue(context)
 
+    private val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com"
+
+    fun getTickets(
+
+    ){
+
+    }
+
     fun createTicket(
         title: String,
         description: String,
@@ -19,7 +27,7 @@ class TicketRepository(context: Context) {
         onSuccess: (Int) -> Unit,
         onError: (String) -> Unit
     ){
-        val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com/tickets/"
+        val route = "${url}/tickets/"
 
         val jsonBody = JSONObject().apply {
             put("title", title)
@@ -30,7 +38,7 @@ class TicketRepository(context: Context) {
 
         val request = JsonObjectRequest(
             Request.Method.POST,
-            url,
+            route,
             jsonBody,
             { response ->
                 try{

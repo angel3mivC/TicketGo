@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +32,13 @@ import mx.tec.ticketgo.ui.components.TertiaryButton
 @Composable
 fun LoginScreen(viewModel: LoginViewModel){
     val context = LocalContext.current
-    var user by remember { mutableStateOf("") }
+
+    val isLoading by viewModel.isLoading.collectAsState()
+    val message by viewModel.message.collectAsState()
+    val token by viewModel.token.collectAsState()
+    val userRole by viewModel.userRole.collectAsState()
+
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
@@ -47,11 +55,11 @@ fun LoginScreen(viewModel: LoginViewModel){
         Spacer(modifier = Modifier.height(40.dp))
 
         InputTextField(
-            value = user,
+            value = email,
             modifier = Modifier.fillMaxWidth(),
-            onValueChange = {user = it},
-            hint = "Usuario",
-            error = viewModel.errorMessage != null
+            onValueChange = {email = it},
+            hint = "Email",
+            error = message?.contains("correo", ignoreCase = true) == true
         )
 
         InputTextField(
@@ -60,7 +68,7 @@ fun LoginScreen(viewModel: LoginViewModel){
             onValueChange = {password = it},
             hint = "Contraseña",
             keyboard = KeyboardType.Password,
-            error = viewModel.errorMessage != null
+            error = message?.contains("contraseña", ignoreCase = true) == true
         )
 
         TertiaryButton(
@@ -72,7 +80,8 @@ fun LoginScreen(viewModel: LoginViewModel){
         )
 
         Spacer(modifier = Modifier.height(40.dp))
-        viewModel.errorMessage?.let {
+
+        message?.let {
             ErrorMessage(it)
             Spacer(modifier = Modifier.height(40.dp))
         }
@@ -80,15 +89,19 @@ fun LoginScreen(viewModel: LoginViewModel){
         PrimaryButton(
             "Iniciar sesión",
             Modifier.fillMaxWidth(),
-        ){ viewModel.login(user, password) }
+        ){ viewModel.login(email, password) }
 
-        if (viewModel.isLoading) {
+        if (isLoading) {
             Spacer(modifier = Modifier.height(20.dp))
             CircularProgressIndicator()
         }
 
-        viewModel.token?.let {
-            Toast.makeText(context, "Login OK. Token: $it", Toast.LENGTH_SHORT).show()
+        LaunchedEffect(token) {
+            token?.let {
+                Toast.makeText(context, "Login OK. Token: $it", Toast.LENGTH_SHORT).show()
+            }
         }
+
+        Text(userRole.toString())
     }
 }

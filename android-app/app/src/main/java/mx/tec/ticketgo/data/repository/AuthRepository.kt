@@ -1,47 +1,53 @@
 package mx.tec.ticketgo.data.repository
 
-import android.content.Context
-import android.util.Log
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import org.json.JSONObject
+import mx.tec.ticketgo.data.ApiClient
+import mx.tec.ticketgo.data.models.GenericResponse
+import mx.tec.ticketgo.data.models.LoginRequest
+import mx.tec.ticketgo.data.models.LoginResponse
+import mx.tec.ticketgo.data.remote.AuthService
 
-class AuthRepository(context: Context){
-    private val queue = Volley.newRequestQueue(context)
+class AuthRepository(){
 
-    fun login(
-        username: String,
-        password: String,
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-     ){
-        val url = "http://apiticketgo-env.eba-fbhyvbpr.us-east-1.elasticbeanstalk.com/auth/login"
+    private val service: AuthService = ApiClient.retrofit.create(AuthService::class.java)
 
-        val jsonBody = JSONObject().apply {
-            put("correo", username)
-            put("contraseña", password)
-        }
+    suspend fun login(request: LoginRequest): Result<LoginResponse> {
+        return try {
+            val response = service.login(request)
 
-        val request = JsonObjectRequest(
-            Request.Method.POST,
-            url,
-            jsonBody,
-            { response ->
-                try{
-                    val token = response.getString("token")
-                    onSuccess(token)
-                }catch (e: Exception){
-                    onError("Error parsing response: ${e.message}")
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(Exception("Respuesta vacía del servidor"))
                 }
-            },
-            { error ->
-                Log.e("VolleyError", error.message ?: "Unknown error")
-                onError(error.message ?: "Unknown error")
-
+            } else {
+                val error = response.errorBody()?.string() ?: "Error desconocido"
+                Result.failure(Exception(error))
             }
-        )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-        queue.add(request)
+    suspend fun logout(): Result<GenericResponse> {
+        return try {
+            val response = service.logout()
+
+            if(response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(Exception("Sin respuesta"))
+                }
+            } else {
+                val error = response.errorBody()?.string() ?: "Error desconocido"
+                Result.failure(Exception(error))
+            }
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
