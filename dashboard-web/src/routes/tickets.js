@@ -17,7 +17,7 @@ import fileRoutes from "./files.js";
 
 const router = Router();
 
-router.get("/", verifyToken, checkRole([1, 2]), getTickets);
+router.get("/", verifyToken, checkRole([1, 2, 3]), getTickets);
 router.get("/:id", verifyToken, checkRole([1, 2, 3]), getTicketById);
 router.post("/", verifyToken, checkRole([2]), createTicket);
 router.put("/:id", verifyToken, checkRole([1, 2]), updateTicket);
