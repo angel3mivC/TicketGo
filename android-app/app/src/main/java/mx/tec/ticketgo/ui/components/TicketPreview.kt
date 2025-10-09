@@ -1,5 +1,6 @@
 package mx.tec.ticketgo.ui.components
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,9 +19,8 @@ import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.ui.models.Ticket
 
 
-// Versión alternativa más simple si quieres solo la línea punteada inferior
 @Composable
-fun TicketTecnicoPreview(ticket: Ticket) {
+fun TicketTecnicoPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -29,8 +29,8 @@ fun TicketTecnicoPreview(ticket: Ticket) {
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .padding(16.dp)
+            .clickable { onClick(ticket) } // Detectar click para mostrar detalles
     ) {
-
         TicketTop(
             titulo = ticket.title,
             fechaHora = ticket.startDate,
@@ -52,16 +52,18 @@ fun TicketTecnicoPreview(ticket: Ticket) {
     }
 }
 
+
 @Composable
-fun TicketAdminPreview(ticket: Ticket) {
+fun TicketAdminPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .shadow(6.dp, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(Color.White) // SE DEBE USAR COLOR THEME
             .padding(16.dp)
+            .clickable{onClick(ticket)} //Accion al hacer click
     ) {
 
         TicketTop(

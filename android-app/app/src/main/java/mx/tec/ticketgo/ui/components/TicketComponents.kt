@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.tec.ticketgo.ui.models.Comment
 import mx.tec.ticketgo.ui.theme.ChipsBlue
 import mx.tec.ticketgo.ui.theme.ChipsGray
 import mx.tec.ticketgo.ui.theme.ChipsGreen
@@ -47,6 +48,8 @@ import mx.tec.ticketgo.ui.theme.ChipsYellow
 
 @Composable
 fun TicketButtomChips(prioridad: Int, categoria: Int) {
+
+    //Crear valores de prioridad, estado y categoria asi como sus colores para asignarlos en los chips
     val valorPrioridad = when(prioridad) {
         1 -> "Baja"
         2 -> "Media"
@@ -72,7 +75,7 @@ fun TicketButtomChips(prioridad: Int, categoria: Int) {
     ) {
         Chip(
             text = valorCategoria,
-            color = Color.DarkGray,
+            color = Color.DarkGray, // SE DEBE USAR UN COLOR DE COLOR THEME
             modifier = Modifier.padding(end = 8.dp)
         )
         DotChip(valorPrioridad, colorPrioridad)
@@ -83,7 +86,7 @@ fun TicketButtomChips(prioridad: Int, categoria: Int) {
 fun TicketTop(titulo: String, fechaHora: String, estado: String) {
     val colorEstado = when (estado) {
         "Abierto" -> MaterialTheme.colorScheme.ChipsGreen
-        "En Progreso" -> MaterialTheme.colorScheme.ChipsYellow
+        "En progreso" -> MaterialTheme.colorScheme.ChipsYellow
         "Resuelto" -> MaterialTheme.colorScheme.ChipsBlue
         "Cerrado" -> MaterialTheme.colorScheme.ChipsRed
         "Reabierto" -> MaterialTheme.colorScheme.ChipsGray
@@ -187,13 +190,6 @@ fun EvidenciasTicket(onClickEvidencias: () -> Unit) {
     }
 }
 
-// Modelo de comentario
-data class Comment(
-    val id: String,
-    val userName: String,
-    val content: String,
-    val timestamp: String
-)
 
 @Composable
 fun TicketCommentsSection(
@@ -331,47 +327,4 @@ fun CommentInputField(
         ),
         maxLines = 3
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTicketCommentsSection() {
-    val mockComments = listOf(
-        Comment(
-            id = "1",
-            userName = "Juan Pérez",
-            content = "He revisado el ticket y ya estoy trabajando en la solución.",
-            timestamp = "2 sept 2023 · 10:00 am"
-        ),
-        Comment(
-            id = "2",
-            userName = "María González",
-            content = "¿Necesitas algún archivo adicional?",
-            timestamp = "2 sept 2023 · 2:30 pm"
-        ),
-        Comment(
-            id = "3",
-            userName = "Carlos Ramírez",
-            content = "Ya está casi terminado, solo falta realizar las pruebas finales.",
-            timestamp = "3 sept 2023 · 9:15 am"
-        ),
-        Comment(
-            id = "4",
-            userName = "Ana Martínez",
-            content = "Perfecto, gracias por el avance.",
-            timestamp = "3 sept 2023 · 11:45 am"
-        )
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        TicketCommentsSection(
-            comments = mockComments,
-            onSendComment = { }
-        )
-    }
 }

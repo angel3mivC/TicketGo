@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,106 +26,148 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import mx.tec.ticketgo.ui.models.Ticket
 import mx.tec.ticketgo.data.repository.TicketRepository
 import mx.tec.ticketgo.ui.components.Chip
+import mx.tec.ticketgo.ui.components.TicketTecnico
 import mx.tec.ticketgo.ui.components.TicketTecnicoPreview
 import mx.tec.ticketgo.ui.components.Title
+import mx.tec.ticketgo.ui.components.TopBar
 import org.json.JSONArray
 import org.json.JSONObject
 
 
 
 @Composable
-fun TecnicoTicketScreen() {
-    // 1. Obtener contexto y crear repository
-    val context = LocalContext.current
-    val repository = remember { TicketRepository(context) }
+fun TecnicoTicketScreen(navController: NavController) {
+    val mockTickets = listOf(
+        Ticket(
+            ticketId = 1,
+            title = "Error en inicio de sesión",
+            description = "El usuario no puede iniciar sesión en la plataforma, muestra un error 401.",
+            categoryId = 2,
+            priorityId = 1,
+            status = "Abierto",
+            tecnico = "Carlos López",
+            startDate = "2025-10-05 10:23:00"
+        ),
+        Ticket(
+            ticketId = 2,
+            title = "Pantalla en blanco en módulo de reportes",
+            description = "Al acceder a la sección de reportes, la pantalla queda en blanco sin mostrar datos.",
+            categoryId = 3,
+            priorityId = 2,
+            status = "En progreso",
+            tecnico = "María González",
+            startDate = "2025-10-04 14:10:00"
+        ),
+        Ticket(
+            ticketId = 3,
+            title = "Fallo en conexión a base de datos",
+            description = "El sistema no logra conectarse a la base de datos en producción.",
+            categoryId = 1,
+            priorityId = 3,
+            status = "Cerrado",
+            tecnico = "Luis Fernández",
+            startDate = "2025-10-01 08:45:00"
+        ),
+        Ticket(
+            ticketId = 4,
+            title = "Error al generar facturas PDF",
+            description = "Las facturas se descargan con campos vacíos en el documento.",
+            categoryId = 4,
+            priorityId = 2,
+            status = "Abierto",
+            tecnico = "Ana Torres",
+            startDate = "2025-09-30 16:50:00"
+        ),
+        Ticket(
+            ticketId = 5,
+            title = "Problemas con notificaciones push",
+            description = "Las notificaciones no se envían correctamente a los dispositivos Android.",
+            categoryId = 2,
+            priorityId = 1,
+            status = "En progreso",
+            tecnico = "Jorge Ramírez",
+            startDate = "2025-09-28 11:15:00"
+        ),
+        Ticket(
+            ticketId = 6,
+            title = "Falla al cargar dashboard",
+            description = "El dashboard principal no carga los gráficos de desempeño.",
+            categoryId = 3,
+            priorityId = 2,
+            status = "Pendiente",
+            tecnico = "Mariana Pérez",
+            startDate = "2025-10-02 09:20:00"
+        ),
+        Ticket(
+            ticketId = 7,
+            title = "Problemas con la impresora del área contable",
+            description = "La impresora marca error de conexión con el servidor de impresión.",
+            categoryId = 1,
+            priorityId = 3,
+            status = "Abierto",
+            tecnico = "Eduardo Hernández",
+            startDate = "2025-10-03 11:05:00"
+        )
+    )
 
-    // 2. Estados
-    var tickets by remember { mutableStateOf<List<Ticket>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var selectedTicket by remember { mutableStateOf<Ticket?>(null) }
+    var tickets by remember { mutableStateOf<List<Ticket>>(mockTickets) }
 
-    // 3. Cargar tickets
-    LaunchedEffect(Unit) {
-        isLoading = true
-        errorMessage = null
-
-        repository.getTickets { jsonArray ->
-            isLoading = false
-
-            if (jsonArray != null) {
-                tickets = repository.parseTickets(jsonArray)
-            } else {
-                errorMessage = "Error al cargar los tickets"
+    // 💡 Si hay un ticket seleccionado, mostramos el detalle dentro de un Scaffold
+    if (selectedTicket != null) {
+        Scaffold(
+            topBar = {
+                TopBar("Detalles del ticket", navController)
+            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                TicketTecnico(
+                    ticket = selectedTicket!!,
+                    comments = emptyList()
+                )
             }
         }
-    }
-
-    // 4. UI
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        // Header con filtros
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    } else {
+        // 💡 Si no hay ticket seleccionado, mostramos la lista de tickets
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(16.dp)
         ) {
-            Title("Mis tickets")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip("Filtrar", Color.Gray)
-                Chip("Historial", Color.Gray)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Contenido según estado
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            // Header con filtros
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title("Mis tickets")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Chip("Filtrar", Color.Gray)
+                    Chip("Historial", Color.Gray)
                 }
             }
 
-            errorMessage != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val message: String = errorMessage ?: "Error desconocido"
-                    Text(
-                        text = message,
-                        color = Color.Red
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            tickets.isEmpty() -> {
+            if (tickets.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("No hay tickets disponibles")
                 }
-            }
-
-            else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        count = tickets.size
-                    ) { index ->
-                        TicketTecnicoPreview(ticket = tickets[index])
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(tickets.size) { index ->
+                        TicketTecnicoPreview(
+                            ticket = tickets[index],
+                            onClick = { selectedTicket = it }
+                        )
                     }
                 }
             }
@@ -133,20 +176,3 @@ fun TecnicoTicketScreen() {
 }
 
 
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTicket() {
-    val mockTicket = Ticket(
-        ticketId = 1,
-        title = "Título",
-        description = "Descripción. Lorem Ipsum Lorem Impsum",
-        categoryId = 1,
-        priorityId = 3,
-        status = "Abierto",
-        tecnico = "Osmar Sanchez",
-        startDate = "3 sept 2024"
-    )
-
-    TicketTecnicoPreview(ticket = mockTicket)
-}

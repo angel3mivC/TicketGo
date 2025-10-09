@@ -1,12 +1,9 @@
 package mx.tec.ticketgo.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -14,6 +11,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import mx.tec.ticketgo.ui.models.Comment
 import mx.tec.ticketgo.ui.models.Ticket
 
 @Composable
@@ -23,37 +21,44 @@ fun TicketTecnico(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .wrapContentHeight() // ✅ evita que se alargue feo
+            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
+            .padding(horizontal = 8.dp, vertical = 8.dp)
             .shadow(6.dp, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .padding(16.dp)
     ) {
+        // 🔹 Cabecera del ticket (título, fecha y estado)
         TicketTop(
             titulo = ticket.title,
             fechaHora = ticket.startDate ?: "Sin fecha",
             estado = ticket.status
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 🔹 Chips de prioridad y categoría
         TicketButtomChips(
             prioridad = ticket.priorityId,
             categoria = ticket.categoryId
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // 🔹 Descripción del ticket
         BodyText(ticket.description)
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 🔹 Evidencias
         EvidenciasTicket({})
 
         Spacer(modifier = Modifier.height(16.dp))
 
         LineaPunteada()
 
-        // Sección de comentarios
+        // 🔹 Sección de comentarios
         TicketCommentsSection(
             comments = comments,
             onSendComment = { /* Manejar envío de comentario */ }
@@ -66,8 +71,8 @@ fun TicketTecnico(
 fun TicketPreview() {
     val mockTicket = Ticket(
         ticketId = 1,
-        title = "Titulo",
-        description = "Descripción.LoremIpsumLorem Ipsum. LoremLoremLorem LoremLorem",
+        title = "Problema con el login de usuarios",
+        description = "El sistema no permite el acceso y muestra error 401. Revisar autenticación.",
         categoryId = 2,
         priorityId = 1,
         status = "Abierto",

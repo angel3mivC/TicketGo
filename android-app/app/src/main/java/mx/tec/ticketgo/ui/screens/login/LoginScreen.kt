@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import mx.tec.ticketgo.ui.components.Annoucement
 import mx.tec.ticketgo.ui.components.ErrorMessage
 
@@ -28,7 +30,7 @@ import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.TertiaryButton
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel){
+fun LoginScreen(viewModel: LoginViewModel, navController: NavController){
     val context = LocalContext.current
     var user by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -94,5 +96,23 @@ fun LoginScreen(viewModel: LoginViewModel){
         viewModel.token?.let {
             Toast.makeText(context, "Login OK. Token: $it", Toast.LENGTH_SHORT).show()
         }
+
+
+        LaunchedEffect(token) {
+            token?.let {
+
+                val ruta = when (userRole) {
+                    1 -> "adminHome"
+                    2 -> "mesaHome"
+                    3 -> "tecnicoHome"
+                    else -> "Rol desconocido"
+                }
+
+                Toast.makeText(context, "Login OK. Token: $it", Toast.LENGTH_SHORT).show()
+                navController.navigate(ruta)
+            }
+        }
+
+        //Text(userRole.toString())
     }
 }

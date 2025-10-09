@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,88 +23,75 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.ui.models.Ticket
 import mx.tec.ticketgo.data.repository.TicketRepository
-import mx.tec.ticketgo.ui.components.BodyText
 import mx.tec.ticketgo.ui.components.Chip
 import mx.tec.ticketgo.ui.components.TicketAdminPreview
+import mx.tec.ticketgo.ui.components.TicketTecnico
+import mx.tec.ticketgo.ui.components.TicketTecnicoPreview
 import mx.tec.ticketgo.ui.components.Title
+import org.json.JSONArray
+import org.json.JSONObject
+
 
 
 @Composable
 fun AdminTicketScreen() {
+
+    var selectedTicket by remember { mutableStateOf<Ticket?>(null) }
+
+    // 1. Obtener contexto
     val context = LocalContext.current
-    val repository = remember { TicketRepository(context) }
 
+    // 2. Estados
     var tickets by remember { mutableStateOf<List<Ticket>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
-        isLoading = true
-        errorMessage = null
+    // 3. Cargar tickets
 
-        repository.getTickets { jsonArray ->
-            isLoading = false
+    //Launcheffect para manejar isLoading y errorMessage
 
-            if (jsonArray != null) {
-                tickets = repository.parseTickets(jsonArray)
-            } else {
-                errorMessage = "Error al cargar los tickets"
-            }
-        }
-    }
-
+    // 4. UI
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color.White) // Se debe usar color theme
             .padding(16.dp)
     ) {
+        // Header con filtros
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Title("Mis tickets")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Chip("Filtrar", Color.Gray)
-                Chip("Historial", Color.Gray)
-            }
+            Title("Tickets")
+            Chip("Filtrar", Color.Gray)
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Contenido según estado
         when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+
+            selectedTicket != null -> {
+                TicketTecnico(
+                    ticket = selectedTicket!!,
+                    comments = emptyList() // Aquí luego pasarás los comentarios reales
+                )
             }
 
-            errorMessage != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = errorMessage ?: "Error",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
+            //isLoading ->{}
+
+            //errorMessage != null -> {}
 
             tickets.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    BodyText("No hay tickets disponibles")
+                    Text("No hay tickets disponibles")
                 }
             }
 
@@ -116,8 +102,10 @@ fun AdminTicketScreen() {
                     items(
                         count = tickets.size
                     ) { index ->
-                        val ticket = tickets[index]
-                        TicketAdminPreview(ticket = ticket)
+                        TicketAdminPreview(
+                            ticket = tickets[index],
+                            onClick = { selectedTicket = it }
+                        )
                     }
                 }
             }
@@ -125,66 +113,4 @@ fun AdminTicketScreen() {
     }
 }
 
-val mockTickets = listOf(
-    Ticket(
-        ticketId = 1,
-        title = "Error en inicio de sesión",
-        description = "El usuario no puede iniciar sesión en la plataforma, muestra un error 401.",
-        categoryId = 2,
-        priorityId = 1,
-        status = "Abierto",
-        tecnico = "Carlos López",
-        startDate = "2025-10-05 10:23:00"
-    ),
-    Ticket(
-        ticketId = 2,
-        title = "Pantalla en blanco en módulo de reportes",
-        description = "Al acceder a la sección de reportes, la pantalla queda en blanco sin mostrar datos.",
-        categoryId = 3,
-        priorityId = 2,
-        status = "En progreso",
-        tecnico = "María González",
-        startDate = "2025-10-04 14:10:00"
-    ),
-    Ticket(
-        ticketId = 3,
-        title = "Fallo en conexión a base de datos",
-        description = "El sistema no logra conectarse a la base de datos en producción.",
-        categoryId = 1,
-        priorityId = 3,
-        status = "Cerrado",
-        tecnico = "Luis Fernández",
-        startDate = "2025-10-01 08:45:00"
-    ),
-    Ticket(
-        ticketId = 4,
-        title = "Error al generar facturas PDF",
-        description = "Las facturas se descargan con campos vacíos en el documento.",
-        categoryId = 4,
-        priorityId = 2,
-        status = "Abierto",
-        tecnico = "Ana Torres",
-        startDate = "2025-09-30 16:50:00"
-    ),
-    Ticket(
-        ticketId = 5,
-        title = "Problemas con notificaciones push",
-        description = "Las notificaciones no se envían correctamente a los dispositivos Android.",
-        categoryId = 2,
-        priorityId = 1,
-        status = "En progreso",
-        tecnico = "Jorge Ramírez",
-        startDate = "2025-09-28 11:15:00"
-    )
-)
 
-@Composable
-fun TicketScreenPreview() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(mockTickets.size) { index ->
-                TicketAdminPreview(ticket = mockTickets[index])
-            }
-        }
-    }
-}
