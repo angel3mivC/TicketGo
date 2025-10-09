@@ -10,9 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.Spinner
+import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
 @Composable
-fun CreateUserScreen(viewModel: UsersViewModel){
+fun CreateUserScreen(viewModel: UserViewModel){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -48,12 +49,12 @@ fun CreateUserScreen(viewModel: UsersViewModel){
             options = roleOptions
         ) { role = it }
     }
-
+/*
     FormAction(
         buttonText = "Crear",
         isLoading = viewModel.isLoading,
         successMessage = viewModel.successMessage,
         onCreate = { viewModel.createUser(name, email, password, role) },
         context = LocalContext.current
-    )
+    )*/
 }

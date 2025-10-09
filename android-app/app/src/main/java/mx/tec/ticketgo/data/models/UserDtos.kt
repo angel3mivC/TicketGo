@@ -1,25 +1,26 @@
 package mx.tec.ticketgo.data.models
 
-data class User(
-    val id: Int,
-    val name: String,
-    val email: String,
-    val roleId: Int,
-    val state: String
+data class GetUserResponse(
+    val id_usuario: Int,
+    val nombre: String,
+    val correo: String,
+    val id_rol: Int,
+    val estado: String,
+    val fecha_creacion: String
 )
 
-data class UserPrueba(
+data class User(
     val id: Int,
     val nombre: String,
     val correo: String,
-    val rol: Int
+    val id_rol: Int
 )
 
-data class UserRequest(
-    val name: String,
-    val email: String,
-    val password: String,
-    val roleId: Int
+data class CreateUserRequest(
+    val nombre: String,
+    val correo: String,
+    val contraseña: String,
+    val id_rol: Int
 )
 
 data class CreateUserResponse(

@@ -16,9 +16,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.Spinner
+import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @Composable
-fun TicketFormScreen(viewModel: TicketViewModel){
+fun TicketFormScreen(viewModel: TicketsViewModel){
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -77,7 +78,7 @@ fun TicketFormScreen(viewModel: TicketViewModel){
                 hint = "Comentarios*"
             )
         }
-
+/*
         FormAction(
             buttonText = "Crear",
             isLoading = viewModel.isLoading,
@@ -87,6 +88,6 @@ fun TicketFormScreen(viewModel: TicketViewModel){
 
         viewModel.ticketId?.let {
             Toast.makeText(context, "Nuevo ticket $it", Toast.LENGTH_SHORT).show()
-        }
+        }*/
     }
 }

@@ -1,128 +1,54 @@
 package mx.tec.ticketgo.data.repository
 
-import android.content.Context
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import mx.tec.ticketgo.ui.models.Ticket
-import org.json.JSONArray
-import org.json.JSONObject
+import mx.tec.ticketgo.data.models.AssignTicketRequest
+import mx.tec.ticketgo.data.models.ChangeTicketCategoryRequest
+import mx.tec.ticketgo.data.models.ChangeTicketPriorityRequest
+import mx.tec.ticketgo.data.models.ChangeTicketStateRequest
+import mx.tec.ticketgo.data.models.CreateTicketRequest
+import mx.tec.ticketgo.data.network.ApiClient
+import mx.tec.ticketgo.data.models.CreateTicketResponse
+import mx.tec.ticketgo.data.models.GenericResponse
+import mx.tec.ticketgo.data.models.TicketFilterRequest
+import mx.tec.ticketgo.data.remote.TicketService
+import mx.tec.ticketgo.data.models.Ticket
+import mx.tec.ticketgo.data.utils.safeApiCall
 
-class TicketRepository(context: Context) {
-    private val queue = Volley.newRequestQueue(context)
-    private val url = "http://192.168.0.101:3000"
+class TicketRepository() {
+    private val service: TicketService = ApiClient.retrofit.create(TicketService::class.java)
 
-    fun createTicket(
-        title: String,
-        description: String,
-        priorityId: Int,
-        categoryId: Int,
-        status: String,
-        comments: String,
-        onSuccess: (Int) -> Unit,
-        onError: (String) -> Unit
-    ){
-        val url = "$url/tickets/"
-
-        val jsonBody = JSONObject().apply {
-            put("title", title)
-            put("description", description)
-            put("category_id", categoryId)
-            put("priority_id", priorityId)
+    suspend fun getTickets(request: TicketFilterRequest): Result<List<Ticket>> =
+        safeApiCall {
+            service.getTickets(
+                request.estado,
+                request.prioridad,
+                request.tecnico,
+                request.categoria,
+                request.fecha_inicio,
+                request.fecha_fin
+            )
         }
 
-        val request = JsonObjectRequest(
-            Request.Method.POST,
-            url,
-            jsonBody,
-            { response ->
-                try{
-                    onSuccess(response.getInt("ticket_id"))
-                }catch (e: Exception){
-                    onError("${e.message}")
-                }
-            },
-            { error ->
-                onError("${error.message}")
-            }
-        )
+    suspend fun getTicketById(id: Int): Result<Ticket> =
+        safeApiCall { service.getTicketById(id) }
 
-        queue.add(request)
-    }
+    suspend fun createTicket(request: CreateTicketRequest): Result<CreateTicketResponse> =
+        safeApiCall { service.createTicket(request) }
 
-    fun getTickets(
-        estado: String? = null,
-        prioridad: String? = null,
-        tecnico: String? = null,
-        categoria: String? = null,
-        fechaInicio: String? = null,
-        fechaFin: String? = null,
-        callback: (JSONArray?) -> Unit
-    ) {
-        // Base URL
-        val baseUrl = "${url}/tickets/"
+    suspend fun updateTicket(id: Int, request: CreateTicketRequest): Result<GenericResponse> =
+        safeApiCall { service.updateTicket(id, request) }
 
-        // Construimos los query params dinámicamente
-        val queryParams = mutableListOf<String>()
+    suspend fun deleteTicket(id: Int): Result<GenericResponse> =
+        safeApiCall { service.deleteTicket(id) }
 
-        estado?.let { queryParams.add("estado=$it") }
-        prioridad?.let { queryParams.add("prioridad=$it") }
-        tecnico?.let { queryParams.add("tecnico=$it") }
-        categoria?.let { queryParams.add("categoria=$it") }
-        if (fechaInicio != null && fechaFin != null) {
-            queryParams.add("fecha_inicio=$fechaInicio")
-            queryParams.add("fecha_fin=$fechaFin")
-        }
+    suspend fun assignTicket(id: Int, request: AssignTicketRequest): Result<GenericResponse> =
+        safeApiCall { service.assignTicket(id, request) }
 
-        // Construir URL final
-        val finalUrl = if (queryParams.isNotEmpty()) {
-            "$baseUrl?${queryParams.joinToString("&")}"
-        } else {
-            baseUrl
-        }
+    suspend fun changeTicketState(id: Int, request: ChangeTicketStateRequest): Result<GenericResponse> =
+        safeApiCall { service.changeTicketState(id, request) }
 
-        // Petición GET con JsonArrayRequest
-        val request = JsonArrayRequest(
-            Request.Method.GET,
-            finalUrl,  // <-- Usa finalUrl en lugar de url
-            null,
-            { response ->
-                callback(response)
-            },
-            { error ->
-                error.printStackTrace()
-                callback(null)
-            }
-        )
+    suspend fun changeTicketPriority(id: Int, request: ChangeTicketPriorityRequest): Result<GenericResponse> =
+        safeApiCall { service.changeTicketPriority(id, request) }
 
-        queue.add(request)
-    }
-
-    fun parseTickets(jsonArray: JSONArray): List<Ticket> {
-        val tickets = mutableListOf<Ticket>()
-
-        for (i in 0 until jsonArray.length()) {
-            try {
-                val jsonObject = jsonArray.getJSONObject(i)
-
-                val ticket = Ticket(
-                    ticketId = jsonObject.getInt("ticket_id"),
-                    title = jsonObject.getString("title"),
-                    description = jsonObject.getString("description"),
-                    categoryId = jsonObject.getInt("category_id"),
-                    priorityId = jsonObject.getInt("priority_id"),
-                    status = jsonObject.getString("status"),
-                    tecnico = jsonObject.optString("tecnico", null),
-                    startDate = jsonObject.getString("fechaInicio")
-                )
-
-                tickets.add(ticket)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        return tickets
-    }
+    suspend fun changeTicketCategory(id: Int, request: ChangeTicketCategoryRequest): Result<GenericResponse> =
+        safeApiCall { service.changeTicketCategory(id, request) }
 }

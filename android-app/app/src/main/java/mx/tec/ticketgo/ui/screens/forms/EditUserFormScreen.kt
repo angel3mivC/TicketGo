@@ -10,9 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.Spinner
+import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
 @Composable
-fun EditUserScreen(viewModel: UsersViewModel, userId: Int){
+fun EditUserScreen(viewModel: UserViewModel, userId: Int){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -57,6 +58,7 @@ fun EditUserScreen(viewModel: UsersViewModel, userId: Int){
         ) { role = it }
     }
 
+    /*
     FormAction(
         buttonText = "Guardar cambios",
         isLoading = viewModel.isLoading,
@@ -66,5 +68,5 @@ fun EditUserScreen(viewModel: UsersViewModel, userId: Int){
                 viewModel.editUser(userId, name, email, password, role)
        },
         context = LocalContext.current
-    )
+    )*/
 }

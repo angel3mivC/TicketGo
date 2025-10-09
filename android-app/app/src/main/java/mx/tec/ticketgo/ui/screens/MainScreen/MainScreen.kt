@@ -16,10 +16,10 @@ import mx.tec.ticketgo.ui.components.NavBar
 import mx.tec.ticketgo.ui.components.TopBar
 import mx.tec.ticketgo.ui.screens.Home.HomeScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
-import mx.tec.ticketgo.ui.screens.forms.TicketViewModel
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
-import mx.tec.ticketgo.ui.screens.login.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @Composable
 fun MainScreen(){
@@ -27,7 +27,7 @@ fun MainScreen(){
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val ticketViewModel: TicketViewModel = viewModel()
+    val ticketViewModel: TicketsViewModel = viewModel()
 
     val loginViewModel: LoginViewModel = viewModel()
 

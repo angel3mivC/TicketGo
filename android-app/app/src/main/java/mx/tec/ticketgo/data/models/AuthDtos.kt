@@ -8,5 +8,7 @@ data class LoginRequest(
 data class LoginResponse(
     val message: String,
     val token: String,
-    val user: UserPrueba
+    val user: User
 )
+
+// problablemente hay que cambiar el user

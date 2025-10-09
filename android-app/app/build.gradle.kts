@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.datastore.preferences)
     //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -28,6 +28,7 @@ import mx.tec.ticketgo.ui.components.ErrorMessage
 import mx.tec.ticketgo.ui.components.PrimaryButton
 import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.TertiaryButton
+import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel){
@@ -89,7 +90,7 @@ fun LoginScreen(viewModel: LoginViewModel){
         PrimaryButton(
             "Iniciar sesión",
             Modifier.fillMaxWidth(),
-        ){ viewModel.login(email, password) }
+        ){ viewModel.login(email, password, context) }
 
         if (isLoading) {
             Spacer(modifier = Modifier.height(20.dp))

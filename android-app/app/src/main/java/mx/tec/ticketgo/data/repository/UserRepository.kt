@@ -1,86 +1,27 @@
 package mx.tec.ticketgo.data.repository
 
-import android.content.Context
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import org.json.JSONObject
+import mx.tec.ticketgo.data.models.GetUserResponse
+import mx.tec.ticketgo.data.models.CreateUserRequest
+import mx.tec.ticketgo.data.models.CreateUserResponse
+import mx.tec.ticketgo.data.models.GenericResponse
+import mx.tec.ticketgo.data.network.ApiClient
+import mx.tec.ticketgo.data.remote.UserService
+import mx.tec.ticketgo.data.utils.safeApiCall
+class UserRepository() {
+    private val service: UserService = ApiClient.retrofit.create(UserService::class.java)
 
-class UserRepository(context: Context) {
-    private val queue = Volley.newRequestQueue(context)
+    suspend fun getUsers(): Result<List<GetUserResponse>> =
+        safeApiCall { service.getUsers() }
 
-    fun createUser(
-        name: String,
-        email: String,
-        password: String,
-        role: Int,
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-    ){
-        val url = ""
+    suspend fun getUserById(id: Int): Result<GetUserResponse> =
+        safeApiCall { service.getUserByID(id) }
 
-        val jsonBody = JSONObject().apply {
-            put("name", name)
-            put("email", email)
-            put("password", password)
-            put("role", role)
-            put("state", "")
-        }
+    suspend fun createUser(request: CreateUserRequest): Result<CreateUserResponse> =
+        safeApiCall { service.createUser(request) }
 
-        val request = JsonObjectRequest(
-            Request.Method.POST,
-            url,
-            jsonBody,
-            { response ->
-                try{
-                    onSuccess(response.getString("message"))
-                }catch (e: Exception){
-                    onError("${e.message}")
-                }
-            },
-            { error ->
-                onError("${error.message}")
-            }
-        )
+    suspend fun updateUser(id: Int, request: CreateUserRequest): Result<GenericResponse> =
+        safeApiCall { service.updateUser(id, request) }
 
-        queue.add(request)
-    }
-
-    fun editUser(
-        userId: Int,
-        name: String,
-        email: String,
-        password: String,
-        roleId: Int,
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-    ){
-        val url = "$userId"
-
-        val jsonBody = JSONObject().apply {
-            put("name", name)
-            put("email", email)
-            put("password", password)
-            put("role_id", roleId)
-            put("state", "")
-        }
-
-        val request = JsonObjectRequest(
-            Request.Method.PUT,
-            url,
-            jsonBody,
-            { response ->
-                try{
-                    onSuccess("${response.getString("message")}")
-                }catch (e: Error){
-                    onError("${e.message}")
-                }
-            },
-            { error ->
-                onError("${error.message}")
-            }
-        )
-
-        queue.add(request)
-    }
+    suspend fun deleteUser(id: Int): Result<GenericResponse> =
+        safeApiCall { service.deleteUser(id) }
 }
