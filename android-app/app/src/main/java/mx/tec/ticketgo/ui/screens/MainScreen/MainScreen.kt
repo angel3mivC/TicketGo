@@ -38,17 +38,29 @@ fun MainScreen(){
                 "historial" -> TopBar("Crear ticket", navController)
             }
         },
-        //bottomBar = {NavBar(navController, currentRoute, Icons.Default.Add, "gallery")}
-    ) { innerPadding ->
-        /*NavHost(
+        bottomBar = {
+            if (currentRoute in listOf("mesaHome", "adminHome")) {
+                when (currentRoute) {
+                    "mesaHome" -> NavBar(navController, currentRoute, Icons.Default.Add, "TicketFormScreen")
+                    "adminHome" -> NavBar(navController, currentRoute, Icons.Default.Add, "Gallery")
+                }
+            }
+        }
+    ) {innerPadding ->
+        NavHost(
             navController = navController,
             startDestination = "inicio",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("inicio") { HomeScreen() }
-            composable("gallery") { GalleryScreen() }
-            composable("historial") { TicketFormScreen(ticketViewModel) }
-        }*/
+        composable("inicio") { LoginScreen(loginViewModel, navController) }
+        composable("gallery") { GalleryScreen() }
+        composable("historial") { TicketFormScreen(ticketViewModel) }
+        composable("tecnicoHome") { tecnicoHomeScreen() }
+        composable("adminHome") { adminHomeScreen() }
+        composable("mesaHome") { mesaHomeScreen() }
+    }
+
+    }
 
 
 

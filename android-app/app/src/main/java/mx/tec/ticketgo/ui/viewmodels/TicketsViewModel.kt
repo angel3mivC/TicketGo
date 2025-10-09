@@ -19,8 +19,22 @@ class TicketsViewModel(private val repository: TicketRepository): BaseViewModel(
     private val _ticket = MutableStateFlow<Ticket?>(null)
     val ticket: StateFlow<Ticket?> = _ticket
 
-    fun getTickets(){
-        val request = TicketFilterRequest()
+    fun getTickets(
+        state: Int? = null,
+        priority: Int? = null,
+        technician: Int? = null,
+        category: Int? = null,
+        startDate: String? = null,
+        endDate: String? = null
+    ){
+        val request = TicketFilterRequest(
+            state,
+            priority,
+            technician,
+            category,
+            startDate,
+            endDate
+        )
         safeCall(
             action = { repository.getTickets(request) },
             onSuccess = { _tickets.value = it}

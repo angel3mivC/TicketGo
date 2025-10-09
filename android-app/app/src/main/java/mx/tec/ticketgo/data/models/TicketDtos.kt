@@ -14,8 +14,8 @@ data class Ticket(
 )
 
 data class TicketFilterRequest(
-    val estado: String? = null,
-    val prioridad: String? = null,
+    val estado: Int? = null,
+    val prioridad: Int? = null,
     val tecnico: Int? = null,
     val categoria: Int? = null,
     val fecha_inicio: String? = null,

@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.ui.models.Ticket
+import mx.tec.ticketgo.data.models.Ticket
 
 
 // Versión alternativa más simple si quieres solo la línea punteada inferior
@@ -32,19 +32,19 @@ fun TicketTecnicoPreview(ticket: Ticket) {
     ) {
 
         TicketTop(
-            titulo = ticket.title,
-            fechaHora = ticket.startDate,
-            estado = ticket.status
+            titulo = ticket.titulo,
+            fechaHora = ticket.fecha_creacion,
+            estado = ticket.estado!!
         )
 
         BodyText(
-            text = ticket.description,
+            text = ticket.descripcion,
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
         TicketButtomChips(
-            prioridad = ticket.priorityId,
-            categoria = ticket.categoryId
+            prioridad = ticket.prioridad!!.toInt(),
+            categoria = ticket.categoria!!.toInt()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -65,9 +65,9 @@ fun TicketAdminPreview(ticket: Ticket) {
     ) {
 
         TicketTop(
-            titulo = ticket.title,
-            fechaHora = ticket.startDate,
-            estado = ticket.status
+            titulo = ticket.titulo,
+            fechaHora = ticket.fecha_creacion,
+            estado = ticket.estado!!
         )
 
         Row(
@@ -75,13 +75,13 @@ fun TicketAdminPreview(ticket: Ticket) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             BodyText(
-                text = ticket.description,
+                text = ticket.descripcion,
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .weight(2f)
             )
 
-            ticket.tecnico?.let { nombre ->
+            ticket.asignado_a?.let { nombre ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
@@ -96,8 +96,8 @@ fun TicketAdminPreview(ticket: Ticket) {
         }
 
         TicketButtomChips(
-            prioridad = ticket.priorityId,  // Temporal hasta que arregles el backend
-            categoria = ticket.categoryId   // Temporal hasta que arregles el backend
+            prioridad = ticket.prioridad!!.toInt(),  // Temporal hasta que arregles el backend
+            categoria = ticket.categoria!!.toInt()   // Temporal hasta que arregles el backend
         )
         LineaPunteada()
     }

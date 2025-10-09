@@ -20,8 +20,8 @@ import retrofit2.http.Query
 interface TicketService {
     @GET("tickets/")
     suspend fun getTickets(
-        @Query("estado") state: String? = null,
-        @Query("prioridad") priority: String? = null,
+        @Query("estado") state: Int? = null,
+        @Query("prioridad") priority: Int? = null,
         @Query("tecnico") technician: Int? = null,
         @Query("categoria") category: Int? = null,
         @Query("fecha_inicio") startDate: String? = null,
