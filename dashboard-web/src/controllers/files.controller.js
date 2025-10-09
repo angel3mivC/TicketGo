@@ -1,15 +1,15 @@
 import pool from "../helpers/mysql-config.js";
+import fs from "fs";
 
-const getFiles = async (req, res) => {
+export const getFiles = async (req, res) => {
     try {
         const { id } = req.params;
 
         const [rows] = await pool.query(
-            `SELECT a.id_adjunto, a.nombre_archivo, a.tipo_archivo, a.url_archivo, a.fecha, u.nombre AS subido_por
-            FROM adjuntos a
-            INNER JOIN usuarios u ON a.id_usuario = u.id_usuario
-            WHERE a.id_ticket = ?
-            ORDER BY a.fecha ASC`,
+            `SELECT id_adjunto, nombre_archivo, tipo_archivo, nombre_original, tipo_mime, fecha
+            FROM adjuntos
+            WHERE id_ticket = ?
+            ORDER BY fecha ASC`,
             [id]
         );
 
@@ -20,15 +20,44 @@ const getFiles = async (req, res) => {
     }
 };
 
-const uploadFile = async (req, res) => {
+export const downloadFile = async (req, res) => {
     try {
-        const { id } = req.params; // id del ticket
-        const { nombre_archivo, tipo_archivo, url_archivo } = req.body;
+        const { id } = req.params;
+
+        const [rows] = await pool.query(
+            "SELECT nombre_original, tipo_mime, archivo FROM adjuntos WHERE id_adjunto = ?",
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Archivo no encontrado" });
+        }
+
+        const file = rows[0];
+        res.setHeader("Content-Type", file.tipo_mime);
+        res.setHeader("Content-Disposition", `attachment; filename="${file.nombre_original}"`);
+        res.send(file.archivo);
+    } catch (error) {
+        console.error("Error al descargar archivo:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
+export const uploadFile = async (req, res) => {
+    try {
+        const { id } = req.params;
         const id_usuario = req.user.id_usuario;
 
-        if (!nombre_archivo || !tipo_archivo || !url_archivo) {
-            return res.status(400).json({ message: "Datos de archivo incompletos" });
+        if (!req.files || !req.files.file) {
+            return res.status(400).json({ message: "No se envió ningún archivo" });
         }
+
+        const uploadedFile = req.files.file;
+        const buffer = uploadedFile.data;
+        const tipo_mime = uploadedFile.mimetype;
+        const nombre_original = uploadedFile.name;
+        const nombre_archivo = req.body.nombre_archivo || nombre_original;
+        const tipo_archivo = tipo_mime.split("/")[0];
 
         const [ticket] = await pool.query("SELECT id_ticket FROM tickets WHERE id_ticket = ?", [id]);
         if (ticket.length === 0) {
@@ -36,12 +65,13 @@ const uploadFile = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            "INSERT INTO adjuntos (id_ticket, id_usuario, nombre_archivo, tipo_archivo, url_archivo) VALUES (?, ?, ?, ?, ?)",
-            [id, id_usuario, nombre_archivo, tipo_archivo, url_archivo]
+            `INSERT INTO adjuntos (id_ticket, id_usuario, nombre_archivo, tipo_archivo, archivo, nombre_original, tipo_mime)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [id, id_usuario, nombre_archivo, tipo_archivo, buffer, nombre_original, tipo_mime]
         );
 
         res.status(201).json({
-            message: "Archivo agregado correctamente",
+            message: "Archivo guardado correctamente en la base de datos",
             id_adjunto: result.insertId,
         });
     } catch (error) {
@@ -50,7 +80,7 @@ const uploadFile = async (req, res) => {
     }
 };
 
-const deleteFile = async (req, res) => {
+export const deleteFile = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -60,12 +90,9 @@ const deleteFile = async (req, res) => {
         }
 
         await pool.query("DELETE FROM adjuntos WHERE id_adjunto = ?", [id]);
-
         res.json({ message: "Archivo eliminado correctamente" });
     } catch (error) {
         console.error("Error al eliminar archivo:", error);
         res.status(500).json({ message: "Error interno del servidor" });
     }
 };
-
-export { getFiles, uploadFile, deleteFile };

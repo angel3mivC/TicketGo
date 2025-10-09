@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS TicketGo;
 CREATE DATABASE TicketGo;
 USE TicketGo;
 
@@ -93,12 +94,15 @@ CREATE TABLE adjuntos (
     id_usuario INT NOT NULL,
     nombre_archivo VARCHAR(255) NOT NULL,
     tipo_archivo VARCHAR(50) NOT NULL,
-    url_archivo VARCHAR(500) NOT NULL,
+    archivo LONGBLOB,
+    nombre_original VARCHAR(255),
+    tipo_mime VARCHAR(100),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_ticket) REFERENCES tickets(id_ticket),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
+--Encriptar contraseña antes de insertar
 DELIMITER //
 CREATE TRIGGER before_insert_usuario
 BEFORE INSERT ON usuarios
@@ -109,6 +113,7 @@ END;
 //
 DELIMITER ;
 
+--Encriptar contraseña antes de actualizar
 DELIMITER //
 CREATE TRIGGER before_update_usuario
 BEFORE UPDATE ON usuarios
@@ -121,6 +126,7 @@ END;
 //
 DELIMITER ;
 
+--Historial al crear ticket
 DELIMITER //
 CREATE TRIGGER after_insert_ticket
 AFTER INSERT ON tickets
@@ -132,6 +138,7 @@ END;
 //
 DELIMITER ;
 
+--Historial y notificación al cambiar estado
 DELIMITER //
 CREATE TRIGGER after_update_estado_ticket
 AFTER UPDATE ON tickets
@@ -140,7 +147,6 @@ BEGIN
     IF NEW.id_estado <> OLD.id_estado THEN
         INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
         VALUES (NEW.id_ticket, NEW.asignado_a, 'Cambio de Estado', CONCAT('Estado cambiado de ', OLD.id_estado, ' a ', NEW.id_estado));
-
         INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
         VALUES (NEW.creado_por, NEW.id_ticket, CONCAT('El estado del ticket #', NEW.id_ticket, ' cambió a ', NEW.id_estado));
     END IF;
@@ -148,6 +154,7 @@ END;
 //
 DELIMITER ;
 
+--Historial y notificación al reasignar técnico
 DELIMITER //
 CREATE TRIGGER after_update_asignacion_ticket
 AFTER UPDATE ON tickets
@@ -156,7 +163,6 @@ BEGIN
     IF NEW.asignado_a <> OLD.asignado_a THEN
         INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
         VALUES (NEW.id_ticket, NEW.asignado_a, 'Reasignación', CONCAT('Ticket reasignado de usuario ', OLD.asignado_a, ' a usuario ', NEW.asignado_a));
-
         INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
         VALUES (NEW.asignado_a, NEW.id_ticket, CONCAT('Se te asignó el ticket #', NEW.id_ticket));
     END IF;
@@ -164,6 +170,7 @@ END;
 //
 DELIMITER ;
 
+--Notificación al agregar comentario
 DELIMITER //
 CREATE TRIGGER after_insert_comentario
 AFTER INSERT ON comentarios
@@ -176,6 +183,7 @@ END;
 //
 DELIMITER ;
 
+--Notificación al subir adjunto
 DELIMITER //
 CREATE TRIGGER after_insert_adjunto
 AFTER INSERT ON adjuntos
@@ -183,119 +191,6 @@ FOR EACH ROW
 BEGIN
     INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
     VALUES (NEW.id_usuario, NEW.id_ticket, CONCAT('Se adjuntó un nuevo archivo: ', NEW.nombre_archivo));
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER after_insert_ticket
-AFTER INSERT ON tickets
-FOR EACH ROW
-BEGIN
-    INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
-    VALUES (NEW.id_ticket, NEW.creado_por, 'Creación de Ticket', CONCAT('Ticket creado con título: ', NEW.titulo));
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER after_update_estado_ticket
-AFTER UPDATE ON tickets
-FOR EACH ROW
-BEGIN
-    IF NEW.id_estado <> OLD.id_estado THEN
-        INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
-        VALUES (NEW.id_ticket, NEW.asignado_a, 'Cambio de Estado', CONCAT('Estado cambiado de ', OLD.id_estado, ' a ', NEW.id_estado));
-
-        INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-        VALUES (NEW.creado_por, NEW.id_ticket, CONCAT('El estado del ticket #', NEW.id_ticket, ' cambió a ', NEW.id_estado));
-    END IF;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER after_update_asignacion_ticket
-AFTER UPDATE ON tickets
-FOR EACH ROW
-BEGIN
-    IF NEW.asignado_a <> OLD.asignado_a THEN
-        INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
-        VALUES (NEW.id_ticket, NEW.asignado_a, 'Reasignación', CONCAT('Ticket reasignado de usuario ', OLD.asignado_a, ' a usuario ', NEW.asignado_a));
-
-        INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-        VALUES (NEW.asignado_a, NEW.id_ticket, CONCAT('Se te asignó el ticket #', NEW.id_ticket));
-    END IF;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER after_insert_comentario
-AFTER INSERT ON comentarios
-FOR EACH ROW
-BEGIN
-    INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-    SELECT asignado_a, NEW.id_ticket, CONCAT('Nuevo comentario en el ticket #', NEW.id_ticket, ': ', NEW.comentario)
-    FROM tickets WHERE id_ticket = NEW.id_ticket;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER after_insert_adjunto
-AFTER INSERT ON adjuntos
-FOR EACH ROW
-BEGIN
-    INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-    VALUES (NEW.id_usuario, NEW.id_ticket, CONCAT('Se adjuntó un nuevo archivo: ', NEW.nombre_archivo));
-END;
-//
-DELIMITER ;
-
-ALTER TABLE usuarios ADD ultima_sesion TIMESTAMP NULL;
-
-DELIMITER //
-CREATE TRIGGER update_ultima_sesion
-AFTER UPDATE ON usuarios
-FOR EACH ROW
-BEGIN
-    IF NEW.estado = 'Activo' AND OLD.estado = 'Activo' THEN
-        SET NEW.ultima_sesion = CURRENT_TIMESTAMP;
-    END IF;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER validar_adjunto
-BEFORE INSERT ON adjuntos
-FOR EACH ROW
-BEGIN
-    IF NOT (NEW.tipo_archivo IN ('jpg','png','pdf','docx')) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de archivo no permitido';
-    END IF;
-END;
-//
-DELIMITER ;
-
-CREATE TABLE tickets_alertas (
-    id_alerta INT AUTO_INCREMENT PRIMARY KEY,
-    id_ticket INT NOT NULL,
-    mensaje TEXT NOT NULL,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_ticket) REFERENCES tickets(id_ticket)
-);
-
-DELIMITER //
-CREATE TRIGGER after_update_ticket_inactividad
-AFTER UPDATE ON tickets
-FOR EACH ROW
-BEGIN
-    IF TIMESTAMPDIFF(DAY, OLD.fecha_actualizacion, NEW.fecha_actualizacion) > 7 THEN
-        INSERT INTO tickets_alertas(id_ticket, mensaje)
-        VALUES (NEW.id_ticket, CONCAT('El ticket #', NEW.id_ticket, ' lleva más de 7 días sin movimiento.'));
-    END IF;
 END;
 //
 DELIMITER ;
