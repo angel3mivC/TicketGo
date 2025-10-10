@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "http://10.49.186.5:3000/"
+    private const val BASE_URL = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/"
 
     private val okHttp = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)

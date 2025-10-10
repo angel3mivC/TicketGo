@@ -11,7 +11,7 @@ import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.data.models.TicketFilterRequest
 import mx.tec.ticketgo.data.repository.TicketRepository
 
-class TicketsViewModel(private val repository: TicketRepository): BaseViewModel() {
+class TicketsViewModel(private val repository: TicketRepository = TicketRepository()): BaseViewModel() {
 
     private val _tickets = MutableStateFlow<List<Ticket>>(emptyList())
     val tickets: StateFlow<List<Ticket>> = _tickets

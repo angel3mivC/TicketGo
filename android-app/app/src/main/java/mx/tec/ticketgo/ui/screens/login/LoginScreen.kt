@@ -1,6 +1,6 @@
 package mx.tec.ticketgo.ui.screens.login
 
-import android.widget.Toast
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,25 +18,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.ui.components.Annoucement
 import mx.tec.ticketgo.ui.components.ErrorMessage
-
 import mx.tec.ticketgo.ui.components.PrimaryButton
 import mx.tec.ticketgo.ui.components.InputTextField
-import mx.tec.ticketgo.ui.components.TertiaryButton
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel){
-    val context = LocalContext.current
-
+fun LoginScreen(viewModel: LoginViewModel, context: Context){
     val isLoading by viewModel.isLoading.collectAsState()
     val message by viewModel.message.collectAsState()
-    val token by viewModel.token.collectAsState()
-    val userRole by viewModel.userRole.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -72,19 +64,13 @@ fun LoginScreen(viewModel: LoginViewModel){
             error = message?.contains("contraseña", ignoreCase = true) == true
         )
 
-        TertiaryButton(
-            "¿Olvidaste la contraseña?",
-            modifier = Modifier.padding(top = 10.dp),
-            ({
-                Toast.makeText(context, "Recuperar contraseña", Toast.LENGTH_SHORT).show()
-            })
-        )
-
         Spacer(modifier = Modifier.height(40.dp))
 
         message?.let {
-            ErrorMessage(it)
-            Spacer(modifier = Modifier.height(40.dp))
+            if(message != "Login exitoso") {
+                ErrorMessage(it)
+                Spacer(modifier = Modifier.height(40.dp))
+            }
         }
 
         PrimaryButton(
@@ -96,13 +82,5 @@ fun LoginScreen(viewModel: LoginViewModel){
             Spacer(modifier = Modifier.height(20.dp))
             CircularProgressIndicator()
         }
-
-        LaunchedEffect(token) {
-            token?.let {
-                Toast.makeText(context, "Login OK. Token: $it", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        Text(userRole.toString())
     }
 }
