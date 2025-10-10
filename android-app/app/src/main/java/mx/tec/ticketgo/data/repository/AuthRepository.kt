@@ -1,9 +1,9 @@
 package mx.tec.ticketgo.data.repository
 
-import mx.tec.ticketgo.data.network.ApiClient
 import mx.tec.ticketgo.data.models.GenericResponse
 import mx.tec.ticketgo.data.models.LoginRequest
 import mx.tec.ticketgo.data.models.LoginResponse
+import mx.tec.ticketgo.data.network.ApiClient
 import mx.tec.ticketgo.data.remote.AuthService
 import mx.tec.ticketgo.data.utils.safeApiCall
 

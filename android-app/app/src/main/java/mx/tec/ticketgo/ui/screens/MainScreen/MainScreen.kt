@@ -56,7 +56,7 @@ fun MainScreen(){
             startDestination = "inicio",
             modifier = Modifier.padding(innerPadding)
         ) {
-        composable("inicio") { LoginScreen(loginViewModel, context) }
+        composable("inicio") { LoginScreen(loginViewModel, context, navController) }
         composable("gallery") { GalleryScreen() }
         composable("historial") { TicketFormScreen(ticketViewModel) }
         composable("tecnicoHome") { tecnicoHomeScreen() }

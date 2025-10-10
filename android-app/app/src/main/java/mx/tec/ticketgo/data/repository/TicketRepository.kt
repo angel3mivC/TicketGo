@@ -5,12 +5,12 @@ import mx.tec.ticketgo.data.models.ChangeTicketCategoryRequest
 import mx.tec.ticketgo.data.models.ChangeTicketPriorityRequest
 import mx.tec.ticketgo.data.models.ChangeTicketStateRequest
 import mx.tec.ticketgo.data.models.CreateTicketRequest
-import mx.tec.ticketgo.data.network.ApiClient
 import mx.tec.ticketgo.data.models.CreateTicketResponse
 import mx.tec.ticketgo.data.models.GenericResponse
 import mx.tec.ticketgo.data.models.TicketFilterRequest
 import mx.tec.ticketgo.data.remote.TicketService
 import mx.tec.ticketgo.data.models.Ticket
+import mx.tec.ticketgo.data.network.ApiClient
 import mx.tec.ticketgo.data.utils.safeApiCall
 
 class TicketRepository() {

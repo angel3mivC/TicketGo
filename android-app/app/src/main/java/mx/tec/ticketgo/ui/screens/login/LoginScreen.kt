@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import mx.tec.ticketgo.ui.components.Annoucement
 import mx.tec.ticketgo.ui.components.ErrorMessage
 import mx.tec.ticketgo.ui.components.PrimaryButton
@@ -27,7 +28,7 @@ import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel, context: Context){
+fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavController){
     val isLoading by viewModel.isLoading.collectAsState()
     val message by viewModel.message.collectAsState()
 
@@ -70,6 +71,19 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context){
             if(message != "Login exitoso") {
                 ErrorMessage(it)
                 Spacer(modifier = Modifier.height(40.dp))
+            }
+            else{
+                val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                val userId = sharedPref.getInt("id_usuario",-1)
+                when (userId) {
+                    1 -> navController.navigate("adminHome")
+                    2 -> navController.navigate("mesaHome")
+                    3 -> navController.navigate("tecnicoHome")
+                    else -> navController.navigate("inicio")
+                }
+
+
+
             }
         }
 

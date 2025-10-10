@@ -119,7 +119,7 @@ fun TecnicoTicketScreen(viewModel: TicketsViewModel, id: Int) {
                     items(
                         count = tickets.size
                     ) { index ->
-                        TicketTecnicoPreview(ticket = tickets[index])
+                        TicketTecnicoPreview(ticket = tickets[index], {})
                     }
                 }
             }

@@ -9,7 +9,7 @@ import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 
 fun tecnicoHomeScreen(){
     Text(
-        "Inicio mesa"
+        "Inicio tecnico"
     )
 }
 @Composable

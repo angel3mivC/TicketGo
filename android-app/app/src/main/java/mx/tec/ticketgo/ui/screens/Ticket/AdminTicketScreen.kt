@@ -75,7 +75,7 @@ fun AdminTicketScreen() {
                         count = tickets.size
                     ) { index ->
                         val ticket = tickets[index]
-                        TicketAdminPreview(ticket = ticket)
+                        //TicketAdminPreview(ticket = ticket)
                     }
                 }
             }
@@ -85,6 +85,8 @@ fun AdminTicketScreen() {
 
 val mockTickets = emptyList<Ticket>()
 
+
+/*
 @Composable
 fun TicketScreenPreview() {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -95,3 +97,4 @@ fun TicketScreenPreview() {
         }
     }
 }
+*/
