@@ -3,7 +3,6 @@ package mx.tec.ticketgo.ui.screens.MainScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,27 +14,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import mx.tec.ticketgo.ui.components.NavBar
 import mx.tec.ticketgo.ui.components.TopBar
-import mx.tec.ticketgo.ui.models.Ticket
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
-import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
-import mx.tec.ticketgo.ui.screens.forms.TicketViewModel
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
-import mx.tec.ticketgo.ui.screens.login.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @Composable
 fun MainScreen(){
-
-
-
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val ticketViewModel: TicketViewModel = viewModel()
+
+    val ticketViewModel: TicketsViewModel = viewModel()
 
     val loginViewModel: LoginViewModel = viewModel()
 
@@ -54,24 +49,19 @@ fun MainScreen(){
                 }
             }
         }
-
-    ) { innerPadding ->
+    ) {innerPadding ->
         NavHost(
             navController = navController,
             startDestination = "inicio",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("inicio") { LoginScreen(loginViewModel, navController) }
-            composable("gallery") { GalleryScreen() }
-            composable("historial") { TicketFormScreen(ticketViewModel) }
-            composable("tecnicoHome") { tecnicoHomeScreen() }
-            composable("adminHome") { adminHomeScreen() }
-            composable("mesaHome") { mesaHomeScreen() }
-        }
-
-
-
-
+        composable("inicio") { LoginScreen(loginViewModel) }
+        composable("gallery") { GalleryScreen() }
+        composable("historial") { TicketFormScreen(ticketViewModel) }
+        composable("tecnicoHome") { tecnicoHomeScreen() }
+        composable("adminHome") { adminHomeScreen() }
+        composable("mesaHome") { mesaHomeScreen() }
+    }
 
     }
 }

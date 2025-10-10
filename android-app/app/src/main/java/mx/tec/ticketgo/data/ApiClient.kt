@@ -1,4 +1,4 @@
-package mx.tec.ticketgo.data
+package mx.tec.ticketgo.data.network
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -7,11 +7,12 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private val BASE_URL = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/"
+    private const val BASE_URL = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/"
 
     private val okHttp = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor(AuthInterceptor())
         .build()
 
     val retrofit: Retrofit by lazy {

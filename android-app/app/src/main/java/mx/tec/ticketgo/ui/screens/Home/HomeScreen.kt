@@ -5,10 +5,13 @@ import androidx.compose.runtime.Composable
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 
 @Composable
-fun tecnicoHomeScreen(){
-    TecnicoTicketScreen()
-}
 
+
+fun tecnicoHomeScreen(){
+    Text(
+        "Inicio mesa"
+    )
+}
 @Composable
 fun mesaHomeScreen(){
     Text(
