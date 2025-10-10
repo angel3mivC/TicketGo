@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +15,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import mx.tec.ticketgo.ui.components.NavBar
 import mx.tec.ticketgo.ui.components.TopBar
-import mx.tec.ticketgo.ui.screens.Home.HomeScreen
+import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
+import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
+import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
@@ -26,6 +29,7 @@ fun MainScreen(){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = LocalContext.current
 
     val ticketViewModel: TicketsViewModel = viewModel()
 
@@ -52,7 +56,7 @@ fun MainScreen(){
             startDestination = "inicio",
             modifier = Modifier.padding(innerPadding)
         ) {
-        composable("inicio") { LoginScreen(loginViewModel, navController) }
+        composable("inicio") { LoginScreen(loginViewModel, context) }
         composable("gallery") { GalleryScreen() }
         composable("historial") { TicketFormScreen(ticketViewModel) }
         composable("tecnicoHome") { tecnicoHomeScreen() }
@@ -60,11 +64,5 @@ fun MainScreen(){
         composable("mesaHome") { mesaHomeScreen() }
     }
 
-    }
-
-
-
-
-        LoginScreen(loginViewModel)
     }
 }
