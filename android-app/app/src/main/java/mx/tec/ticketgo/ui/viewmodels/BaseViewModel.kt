@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 open class BaseViewModel : ViewModel() {
     protected val _isLoading = MutableStateFlow(false)
@@ -23,7 +24,13 @@ open class BaseViewModel : ViewModel() {
                 val result = action()
                 result.onSuccess(onSuccess)
                 result.onFailure { e ->
-                    _message.value = e.message ?: "Uknown error"
+                    _message.value = try {
+                        e.message?.let {
+                            JSONObject(it).optString("message", it)
+                        } ?: "Unknown error"
+                    } catch (_: Exception) {
+                        e.message ?: "Unknown error"
+                    }
                 }
             } finally {
                 _isLoading.value = false
