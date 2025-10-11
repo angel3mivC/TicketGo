@@ -19,6 +19,9 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
     private val _ticket = MutableStateFlow<Ticket?>(null)
     val ticket: StateFlow<Ticket?> = _ticket
 
+    private val _ticketId = MutableStateFlow<Int?>(null)
+    val ticketId: StateFlow<Int?> = _ticketId
+
     fun getTickets(
         state: Int? = null,
         priority: Int? = null,
@@ -52,7 +55,10 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
         val request = CreateTicketRequest(title, description, categoryId, priorityId)
         safeCall(
             action = { repository.createTicket(request) },
-            onSuccess = { _message.value = it.message }
+            onSuccess = {
+                _message.value = it.message
+                _ticketId.value = it.ticket_id
+            }
         )
     }
 

@@ -30,6 +30,7 @@ import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavController){
     val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
     val message by viewModel.message.collectAsState()
 
     var email by remember { mutableStateOf("") }
@@ -53,7 +54,7 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
             modifier = Modifier.fillMaxWidth(),
             onValueChange = {email = it},
             hint = "Email",
-            error = message?.contains("correo", ignoreCase = true) == true
+            error = error
         )
 
         InputTextField(
@@ -62,17 +63,15 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
             onValueChange = {password = it},
             hint = "Contraseña",
             keyboard = KeyboardType.Password,
-            error = message?.contains("contraseña", ignoreCase = true) == true
+            error = error
         )
 
         Spacer(modifier = Modifier.height(40.dp))
 
         message?.let {
-            if(message != "Login exitoso") {
+            if(error) {
                 ErrorMessage(it)
-                Spacer(modifier = Modifier.height(40.dp))
-            }
-            else{
+            }else{
                 val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
                 val userId = sharedPref.getInt("id_usuario",-1)
                 when (userId) {
@@ -81,9 +80,6 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
                     3 -> navController.navigate("tecnicoHome")
                     else -> navController.navigate("inicio")
                 }
-
-
-
             }
         }
 

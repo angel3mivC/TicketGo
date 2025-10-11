@@ -2,9 +2,12 @@ package mx.tec.ticketgo.ui.viewmodels
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import mx.tec.ticketgo.data.models.LoginRequest
+import mx.tec.ticketgo.data.network.TokenStorage
 import mx.tec.ticketgo.data.repository.AuthRepository
 
 class LoginViewModel(private val repository: AuthRepository = AuthRepository()): BaseViewModel() {
@@ -29,6 +32,10 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
                 sharedPref.edit {
                     putString("auth_token", it.token)
                     putInt("id_usuario", it.user.id)
+                }
+
+                viewModelScope.launch {
+                    TokenStorage.saveToken(it.token)
                 }
             }
         )

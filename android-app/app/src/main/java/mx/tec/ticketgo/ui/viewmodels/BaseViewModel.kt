@@ -14,6 +14,9 @@ open class BaseViewModel : ViewModel() {
     protected val _message = MutableStateFlow<String?>(null)
     val message = _message.asStateFlow()
 
+    protected val _error = MutableStateFlow<Boolean>(false)
+    val error = _error.asStateFlow()
+
     protected fun <T> safeCall(
         action: suspend () -> Result<T>,
         onSuccess: (T) -> Unit
@@ -22,8 +25,12 @@ open class BaseViewModel : ViewModel() {
             _isLoading.value = true
             try {
                 val result = action()
-                result.onSuccess(onSuccess)
+                result.onSuccess {
+                    _error.value = false
+                    onSuccess(it)
+                }
                 result.onFailure { e ->
+                    _error.value = true
                     _message.value = try {
                         e.message?.let {
                             JSONObject(it).optString("message", it)
