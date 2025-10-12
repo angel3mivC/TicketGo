@@ -6,7 +6,7 @@ import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.data.models.CreateCommentRequest
 import mx.tec.ticketgo.data.repository.CommentsRepository
 
-class CommentsViewModel(private val repository: CommentsRepository): BaseViewModel() {
+class CommentsViewModel(private val repository: CommentsRepository = CommentsRepository()): BaseViewModel() {
 
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comment: StateFlow<List<Comment>> = _comments

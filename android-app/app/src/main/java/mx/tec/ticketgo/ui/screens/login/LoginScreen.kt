@@ -74,8 +74,8 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
             }
             else{
                 val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-                val userId = sharedPref.getInt("id_usuario",-1)
-                when (userId) {
+                val rolId = sharedPref.getInt("id_usuario",-1)
+                when (rolId) {
                     1 -> navController.navigate("adminHome")
                     2 -> navController.navigate("mesaHome")
                     3 -> navController.navigate("tecnicoHome")

@@ -21,6 +21,7 @@ import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
+import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
@@ -32,6 +33,7 @@ fun MainScreen(){
     val context = LocalContext.current
 
     val ticketViewModel: TicketsViewModel = viewModel()
+    val commentViewModel: CommentsViewModel = viewModel()
 
     val loginViewModel: LoginViewModel = viewModel()
 
@@ -59,8 +61,8 @@ fun MainScreen(){
         composable("inicio") { LoginScreen(loginViewModel, context, navController) }
         composable("gallery") { GalleryScreen() }
         composable("historial") { TicketFormScreen(ticketViewModel) }
-        composable("tecnicoHome") { tecnicoHomeScreen() }
-        composable("adminHome") { adminHomeScreen() }
+        composable("tecnicoHome") { tecnicoHomeScreen(ticketViewModel) }
+        composable("adminHome") { adminHomeScreen(commentViewModel,ticketViewModel, navController) }
         composable("mesaHome") { mesaHomeScreen() }
     }
 

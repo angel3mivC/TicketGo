@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mx.tec.ticketgo.ui.models.Comment
+import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.ui.theme.ChipsBlue
 import mx.tec.ticketgo.ui.theme.ChipsGray
 import mx.tec.ticketgo.ui.theme.ChipsGreen
@@ -47,38 +47,22 @@ import mx.tec.ticketgo.ui.theme.ChipsRed
 import mx.tec.ticketgo.ui.theme.ChipsYellow
 
 @Composable
-fun TicketButtomChips(prioridad: Int, categoria: Int) {
-
-    //Crear valores de prioridad, estado y categoria asi como sus colores para asignarlos en los chips
-    val valorPrioridad = when(prioridad) {
-        1 -> "Baja"
-        2 -> "Media"
-        3 -> "Alta"
-        else -> "Prioridad indefinida"
-    }
-    val colorPrioridad = when(valorPrioridad) {
+fun TicketButtomChips(prioridad: String, categoria: String) {
+    val colorPrioridad = when(prioridad) {
         "Baja" -> MaterialTheme.colorScheme.ChipsGreen
         "Media" -> MaterialTheme.colorScheme.ChipsYellow
         "Alta" -> MaterialTheme.colorScheme.ChipsRed
         else -> MaterialTheme.colorScheme.outline
     }
-
-    val valorCategoria = when(categoria) {
-        1 -> "Categoría 1"
-        2 -> "Categoría 2"
-        3 -> "Categoría 3"
-        4 -> "Categoría 4"
-        else -> "Categoría indefinida"
-    }
     Row(
         modifier = Modifier.padding(top = 8.dp)
     ) {
         Chip(
-            text = valorCategoria,
+            text = categoria,
             color = Color.DarkGray, // SE DEBE USAR UN COLOR DE COLOR THEME
             modifier = Modifier.padding(end = 8.dp)
         )
-        DotChip(valorPrioridad, colorPrioridad)
+        DotChip(prioridad, colorPrioridad)
     }
 }
 
@@ -86,7 +70,7 @@ fun TicketButtomChips(prioridad: Int, categoria: Int) {
 fun TicketTop(titulo: String, fechaHora: String, estado: String) {
     val colorEstado = when (estado) {
         "Abierto" -> MaterialTheme.colorScheme.ChipsGreen
-        "En progreso" -> MaterialTheme.colorScheme.ChipsYellow
+        "En Progreso" -> MaterialTheme.colorScheme.ChipsYellow
         "Resuelto" -> MaterialTheme.colorScheme.ChipsBlue
         "Cerrado" -> MaterialTheme.colorScheme.ChipsRed
         "Reabierto" -> MaterialTheme.colorScheme.ChipsGray
@@ -232,15 +216,17 @@ fun TicketCommentsSection(
 
 @Composable
 fun CommentItem(comment: Comment) {
+    val nombre = if (comment.nombre != null) comment.nombre else "Desconocido"
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
         // Avatar
         InitialsAvatar(
-            nombre = comment.userName,
+            nombre = nombre,
             size = 40.dp,
-            backgroundColor = getColorForName(comment.userName)
+            backgroundColor = getColorForName(nombre)
         )
 
         // Contenido del comentario
@@ -253,13 +239,13 @@ fun CommentItem(comment: Comment) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = comment.userName,
+                    text = nombre,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
 
                 Text(
-                    text = comment.timestamp,
+                    text = comment.fecha,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFF9E9E9E),
                     fontSize = 12.sp
@@ -270,7 +256,7 @@ fun CommentItem(comment: Comment) {
 
             // Texto del comentario
             Text(
-                text = comment.content,
+                text = comment.comentario,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF424242)
             )

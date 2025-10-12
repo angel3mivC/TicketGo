@@ -11,8 +11,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.ui.models.Comment
-import mx.tec.ticketgo.ui.models.Ticket
+import mx.tec.ticketgo.data.models.Comment
+import mx.tec.ticketgo.data.models.Ticket
+
 
 @Composable
 fun TicketTecnico(
@@ -31,23 +32,23 @@ fun TicketTecnico(
     ) {
         // 🔹 Cabecera del ticket (título, fecha y estado)
         TicketTop(
-            titulo = ticket.title,
-            fechaHora = ticket.startDate ?: "Sin fecha",
-            estado = ticket.status
+            titulo = ticket.titulo,
+            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
+            estado = ticket.estado!!
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // 🔹 Chips de prioridad y categoría
         TicketButtomChips(
-            prioridad = ticket.priorityId,
-            categoria = ticket.categoryId
+            prioridad = ticket.prioridad!!,
+            categoria = ticket.categoria!!
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // 🔹 Descripción del ticket
-        BodyText(ticket.description)
+        BodyText(ticket.descripcion)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -64,39 +65,4 @@ fun TicketTecnico(
             onSendComment = { /* Manejar envío de comentario */ }
         )
     }
-}
-
-@Preview
-@Composable
-fun TicketPreview() {
-    val mockTicket = Ticket(
-        ticketId = 1,
-        title = "Problema con el login de usuarios",
-        description = "El sistema no permite el acceso y muestra error 401. Revisar autenticación.",
-        categoryId = 2,
-        priorityId = 1,
-        status = "Abierto",
-        tecnico = null,
-        startDate = "2 sept 2023"
-    )
-
-    val mockComments = listOf(
-        Comment(
-            id = "1",
-            userName = "Juan Pérez",
-            content = "He revisado el ticket y ya estoy trabajando en la solución.",
-            timestamp = "2 sept 2023 · 10:00 am"
-        ),
-        Comment(
-            id = "2",
-            userName = "María González",
-            content = "¿Necesitas algún archivo adicional?",
-            timestamp = "2 sept 2023 · 2:30 pm"
-        )
-    )
-
-    TicketTecnico(
-        ticket = mockTicket,
-        comments = mockComments
-    )
 }

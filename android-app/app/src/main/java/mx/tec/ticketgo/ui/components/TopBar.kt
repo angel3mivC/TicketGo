@@ -12,14 +12,23 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(title: String, navController: NavController){
+fun TopBar(
+    title: String,
+    navController: NavController? = null,
+    onBack: (() -> Unit)? = null
+) {
     CenterAlignedTopAppBar(
         title = { Text(title) },
         navigationIcon = {
             IconButton(
-                onClick = {navController.popBackStack()}
+                onClick = {
+                    when {
+                        onBack != null -> onBack()
+                        navController != null -> navController.popBackStack()
+                    }
+                }
             ) {
-                Icon(Icons.Default.ArrowBack, "")
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
             }
         }
     )

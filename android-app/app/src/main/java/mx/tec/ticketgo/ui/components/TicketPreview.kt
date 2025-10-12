@@ -43,8 +43,8 @@ fun TicketTecnicoPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         )
 
         TicketButtomChips(
-            prioridad = ticket.prioridad!!.toInt(),
-            categoria = ticket.categoria!!.toInt()
+            prioridad = ticket.prioridad!!,
+            categoria = ticket.categoria!!
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -98,8 +98,8 @@ fun TicketAdminPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         }
 
         TicketButtomChips(
-            prioridad = ticket.prioridad!!.toInt(),  // Temporal hasta que arregles el backend
-            categoria = ticket.categoria!!.toInt()   // Temporal hasta que arregles el backend
+            prioridad = ticket.prioridad!!,  // Temporal hasta que arregles el backend
+            categoria = ticket.categoria!!   // Temporal hasta que arregles el backend
         )
         LineaPunteada()
     }
