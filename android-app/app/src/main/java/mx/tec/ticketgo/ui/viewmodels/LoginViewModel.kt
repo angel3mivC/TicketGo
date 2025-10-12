@@ -36,6 +36,10 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
                     putString("auth_token", it.token)
                     putInt("id_usuario", it.user.id)
                 }
+
+                viewModelScope.launch {
+                    TokenStorage.saveToken(it.token)
+                }
             }
         )
     }

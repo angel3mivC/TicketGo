@@ -1,36 +1,51 @@
 package mx.tec.ticketgo.ui.screens.forms
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import mx.tec.ticketgo.ui.components.FormAction
+import mx.tec.ticketgo.ui.components.FormCard
 import mx.tec.ticketgo.ui.components.InputTextField
 import mx.tec.ticketgo.ui.components.Spinner
+import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @Composable
-fun TicketFormScreen(viewModel: TicketsViewModel){
-    val context = LocalContext.current
+fun TicketFormScreen(commentsViewModel: CommentsViewModel, ticketsViewModel: TicketsViewModel){
+    val isLoading by ticketsViewModel.isLoading.collectAsStateWithLifecycle()
+    val message by ticketsViewModel.message.collectAsStateWithLifecycle()
+    val serverError by ticketsViewModel.error.collectAsStateWithLifecycle()
+    val ticketId by ticketsViewModel.ticketId.collectAsStateWithLifecycle()
+    val fieldError = remember { mutableStateOf(false) }
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-    var status by remember {mutableStateOf("")}
-    var comments by remember {mutableStateOf("")}
+    var priorityId by remember { mutableIntStateOf(-1) }
+    var categoryId by remember { mutableIntStateOf(-1) }
+    var comment by remember {mutableStateOf("")}
 
-    val priorityOptions = listOf("Alta", "Media", "Baja")
-    val categoryOptions = listOf("En proceso", "Daño incluido", "Garantía")
-    val statusOptions = listOf("Abierto", "En proceso", "Resuelto", "Cerrado", "Reabierto")
+    val priorityOptions = mapOf(
+        "Alta" to 1,
+        "Media" to 2,
+        "Baja" to 3
+    )
+    val categoryOptions = mapOf(
+        "En proceso" to 1,
+        "Daño incluido" to 2,
+        "Garantía" to 3
+    )
 
     Column (
         modifier = Modifier
@@ -43,51 +58,57 @@ fun TicketFormScreen(viewModel: TicketsViewModel){
                 value = title,
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = { title = it },
-                hint = "Título"
+                hint = "Título",
+                error = fieldError.value
             )
 
             InputTextField(
                 value = description,
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = { description = it },
-                hint = "Descripción"
+                hint = "Descripción",
+                error = fieldError.value
             )
 
             Spinner(
-                selectedOption = priority,
                 hint = "Prioridad",
-                options = priorityOptions
-            ) { priority = it }
+                options = priorityOptions,
+                error = fieldError.value
+            ) { priorityId = it }
 
             Spinner(
-                selectedOption = category,
                 hint = "Categoria",
-                options = categoryOptions
-            ) { category = it }
-
-            Spinner(
-                selectedOption = status,
-                hint = "Status",
-                options = statusOptions
-            ) { status = it }
+                options = categoryOptions,
+                error = fieldError.value
+            ) { categoryId = it }
 
             InputTextField(
-                value = comments,
+                value = comment,
                 modifier = Modifier.fillMaxWidth(),
-                onValueChange = { comments = it },
+                onValueChange = { comment = it },
                 hint = "Comentarios*"
             )
         }
-/*
-        FormAction(
-            buttonText = "Crear",
-            isLoading = viewModel.isLoading,
-            onCreate = { viewModel.addTicket(title, description, priority, category, status, comments) },
-            context = LocalContext.current
-        )
 
-        viewModel.ticketId?.let {
-            Toast.makeText(context, "Nuevo ticket $it", Toast.LENGTH_SHORT).show()
-        }*/
+        FormAction(
+            "Crear",
+            isLoading,
+            fieldError.value,
+            serverError,
+            message
+        ) {
+            if (title.isBlank() || description.isBlank() || categoryId == -1 || priorityId == -1) {
+                fieldError.value = true
+            } else {
+                fieldError.value = false
+                ticketsViewModel.createTicket(title, description, categoryId, priorityId)
+            }
+        }
+
+        LaunchedEffect(ticketId) {
+            if (ticketId != null && comment.isNotBlank()) {
+                commentsViewModel.createComment(ticketId!!, comment)
+            }
+        }
     }
 }

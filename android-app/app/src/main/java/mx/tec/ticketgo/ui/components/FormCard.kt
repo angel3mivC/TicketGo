@@ -1,7 +1,5 @@
-package mx.tec.ticketgo.ui.screens.forms
+package mx.tec.ticketgo.ui.components
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import mx.tec.ticketgo.ui.components.PrimaryButton
 
 @Composable
 fun FormCard(
@@ -43,20 +40,21 @@ fun FormCard(
 fun FormAction(
     buttonText: String,
     isLoading: Boolean,
-    successMessage: String? = null,
-    onCreate: () -> Unit,
-    context: Context // Eliminar en un futuro
+    fieldError: Boolean,
+    serverError: Boolean,
+    message: String?,
+    onCreate: () -> Unit
     ){
-    Spacer(modifier = Modifier.height((24.dp)))
+    when {
+        fieldError -> ErrorMessage("Completa los campos")
+        serverError -> ErrorMessage(message ?: "Unknown error")
+    }
 
+    Spacer(modifier = Modifier.height((24.dp)))
     PrimaryButton(
         buttonText,
         Modifier.fillMaxWidth()
-    ) { onCreate }
+    ) { onCreate() }
 
     if (isLoading) CircularProgressIndicator()
-
-    successMessage?.let {
-        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-    }
 }

@@ -24,7 +24,11 @@ import mx.tec.ticketgo.ui.theme.textFieldColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Spinner(error: Boolean = false, selectedOption: String, hint: String, options: List<String>, onSelection: (String) -> Unit){
+fun Spinner(
+    error: Boolean = false,
+    hint: String,
+    options: Map<String, Int>,
+    onSelection: (Int) -> Unit){
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -32,7 +36,7 @@ fun Spinner(error: Boolean = false, selectedOption: String, hint: String, option
         onExpandedChange = { expanded = !expanded}
     ) {
         OutlinedTextField(
-            value = selectedOption,
+            value = "",
             label = { Text(hint) },
             onValueChange = {},
             readOnly = true,
@@ -62,11 +66,11 @@ fun Spinner(error: Boolean = false, selectedOption: String, hint: String, option
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            options.forEach { option ->
+            options.forEach { (label, id) ->
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(label) },
                     onClick = {
-                        onSelection(option)
+                        onSelection(id)
                         expanded = false
                     },
                     colors = MenuDefaults.itemColors(
