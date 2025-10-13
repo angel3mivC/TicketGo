@@ -1,5 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+import fileUpload from "express-fileupload";
+import cors from "cors";
+
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import ticketRoutes from "./routes/tickets.js";
@@ -7,15 +10,21 @@ import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import catalogRoutes from "./routes/catalogs.js";
-import cors from "cors";
-
-const PORT = process.env.PORT || 3000
 
 dotenv.config();
-const app = express();
-app.use(cors());
 
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+app.use(cors());
 app.use(express.json());
+
+app.use(
+    fileUpload({
+        limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+        abortOnLimit: true,
+    })
+);
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
