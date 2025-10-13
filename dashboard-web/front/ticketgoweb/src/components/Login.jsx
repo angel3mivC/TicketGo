@@ -1,7 +1,7 @@
 import {useRef, useState} from "react"
 import { useNavigate } from "react-router-dom"
 
-import "./Login.css"
+import "./styles/Login.css"
 import logo from "../assets/logo.png"
 import password from "../assets/logo_contraseña.png"
 import profile from "../assets/perfil.png"

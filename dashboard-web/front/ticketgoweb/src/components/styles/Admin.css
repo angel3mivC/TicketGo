@@ -1,0 +1,49 @@
+.admin-container {
+  display: flex;
+  gap: 32px;
+}
+
+.tickets-list {
+  flex: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;  /* centrado vertical */
+  justify-content: center; /* centrado horizontal */
+  overflow: hidden; /* evita scroll lateral global */
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 0;
+  width: 40vw; /* ancho proporcional */
+  max-width: 700px;
+  height: 100vh; /* usa todo el alto visible */
+  max-height: 100vh;
+  overflow-y: auto; /* scroll solo vertical si el contenido lo necesita */
+  position: relative;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #444;
+  z-index: 10;
+}

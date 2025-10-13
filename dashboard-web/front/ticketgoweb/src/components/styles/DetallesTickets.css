@@ -1,0 +1,277 @@
+.detalles-ticket-container {
+  background: transparent; /* para que se integre al modal */
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  height: 100%; /* llena el modal verticalmente */
+  box-sizing: border-box;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* HEADER */
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ticket-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.ticket-date {
+  font-size: 13px;
+  color: #888;
+}
+
+/* ESTADO */
+.ticket-status {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Colores por estado */
+.status-open {
+  background: #e0f7e9;
+  color: #2e7d32;
+}
+.status-open .status-dot {
+  background: #2e7d32;
+}
+.status-inprogress {
+  background: #fff3e0;
+  color: #f57c00;
+}
+.status-inprogress .status-dot {
+  background: #f57c00;
+}
+.status-resolved {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.status-resolved .status-dot {
+  background: #1976d2;
+}
+.status-closed {
+  background: #f5f5f5;
+  color: #757575;
+}
+.status-closed .status-dot {
+  background: #757575;
+}
+.status-reopened {
+  background: #ffebee;
+  color: #c62828;
+}
+.status-reopened .status-dot {
+  background: #c62828;
+}
+
+/* TAGS */
+.ticket-tags {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+
+.tag {
+  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-weight: 500;
+}
+
+.tag.categoria {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.tag.prioridad {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* USUARIO */
+.ticket-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ddd;
+  margin-right: 10px;
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* DESCRIPCIÓN */
+.ticket-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+/* EVIDENCIAS */
+.ticket-evidencias {
+  margin-bottom: 20px;
+}
+
+.evidencias-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.evidencias-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.evidencias-header a {
+  font-size: 13px;
+  text-decoration: none;
+  color: #1976d2;
+}
+
+.evidencias-grid {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.evidencia-placeholder {
+  width: 90px;
+  height: 90px;
+  background: #eee;
+  border-radius: 12px;
+}
+
+/* COMENTARIOS */
+.divider {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 15px 0;
+}
+
+.ticket-comentario {
+  margin-top: 15px;
+}
+
+.comentario-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.comentario-info {
+  margin-left: 10px;
+}
+
+.comentario-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.comentario-text {
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* INPUT DE COMENTARIO */
+.comentario-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.input-text {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.input-text:focus {
+  border-color: #1976d2;
+}
+
+.send-button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.send-button:hover {
+  background: #1565c0;
+}
+
+/* MODAL (desde Admin.jsx) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #444;
+}

@@ -1,0 +1,193 @@
+.ticket-card {
+  position: relative;
+  width: 350px;
+  height: 170px;        /* <-- quitar altura fija */
+  min-height: 170px;         /* <-- opcional: mantener mínimo */
+  margin: 1rem auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Círculos tipo ticket (transparentes con recorte) */
+.ticket-card::before,
+.ticket-card::after {
+  content: "";
+  position: absolute;
+  bottom: 30px;          
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f5f5f5;     
+  z-index: 2;
+  box-shadow: none;        
+}
+
+.ticket-card::before {
+  left: -12px;
+}
+
+.ticket-card::after {
+  right: -12px;
+}
+
+/* Header */
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ticket-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+.ticket-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Status */
+.ticket-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: gray;
+  color: black;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  background: lightgray;
+  border-radius: 50%;
+}
+
+.status-inprogress {
+  background: #FFEEC8;
+}
+
+.status-dot.status-inprogress {
+  background: #FFAE00;
+}
+
+.status-open {
+  background: #D3FFAA;
+}
+
+.status-dot.status-open {
+  background: #61C800;
+}
+
+.status-resolved {
+  background: #B7DBFF;
+}
+
+.status-dot.status-resolved {
+  background: #0080FF;
+}
+
+.status-closed {
+  background: #FFB9BA;
+}
+
+.status-dot.status-closed {
+  background: #FF3B3E;
+}
+
+.status-reopened {
+  background: #DFDFDF;
+}
+
+.status-dot.status-reopened {
+  background: #8B8B8B;
+}
+
+
+
+/* Descripción */
+.ticket-description {
+  margin-top: 12px;
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Tags parte inferior*/
+.ticket-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.tag {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Categoria */
+.warranty {
+  background: #111827;
+  color: white;
+}
+
+/* Prioridad */
+.priority {
+  background: gray;
+  color: black;
+}
+.priority-dot {
+  width: 10px;
+  height: 10px;
+  background: lightgray;
+  border-radius: 50%;
+}
+
+.priority.priority-high {
+  background: #FFB9BA;
+}
+.priority-dot.priority-high {
+  background: #FF3B3E;
+}
+
+.priority.priority-low {
+  background: #D3FFAA;
+}
+.priority-dot.priority-low {
+  background: #61C800;
+}
+
+.priority.priority-medium {
+  background: #FFEEC8;
+}
+.priority-dot.priority-medium {
+  background: #FFAE00;
+}
+
+/* Línea punteada */
+.ticket-divider {
+  margin: 6px 0; /* separador encima y abajo */
+  border-top: 1px dashed #d1d5db;
+  width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Ajusta este valor según el espacio que desees */
+}
