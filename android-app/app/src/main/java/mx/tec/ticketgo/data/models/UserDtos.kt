@@ -13,7 +13,7 @@ data class User(
     val id: Int,
     val nombre: String,
     val correo: String,
-    val id_rol: Int
+    val rol: Int
 )
 
 data class CreateUserRequest(

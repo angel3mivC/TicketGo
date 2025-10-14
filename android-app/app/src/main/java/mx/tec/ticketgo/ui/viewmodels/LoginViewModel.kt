@@ -12,10 +12,7 @@ import mx.tec.ticketgo.data.repository.AuthRepository
 
 class LoginViewModel(private val repository: AuthRepository = AuthRepository()): BaseViewModel() {
     private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
-
     private val _userRole = MutableStateFlow<Int?>(null)
-    val userRole: StateFlow<Int?> = _userRole
 
     fun login(email: String, password: String, context: Context) {
         val request = LoginRequest(email, password)
@@ -25,7 +22,7 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
             onSuccess = {
                 _token.value = it.token
                 _message.value = it.message
-                _userRole.value = it.user.id_rol
+                _userRole.value = it.user.rol
 
                 viewModelScope.launch {
                     TokenStorage.saveToken(it.token)
@@ -35,7 +32,7 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
                 sharedPref.edit {
                     putString("auth_token", it.token)
                     putInt("id_user", it.user.id)
-                    putInt("id_role", it.user.id_rol)
+                    putInt("id_role", it.user.rol)
                 }
 
                 viewModelScope.launch {

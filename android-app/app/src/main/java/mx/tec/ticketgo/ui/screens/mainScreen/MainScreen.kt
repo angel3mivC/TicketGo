@@ -12,14 +12,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import mx.tec.ticketgo.ui.components.TopBar
-import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
+//import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
+import mx.tec.ticketgo.ui.screens.Home.usuarioHome
 import mx.tec.ticketgo.ui.screens.forms.CreateUserScreen
-import mx.tec.ticketgo.ui.screens.forms.EditUserScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
+//import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
@@ -58,11 +59,12 @@ fun MainScreen(){
 
             //Rutas comunes
             composable("login") { LoginScreen(loginViewModel, context, navController) }
-            composable("historial") { TicketHistoryScreen() }
+            //composable("historial") { TicketHistoryScreen() }
             composable("gallery") { GalleryScreen() }
+            composable("usuarioHome") { usuarioHome() }
 
             //Tecnico
-            composable("tecnicoHome") { tecnicoHomeScreen(ticketsViewModel) }
+            composable("tecnicoHome") { tecnicoHomeScreen(commentsViewModel,ticketsViewModel, navController) }
 
 
             //Mesa

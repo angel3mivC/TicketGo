@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -81,13 +83,23 @@ fun TicketTop(titulo: String, fechaHora: String, estado: String) {
             .fillMaxWidth()
             .padding(bottom = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .weight(1f, fill = false) // 🔥 IMPORTANTE: fill = false para no expandirse
+                .padding(end = 8.dp) // 🔥 Espacio entre título y chip
+        ) {
             Subtitle(titulo)
             SmallText(fechaHora)
         }
-        DotChip(estado,colorEstado)
+
+        // Chip se adapta al contenido pero no se aplasta
+        DotChip(
+            text = estado,
+            color = colorEstado,
+            modifier = Modifier.wrapContentWidth()
+        )
     }
 }
 
@@ -216,7 +228,7 @@ fun TicketCommentsSection(
 
 @Composable
 fun CommentItem(comment: Comment) {
-    val nombre = if (comment.nombre != null) comment.nombre else "Desconocido"
+    val nombre = if (comment.autor != null) comment.autor else "Desconocido"
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)

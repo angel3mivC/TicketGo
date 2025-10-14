@@ -40,13 +40,12 @@ import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 
 @Composable
-fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController) {
+fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController, isHistory: Boolean) {
 
     var selectedTicket by remember { mutableStateOf<Ticket?>(null) }
 
     // 1. Obtener contexto
     val context = LocalContext.current
-    val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     // 2. Estados
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
@@ -54,7 +53,13 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
     val message by ticketViewModel.message.collectAsStateWithLifecycle()
 
     // 3. Llamar tickets (asegúrate que no se llame en cada recomposición)
-    ticketViewModel.getTickets()
+
+    if(isHistory) {
+        ticketViewModel.getTickets(state = "Cerrado")
+    }
+    else{
+        ticketViewModel.getTickets()
+    }
 
     // 🔹 Vista detalle del ticket
     if (selectedTicket != null) {
@@ -131,7 +136,7 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
 
                 else -> {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(0.dp) // Sin espacio entre items
                     ) {
                         items(tickets.size) { index ->
                             val ticket = tickets[index]

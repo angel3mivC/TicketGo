@@ -23,7 +23,7 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
     val ticketId: StateFlow<Int?> = _ticketId
 
     fun getTickets(
-        state: Int? = null,
+        state: String? = null,
         priority: Int? = null,
         technician: Int? = null,
         category: Int? = null,
