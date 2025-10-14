@@ -34,7 +34,8 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
                     context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
                 sharedPref.edit {
                     putString("auth_token", it.token)
-                    putInt("id_usuario", it.user.id)
+                    putInt("id_user", it.user.id)
+                    putInt("id_role", it.user.id_rol)
                 }
 
                 viewModelScope.launch {

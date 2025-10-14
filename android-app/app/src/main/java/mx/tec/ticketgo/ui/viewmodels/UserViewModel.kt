@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import mx.tec.ticketgo.data.models.CreateUserRequest
 import mx.tec.ticketgo.data.models.GetUserResponse
 import mx.tec.ticketgo.data.repository.UserRepository
-class UserViewModel(private val repository: UserRepository): BaseViewModel() {
+class UserViewModel(private val repository: UserRepository = UserRepository()): BaseViewModel() {
 
     private val _users = MutableStateFlow<List<GetUserResponse>>(emptyList())
     val users: StateFlow<List<GetUserResponse>> = _users

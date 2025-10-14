@@ -1,5 +1,6 @@
 package mx.tec.ticketgo.ui.screens.forms
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,50 +38,52 @@ fun UserForm(
         "Técnico" to 3
     )
 
-    FormCard {
-        InputTextField(
-            value = name,
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { name = it },
-            hint = "Nombre",
-            error = fieldError.value
-        )
+    Column {
+        FormCard {
+            InputTextField(
+                value = name,
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { name = it },
+                hint = "Nombre",
+                error = fieldError.value
+            )
 
-        InputTextField(
-            value = email,
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { email = it },
-            hint = "Correo",
-            error = fieldError.value
-        )
+            InputTextField(
+                value = email,
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { email = it },
+                hint = "Correo",
+                error = fieldError.value
+            )
 
-        InputTextField(
-            value = password,
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { password = it },
-            hint = "Contraseña",
-            error = fieldError.value
-        )
+            InputTextField(
+                value = password,
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { password = it },
+                hint = "Contraseña",
+                error = fieldError.value
+            )
 
-        Spinner(
-            hint = "Rol",
-            options = roleOptions,
-            error = fieldError.value
-        ) { roleId = it }
-    }
+            Spinner(
+                hint = "Rol",
+                options = roleOptions,
+                error = fieldError.value
+            ) { roleId = it }
+        }
 
-    FormAction(
-        buttonText,
-        isLoading,
-        fieldError.value,
-        serverError,
-        message
-    ) {
-        if (name.isBlank() || email.isBlank() || password.isBlank() || roleId == -1) {
-            fieldError.value = true
-        } else {
-            fieldError.value = false
-            onSubmit(name, email, password, roleId)
+        FormAction(
+            buttonText,
+            isLoading,
+            fieldError.value,
+            serverError,
+            message
+        ) {
+            if (name.isBlank() || email.isBlank() || password.isBlank() || roleId == -1) {
+                fieldError.value = true
+            } else {
+                fieldError.value = false
+                onSubmit(name, email, password, roleId)
+            }
         }
     }
 }

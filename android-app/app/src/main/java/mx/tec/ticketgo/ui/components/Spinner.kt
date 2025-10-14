@@ -28,7 +28,9 @@ fun Spinner(
     error: Boolean = false,
     hint: String,
     options: Map<String, Int>,
-    onSelection: (Int) -> Unit){
+    onSelection: (Int) -> Unit
+) {
+    var selectedText by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -36,7 +38,7 @@ fun Spinner(
         onExpandedChange = { expanded = !expanded}
     ) {
         OutlinedTextField(
-            value = "",
+            value = selectedText,
             label = { Text(hint) },
             onValueChange = {},
             readOnly = true,
@@ -70,6 +72,7 @@ fun Spinner(
                 DropdownMenuItem(
                     text = { Text(label) },
                     onClick = {
+                        selectedText = label
                         onSelection(id)
                         expanded = false
                     },

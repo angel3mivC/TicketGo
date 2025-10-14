@@ -4,7 +4,7 @@ data class Comment(
     val id_comentario: Int,
     val comentario: String,
     val fecha: String,
-    val nombre: String
+    val autor: String
 )
 
 data class CreateCommentRequest(
