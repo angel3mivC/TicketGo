@@ -49,7 +49,7 @@ fun MainScreen(){
             composable("formulario") { TicketFormScreen() }
             composable("historial") { HistoryScreen() }
             composable("notificaciones") {
-           
+
                 val sampleNotifications = listOf(
                     NotificationItem(
                         initials = "MB",
