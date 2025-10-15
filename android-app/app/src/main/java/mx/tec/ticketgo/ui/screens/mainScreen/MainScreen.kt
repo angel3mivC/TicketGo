@@ -20,8 +20,11 @@ import mx.tec.ticketgo.ui.screens.Home.usuarioHome
 import mx.tec.ticketgo.ui.screens.forms.CreateUserScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
-//import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
+import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketDetailScreen
+import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketScreen
+import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketDetailScreen
+import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
@@ -45,6 +48,13 @@ fun MainScreen(){
             when(currentRoute){
                 "gallery" -> TopBar("Galeria", navController)
                 "historial" -> TopBar("Crear ticket", navController)
+                "ticketDetail" -> TopBar("Detalle del ticket", navController)
+                else -> {
+                    if (currentRoute?.startsWith("tecnicoTicketDetail/") == true || 
+                        currentRoute?.startsWith("adminTicketDetail/") == true) {
+                        TopBar("Detalle del ticket", navController)
+                    } else null
+                }
             }
         },
         bottomBar = {
@@ -65,15 +75,23 @@ fun MainScreen(){
 
             //Tecnico
             composable("tecnicoHome") { tecnicoHomeScreen(commentsViewModel,ticketsViewModel, navController) }
-
+            composable("tecnicoTicketDetail/{ticketId}") { backStackEntry ->
+                val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
+                TecnicoTicketDetailScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
+            }
+            composable("tecnicoTicketHistory") { TecnicoTicketScreen(commentsViewModel, ticketsViewModel, navController, true) }
 
             //Mesa
-            composable("mesaHome") { mesaHomeScreen() }
+            composable("mesaHome") { mesaHomeScreen(commentsViewModel, ticketsViewModel, navController) }
             composable ("TicketForm") { TicketFormScreen(commentsViewModel, ticketsViewModel) }
-
 
             //Admin
             composable("adminHome") { adminHomeScreen(commentsViewModel,ticketsViewModel, navController) }
+            composable("adminTicketDetail/{ticketId}") { backStackEntry ->
+                val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
+                AdminTicketDetailScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
+            }
+            composable("adminTicketHistory") { AdminTicketScreen(commentsViewModel, ticketsViewModel, navController, true) }
             composable("createUserForm") { CreateUserScreen(userViewModel) }
             //composable("editUserForm") { EditUserScreen(userId, userViewModel) }
         }

@@ -2,9 +2,14 @@ package mx.tec.ticketgo.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -18,7 +23,10 @@ import mx.tec.ticketgo.data.models.Ticket
 @Composable
 fun TicketTecnico(
     ticket: Ticket,
-    comments: List<Comment>
+    comments: List<Comment>,
+    onSendComment: (String) -> Unit,
+    onAddEvidence: () -> Unit = {},
+    onViewGallery: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -53,7 +61,10 @@ fun TicketTecnico(
         Spacer(modifier = Modifier.height(16.dp))
 
         // 🔹 Evidencias
-        EvidenciasTicket({})
+        EvidenciasTicketTecnico(
+            onAddEvidence = onAddEvidence,
+            onViewGallery = onViewGallery
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -62,7 +73,100 @@ fun TicketTecnico(
         // 🔹 Sección de comentarios
         TicketCommentsSection(
             comments = comments,
-            onSendComment = { /* Manejar envío de comentario */ }
+            onSendComment = onSendComment
+        )
+    }
+}
+
+@Composable
+fun TicketAdmin(
+    ticket: Ticket,
+    comments: List<Comment>,
+    onSendComment: (String) -> Unit,
+    onViewGallery: () -> Unit = {}
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentHeight() // ✅ evita que se alargue feo
+            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .shadow(6.dp, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        // 🔹 Cabecera del ticket (título, fecha y estado)
+        TicketTop(
+            titulo = ticket.titulo,
+            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
+            estado = ticket.estado!!
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 🔹 Chips de prioridad y categoría
+        TicketButtomChips(
+            prioridad = ticket.prioridad!!,
+            categoria = ticket.categoria!!
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 🔹 Avatar del técnico asignado y nombre
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (ticket.asignado_a != null) {
+                // Técnico asignado - mostrar InitialsAvatar
+                InitialsAvatar(
+                    nombre = ticket.asignado_a!!,
+                    backgroundColor = getColorForName(ticket.asignado_a!!)
+                )
+                BodyText(ticket.asignado_a!!)
+            } else {
+                // Sin técnico asignado - mostrar círculo con ícono de más
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            color = Color(0xFFE0E0E0),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Sin asignar",
+                        tint = Color(0xFF9E9E9E),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                BodyText("Sin asignar")
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Descripción del ticket
+        BodyText(ticket.descripcion)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Evidencias
+        EvidenciasTicketAdmin(
+            onViewGallery = onViewGallery
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LineaPunteada()
+
+        // 🔹 Sección de comentarios
+        TicketCommentsSection(
+            comments = comments,
+            onSendComment = onSendComment
         )
     }
 }

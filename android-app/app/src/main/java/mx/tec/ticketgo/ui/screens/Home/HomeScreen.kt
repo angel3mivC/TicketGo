@@ -18,10 +18,8 @@ fun tecnicoHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
     TecnicoTicketScreen(commentViewModel, ticketViewModel, navController)
 }
 @Composable
-fun mesaHomeScreen(){
-    Text(
-        "Inicio mesa"
-    )
+fun mesaHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
+    AdminTicketScreen(commentViewModel, ticketViewModel, navController, false)
 }
 
 

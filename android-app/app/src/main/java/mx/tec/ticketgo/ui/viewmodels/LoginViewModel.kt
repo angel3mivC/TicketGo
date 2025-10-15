@@ -26,17 +26,15 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
 
                 viewModelScope.launch {
                     TokenStorage.saveToken(it.token)
-                    }
+                    TokenStorage.saveUserName(it.user.nombre)
+                }
                 val sharedPref =
                     context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
                 sharedPref.edit {
                     putString("auth_token", it.token)
                     putInt("id_user", it.user.id)
                     putInt("id_role", it.user.rol)
-                }
-
-                viewModelScope.launch {
-                    TokenStorage.saveToken(it.token)
+                    putString("user_name", it.user.nombre)
                 }
             }
         )

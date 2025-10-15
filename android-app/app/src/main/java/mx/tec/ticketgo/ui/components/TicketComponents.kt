@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -166,6 +167,42 @@ fun AddButton(
 }
 
 @Composable
+fun GalleryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = modifier.size(width = 100.dp, height = 80.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.background
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.List,
+                contentDescription = "Galería",
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+    }
+}
+
+@Composable
 fun EvidenciasTicket(onClickEvidencias: () -> Unit) {
     Column {
         Row(
@@ -183,6 +220,42 @@ fun EvidenciasTicket(onClickEvidencias: () -> Unit) {
             onClickEvidencias
         )
 
+    }
+}
+
+@Composable
+fun EvidenciasTicketTecnico(
+    onAddEvidence: () -> Unit,
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            AddButton(
+                "Agregar",
+                onAddEvidence
+            )
+            GalleryButton(
+                "Galería",
+                onViewGallery
+            )
+        }
+    }
+}
+
+@Composable
+fun EvidenciasTicketAdmin(
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        GalleryButton(
+            "Galería",
+            onViewGallery
+        )
     }
 }
 
