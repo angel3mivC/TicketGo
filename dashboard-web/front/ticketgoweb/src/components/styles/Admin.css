@@ -1,6 +1,143 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* evita scroll global */
+}
+
 .admin-container {
   display: flex;
-  gap: 32px;
+  flex-direction: column;
+  height: 100vh; /* ocupa toda la pantalla */
+  overflow: hidden; /* evita que el contenedor principal tenga scroll */
+  user-select: none;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 100%;
+  padding: 20px 42px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  
+}
+
+.tabs-container {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  font-family: 'Poppins', sans-serif;
+  margin: 0 42px 20px;
+}
+
+.tab {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  position: relative;
+  padding-bottom: 5px;
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: #d60000;
+}
+
+.tab.active {
+  color: #d60000;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #d60000;
+  border-radius: 2px;
+}
+
+.tools{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+}
+
+.noti{
+  width: 35px;
+  height: 35px;
+}
+
+.textsArea{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.buttons{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 40px;
+}
+
+.Titles{
+  display: flex;
+  flex-direction: column;
+}
+
+
+.title{
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #000000;
+  margin-left: 42px;
+  margin-bottom: 15px;
+}
+
+.subtitle{
+  font-size: 1.1rem;
+  margin-left: 42px;
+  margin-bottom: 20px;
+}
+
+.create-User{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #E10600;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 166px;
+  height: 42px;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.filters{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: #f5f5f5;
+  font-size: 16px;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.scroll-area {
+  flex: 1; /* ocupa todo el espacio restante */
+  overflow-y: auto; /* solo esta parte scrollea */
+  padding: 0 42px 20px;
 }
 
 .tickets-list {
@@ -8,6 +145,22 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
+}
+
+.users-list {
+  flex: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.historial {
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.historial.active {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(94%) saturate(5403%) hue-rotate(353deg) brightness(95%) contrast(99%);
 }
 
 .modal-overlay {
