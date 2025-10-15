@@ -7,8 +7,6 @@ val OnBackground = Color.Black
 val Surface = Color.White
 val OnSurface = Color.Black
 val Primary = Color(0xFFE10600)
-
-val CircleBackground = Color(0xFFFFAEAC)
 val OnPrimary = Color.White
 val Secondary = Color.Black
 val OnSecondary = Color.White
