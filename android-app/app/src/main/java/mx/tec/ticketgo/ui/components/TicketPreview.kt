@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.data.models.Ticket
 
-
 @Composable
 fun TicketTecnicoPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
     Column(

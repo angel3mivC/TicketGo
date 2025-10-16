@@ -1,15 +1,25 @@
 package mx.tec.ticketgo.ui.screens.Home
 
-import android.content.Context
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketScreen
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
+
+val homeFilters = listOf(
+    FilterSection(
+        "Estado",
+        mapOf(1 to "Abierto", 2 to "En progreso", 3 to "Cerrado", 4 to "Resuelto", 5 to "Reabierto"),
+        setOf("Abierto")
+    ),
+    FilterSection(
+        "Categoría",
+        mapOf(1 to "En Proceso", 2 to "Daño Inducido", 3 to "Garantía"),
+        emptySet()
+    )
+)
 
 @Composable
 
@@ -25,18 +35,5 @@ fun mesaHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tickets
 
 @Composable
 fun adminHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
-    AdminTicketScreen(commentViewModel, ticketViewModel, navController, false)
-}
-
-@Composable
-fun usuarioHome(){
-    val context = LocalContext.current
-    val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-    val rolId = sharedPref.getInt("id_role",-1)
-    val userId = sharedPref.getInt("id_user",-1)
-    Column {
-        Text(rolId.toString())
-        Text(userId.toString())
-    }
-
+    AdminTicketScreen(commentViewModel, ticketViewModel, navController)
 }

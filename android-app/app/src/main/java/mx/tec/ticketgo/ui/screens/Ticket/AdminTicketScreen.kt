@@ -17,6 +17,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,14 +42,22 @@ import mx.tec.ticketgo.ui.components.FilterButton
 import mx.tec.ticketgo.ui.components.TicketAdmin
 import mx.tec.ticketgo.ui.components.TicketAdminPreview
 import mx.tec.ticketgo.ui.components.Title
+import mx.tec.ticketgo.ui.components.TopBar
+import mx.tec.ticketgo.ui.screens.filters.FilterScreen
+import mx.tec.ticketgo.ui.screens.filters.FilterSection
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController, isHistory: Boolean) {
+fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController,  filterSections: List<FilterSection>) {
+
+    var selectedTicket by remember { mutableStateOf<Ticket?>(null) }
+    var showFilterSheet by remember { mutableStateOf(false) } //Estado para controlar si se abre la sección de filtros
 
     // 1. Obtener contexto
     val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     // 2. Estados
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
@@ -84,9 +97,54 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
         ) {
             Title("Tickets")
 
-            FilterButton(
-                onClick = {
-                    // TODO: Implementar funcionalidad de filtro
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { showFilterSheet = true }) {
+                        Text("Filtrar")
+                    }
+                    if (showFilterSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showFilterSheet = false }
+                        ) {
+                            FilterScreen(
+                                sections = filterSections,
+                                onOptionSelected = { sectionTitle, option, isSelected ->
+                                },
+                                onClose = {
+                                    val stateId = filterSections
+                                        .find { it.title == "Estado" }
+                                        ?.selectedOptions
+                                        ?.firstOrNull()
+                                        ?.let { option ->
+                                            when (option) {
+                                                "Abierto" -> 1
+                                                "En progreso" -> 2
+                                                "Cerrado" -> 3
+                                                "Resuelto" -> 4
+                                                "Reabierto" -> 5
+                                                else -> null
+                                            }
+                                        }
+
+                                    val categoryId = filterSections
+                                        .find { it.title == "Categoría" }
+                                        ?.selectedOptions
+                                        ?.firstOrNull()
+                                        ?.let { option ->
+                                            when (option) {
+                                                "En proceso" -> 1
+                                                "Daño Inducido" -> 2
+                                                "Garantía" -> 3
+                                                else -> null
+                                            }
+                                        }
+
+                                    ticketViewModel.getTickets(state = stateId, category = categoryId)
+
+                                    showFilterSheet = false
+                                }
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -102,7 +160,7 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
                     CircularProgressIndicator()
                 }
             }
-            
+
             tickets.isEmpty() -> {
                 Column(
                     modifier = Modifier
