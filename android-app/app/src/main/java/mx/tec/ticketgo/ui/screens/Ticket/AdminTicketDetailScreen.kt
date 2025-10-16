@@ -57,7 +57,12 @@ fun AdminTicketDetailScreen(
                             commentViewModel.addLocalComment(ticket.id_ticket, commentText)
                         },
                         onViewGallery = {
-                            // TODO: Implementar navegación a galería
+                            navController.navigate("gallery/${ticket.id_ticket}")
+                        },
+                        onStatusChange = { newStatus, stateId ->
+                            // Actualizar estado localmente y hacer llamada a API
+                            ticketViewModel.updateTicketStatusLocally(ticket.id_ticket, newStatus)
+                            ticketViewModel.changeTicketState(ticket.id_ticket, stateId)
                         }
                     )
                 }

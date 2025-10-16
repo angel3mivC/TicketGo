@@ -32,8 +32,30 @@ open class BaseViewModel : ViewModel() {
                 result.onFailure { e ->
                     _error.value = true
                     _message.value = try {
-                        e.message?.let {
-                            JSONObject(it).optString("message", it)
+                        e.message?.let { message ->
+                            // Buscar JSON en el mensaje (puede estar después de texto como "HTTP 401")
+                            val jsonRegex = Regex("""\{[^}]*"message"[^}]*\}""")
+                            val jsonMatch = jsonRegex.find(message)
+                            
+                            if (jsonMatch != null) {
+                                // Extraer y parsear el JSON encontrado
+                                try {
+                                    JSONObject(jsonMatch.value).optString("message", message)
+                                } catch (_: Exception) {
+                                    message
+                                }
+                            } else {
+                                // Si no hay JSON, limpiar prefijos comunes
+                                when {
+                                    message.startsWith("error->") -> message.substring(7)
+                                    message.startsWith("HTTP") -> {
+                                        // Para mensajes HTTP, intentar extraer la parte útil
+                                        val parts = message.split(" - ")
+                                        if (parts.size > 1) parts.last() else message
+                                    }
+                                    else -> message
+                                }
+                            }
                         } ?: "Unknown error"
                     } catch (_: Exception) {
                         e.message ?: "Unknown error"

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import mx.tec.ticketgo.ui.components.FilterButton
 import mx.tec.ticketgo.ui.components.HistoryButton
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
+import mx.tec.ticketgo.ui.components.TopBar
 
 @Composable
 fun TecnicoTicketScreen(
@@ -39,13 +41,24 @@ fun TecnicoTicketScreen(
     // Estados de viewmodels
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
     val comments by commentViewModel.comment.collectAsStateWithLifecycle()
+    val isLoading by ticketViewModel.isLoading.collectAsStateWithLifecycle()
+
+    // Debug: Mostrar cantidad de tickets recibidos
+    LaunchedEffect(tickets) {
+        println("📊 Tickets recibidos: ${tickets.size}")
+        tickets.forEach { ticket ->
+            println("  - Ticket ${ticket.id_ticket}: ${ticket.titulo} (Estado: ${ticket.estado})")
+        }
+    }
 
     // Cargar tickets dependiendo si es historial o activos
     LaunchedEffect(userId, isHistory) {
         if (userId != -1) {
             if (isHistory) {
+                println("🔍 Cargando tickets de historial para técnico $userId con estado 'Cerrado'")
                 ticketViewModel.getTickets(technician = userId, state = "Cerrado")
             } else {
+                println("🔍 Cargando tickets activos para técnico $userId")
                 ticketViewModel.getTickets(technician = userId)
             }
         }
@@ -73,11 +86,34 @@ fun TecnicoTicketScreen(
                         // TODO: Implementar funcionalidad de filtro
                     }
                 )
-                HistoryButton(
-                    onClick = {
-                        // TODO: Implementar navegación a historial
+                if (isHistory) {
+                    // Botón de home cuando estamos en historial
+                    IconButton(
+                        onClick = {
+                            navController.navigate("tecnicoHome")
+                        },
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(
+                                color = Color.Black,
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.White
+                        )
                     }
-                )
+                } else {
+                    // Botón de historial cuando estamos en home
+                    HistoryButton(
+                        onClick = {
+                            navController.navigate("tecnicoTicketHistory")
+                        }
+                    )
+                }
             }
         }
 
@@ -86,6 +122,15 @@ fun TecnicoTicketScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
+            isLoading && tickets.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            
             tickets.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -96,12 +141,19 @@ fun TecnicoTicketScreen(
             }
 
             else -> {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
                     items(tickets.size) { index ->
                         val ticket = tickets[index]
                         TicketTecnicoPreview(ticket = ticket) {
                             // Navegar a la pantalla de detalle con el ID del ticket
-                            navController.navigate("tecnicoTicketDetail/${ticket.id_ticket}")
+                            if (isHistory) {
+                                navController.navigate("tecnicoTicketDetailHistorial/${ticket.id_ticket}")
+                            } else {
+                                navController.navigate("tecnicoTicketDetail/${ticket.id_ticket}")
+                            }
                         }
                     }
                 }

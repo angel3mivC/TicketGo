@@ -105,6 +105,66 @@ fun TicketTop(titulo: String, fechaHora: String, estado: String) {
 }
 
 @Composable
+fun TicketTopWithSpinner(
+    titulo: String, 
+    fechaHora: String, 
+    estado: String,
+    userType: UserType,
+    hasAssignedTechnician: Boolean = true,
+    onStatusChange: (String, Int) -> Unit,
+    onError: (String) -> Unit = {}
+) {
+    // Estado para mensajes de error
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false) // 🔥 IMPORTANTE: fill = false para no expandirse
+                    .padding(end = 8.dp) // 🔥 Espacio entre título y spinner
+            ) {
+                Subtitle(titulo)
+                SmallText(fechaHora)
+            }
+
+            // Spinner para cambiar estado
+            StatusSpinner(
+                currentStatus = estado,
+                userType = userType,
+                hasAssignedTechnician = hasAssignedTechnician,
+                onStatusChange = onStatusChange,
+                onError = { message -> errorMessage = message },
+                modifier = Modifier.wrapContentWidth()
+            )
+        }
+        
+        // Fila separada para mensajes de error
+        errorMessage?.let { message ->
+            Text(
+                text = message,
+                color = Color(0xFFD32F2F),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFFFFEBEE),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
 fun LineaPunteada() {
     Spacer(modifier = Modifier.height(16.dp))
     Canvas(
@@ -398,4 +458,48 @@ fun CommentInputField(
         ),
         maxLines = 3
     )
+}
+
+@Composable
+fun EvidenciasTicketTecnicoHistorial(
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Solo botón de galería, sin botón de agregar
+            GalleryButton(
+                "Galería",
+                onViewGallery
+            )
+        }
+    }
+}
+
+@Composable
+fun TicketCommentsSectionHistorial(
+    comments: List<Comment>
+) {
+    Column {
+        Subtitle("Comentarios")
+        
+        if (comments.isEmpty()) {
+            Text(
+                text = "No hay comentarios",
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        } else {
+            comments.forEach { comment ->
+                Column(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    CommentItem(comment = comment)
+                }
+            }
+        }
+    }
 }

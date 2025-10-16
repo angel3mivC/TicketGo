@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +33,6 @@ import androidx.navigation.NavController
 import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.ui.components.BodyText
-import mx.tec.ticketgo.ui.components.ErrorMessage
 import mx.tec.ticketgo.ui.components.FilterButton
 import mx.tec.ticketgo.ui.components.TicketAdmin
 import mx.tec.ticketgo.ui.components.TicketAdminPreview
@@ -47,15 +48,26 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
 
     // 2. Estados
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
-    val message by ticketViewModel.message.collectAsStateWithLifecycle()
+    val isLoading by ticketViewModel.isLoading.collectAsStateWithLifecycle()
 
-    // 3. Llamar tickets (asegúrate que no se llame en cada recomposición)
-
-    if(isHistory) {
-        ticketViewModel.getTickets(state = "Cerrado")
+    // Debug: Mostrar cantidad de tickets recibidos
+    LaunchedEffect(tickets) {
+        println("📊 Tickets recibidos: ${tickets.size}")
+        tickets.forEach { ticket ->
+            println("  - Ticket ${ticket.id_ticket}: ${ticket.titulo} (Estado: ${ticket.estado})")
+        }
     }
-    else{
-        ticketViewModel.getTickets()
+
+    // 3. Llamar tickets usando LaunchedEffect para evitar múltiples llamadas
+    LaunchedEffect(isHistory) {
+        if(isHistory) {
+            println("🔍 Cargando tickets de historial para admin con estado 'Cerrado'")
+            ticketViewModel.getTickets(state = "Cerrado")
+        }
+        else{
+            println("🔍 Cargando tickets activos para admin")
+            ticketViewModel.getTickets()
+        }
     }
 
     // 🔹 Vista lista de tickets o vacía
@@ -71,9 +83,6 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
             verticalAlignment = Alignment.CenterVertically
         ) {
             Title("Tickets")
-            message?.let {
-                ErrorMessage(it)
-            }
 
             FilterButton(
                 onClick = {
@@ -85,6 +94,15 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
+            isLoading && tickets.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            
             tickets.isEmpty() -> {
                 Column(
                     modifier = Modifier
@@ -100,13 +118,18 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
 
             else -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp) // Espacio entre items
+                    verticalArrangement = Arrangement.spacedBy(12.dp), // Espacio entre items
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(tickets.size) { index ->
                         val ticket = tickets[index]
                         TicketAdminPreview(ticket) { clicked ->
                             // Navegar a la pantalla de detalle con el ID del ticket
-                            navController.navigate("adminTicketDetail/${clicked.id_ticket}")
+                            if (isHistory) {
+                                navController.navigate("adminTicketDetailHistorial/${clicked.id_ticket}")
+                            } else {
+                                navController.navigate("adminTicketDetail/${clicked.id_ticket}")
+                            }
                         }
                     }
                 }

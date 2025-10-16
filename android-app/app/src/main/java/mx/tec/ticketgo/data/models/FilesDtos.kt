@@ -4,9 +4,9 @@ data class File(
     val id_adjunto: Int,
     val nombre_archivo: String,
     val tipo_archivo: String,
-    val url_archivo: String,
-    val fecha: String,
-    val subido_por: String
+    val nombre_original: String,
+    val tipo_mime: String,
+    val fecha: String
 )
 
 data class UploadFileRequest(

@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.ui.components.*
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
+import mx.tec.ticketgo.ui.viewmodels.FileViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @Composable
@@ -23,6 +24,7 @@ fun TecnicoTicketDetailScreen(
     ticketId: Int,
     commentViewModel: CommentsViewModel,
     ticketViewModel: TicketsViewModel,
+    fileViewModel: FileViewModel,
     navController: NavController
 ) {
     val comments by commentViewModel.comment.collectAsStateWithLifecycle()
@@ -57,10 +59,15 @@ fun TecnicoTicketDetailScreen(
                             commentViewModel.addLocalComment(ticket.id_ticket, commentText)
                         },
                         onAddEvidence = {
-                            // TODO: Implementar navegación a pantalla de agregar evidencia
+                            navController.navigate("fileUpload/$ticketId")
                         },
                         onViewGallery = {
-                            // TODO: Implementar navegación a galería
+                            navController.navigate("gallery/${ticket.id_ticket}")
+                        },
+                        onStatusChange = { newStatus, stateId ->
+                            // Actualizar estado localmente y hacer llamada a API
+                            ticketViewModel.updateTicketStatusLocally(ticket.id_ticket, newStatus)
+                            ticketViewModel.changeTicketState(ticket.id_ticket, stateId)
                         }
                     )
                 }
