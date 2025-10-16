@@ -1,8 +1,7 @@
 .ticket-card {
   position: relative;
   width: 350px;
-  height: 170px;        /* <-- quitar altura fija */
-  min-height: 170px;         /* <-- opcional: mantener mínimo */
+  height: auto;        /* <-- quitar altura fija */
   margin: 1rem auto;
   background: white;
   border-radius: 16px;
@@ -58,8 +57,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: gray;
-  color: black;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -69,7 +66,6 @@
 .status-dot {
   width: 10px;
   height: 10px;
-  background: lightgray;
   border-radius: 50%;
 }
 
@@ -97,12 +93,13 @@
   background: #0080FF;
 }
 
-.status-closed {
-  background: #FFB9BA;
+.ticket-status.status-closed {
+  background: #FFB9BA !important;
+  color:#FF3B3E !important;
 }
 
 .status-dot.status-closed {
-  background: #FF3B3E;
+  background: #FF3B3E !important;
 }
 
 .status-reopened {
@@ -179,7 +176,7 @@
 
 /* Línea punteada */
 .ticket-divider {
-  margin: 6px 0; /* separador encima y abajo */
+  margin: 4px 0; /* separador encima y abajo */
   border-top: 1px dashed #d1d5db;
   width: 100%;
   align-self: stretch;

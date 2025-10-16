@@ -16,7 +16,7 @@ const Login = () => {
         const form = formulario.current
         const correo = form.correo.value
         const contraseña = form.contraseña.value
-        const response = await fetch("http://localhost:3000/auth/login", {
+        const response = await fetch("http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/auth/login", {
             method: "POST",
             headers: {
             "Content-Type": "application/json"

@@ -166,7 +166,7 @@ html, body, #root {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.603);
   z-index: 1000;
   display: flex;
   align-items: center;  /* centrado vertical */
@@ -190,6 +190,52 @@ html, body, #root {
 }
 
 .close-modal {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #444;
+  z-index: 10;
+}
+
+.modal-create-user {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 550px;
+  height: auto;
+  position: relative;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.close-create-user {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #444;
+  z-index: 10;
+}
+
+.modal-edit-user {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 550px;
+  height: auto;
+  position: relative;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.close-edit-user {
   position: absolute;
   top: 16px;
   right: 20px;

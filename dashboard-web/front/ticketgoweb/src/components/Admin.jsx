@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import DetallesTickets from './DetallesTickets.jsx'
 import UsuarioTag from './UsuarioTag.jsx'
 import Usuario from './Usuario.jsx'
+import CrearUsuario from './FormularioCrearUsuario.jsx'
+import EditarUsuario from './FormularioEditarUsuario.jsx'
 import Notificacion from '../assets/notificacion.png'
 import Historial from '../assets/historial.svg'
 import LogOut from '../assets/logout.svg'
@@ -22,14 +24,17 @@ const Admin = () => {
   const [tickets, setTickets] = useState([])
   const [usuarios, setUsuarios] = useState([])
   const [selectedTicket, setSelectedTicket] = useState(null)
+  const [selectedForm, setSelectedForm] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [refresh, setRefresh] = useState(false); //Cuando se borre un usuario setRefresh(prev => !prev);
 
-  // 🔄 Fetch dinámico según pestaña activa
+  // Fetch dinámico según pestaña activa
   useEffect(() => {
     let url = ""
 
-    if (activeTab === "tickets") url = "http://localhost:3000/tickets"
-    else if (activeTab === "usuarios") url = "http://localhost:3000/users"
-    else if (activeTab === "historial") url = "http://localhost:3000/tickets?estado=3" // 👈 endpoint para historial
+    if (activeTab === "tickets") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/tickets"
+    else if (activeTab === "usuarios") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/users"
+    else if (activeTab === "historial") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/tickets?estado=Cerrado" // 👈 endpoint para historial
 
     if (!url) return
 
@@ -42,11 +47,16 @@ const Admin = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (activeTab === "usuarios") setUsuarios(data)
-        else setTickets(data)
+        if (activeTab === "usuarios") {
+            // Filtra el usuario actual
+            const filtered = data.filter(user => user.nombre !== userName)
+            setUsuarios(filtered)
+        } else {
+            setTickets(data)
+        }
       })
       .catch((err) => console.error(`Error al obtener datos (${activeTab}):`, err))
-  }, [activeTab, token])
+  }, [activeTab, refresh ,token])
 
   const logout = () => {
     localStorage.clear()
@@ -85,7 +95,7 @@ const Admin = () => {
           <img
             src={Historial}
             alt="historial"
-            className={`historial ${activeTab === "historial" ? "active" : ""}`} // 👈 destacar si está activo
+            className={`historial ${activeTab === "historial" ? "active" : ""}`} // destacar si está activo
             onClick={() => setActiveTab("historial")}
           />
           <img src={LogOut} alt="logout" className="logout" onClick={logout} />
@@ -107,7 +117,7 @@ const Admin = () => {
             <div className="subtitle">Consulta todos los usuarios creados.</div>
           </div>
           <div className="buttons">
-            <button className="create-User">
+            <button className="create-User" onClick={() => setSelectedForm("crear-usuario")}>
               <img src={Mas} /> Crear Usuario
             </button>
             <button className="filters">
@@ -147,8 +157,13 @@ const Admin = () => {
             {usuarios.map((user) => (
               <Usuario
                 key={user.id_usuario}
+                id_usuario={user.id_usuario}
                 name={user.nombre}
                 role={getUserRoleLabel(user.id_rol)}
+                 onEdit={() => {
+                    setSelectedForm("editar-usuario");
+                    setSelectedUser(user); // guardamos el usuario actual
+                }}
               />
             ))}
           </div>
@@ -166,6 +181,29 @@ const Admin = () => {
           </div>
         </div>
       )}
+
+      {/* MODAL DE FORMULARIO DE CREACION DE USUARIOS */}
+        {selectedForm === "crear-usuario" && (
+        <div className="modal-overlay">
+            <div className="modal-create-user">
+            <button className="close-create-user" onClick={() => setSelectedForm(null)}>✕</button>
+            <CrearUsuario onClose={() => setSelectedForm(null)} onSuccess={() => setRefresh(prev => !prev)} />
+            </div>
+        </div>
+        )}
+
+        {selectedForm === "editar-usuario" && selectedUser && (
+        <div className="modal-overlay">
+            <div className="modal-edit-user">
+            <button className="close-edit-user" onClick={() => setSelectedForm(null)}>✕</button>
+            <EditarUsuario 
+                usuario={selectedUser} 
+                onClose={() => setSelectedForm(null)} 
+                onSuccess={() => setRefresh(prev => !prev)} 
+            />
+            </div>
+        </div>
+        )}
     </div>
   )
 }
