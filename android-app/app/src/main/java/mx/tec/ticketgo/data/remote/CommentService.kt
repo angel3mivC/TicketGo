@@ -13,7 +13,7 @@ interface CommentService {
     @GET("tickets/{id}/comments/")
     suspend fun getComments(@Path("id") id:Int): Response<List<Comment>>
 
-    @POST("tickets/{id/comments/}")
+    @POST("tickets/{id}/comments/")
     suspend fun createComment(
         @Path("id") id:Int,
         @Body request: CreateCommentRequest

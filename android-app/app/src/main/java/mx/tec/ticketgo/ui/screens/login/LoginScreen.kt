@@ -78,7 +78,7 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
                     1 -> navController.navigate("adminHome")
                     2 -> navController.navigate("mesaHome")
                     3 -> navController.navigate("tecnicoHome")
-                    else -> navController.navigate("inicio")
+                    else -> navController.navigate("usuarioHome")
                 }
             }
         }

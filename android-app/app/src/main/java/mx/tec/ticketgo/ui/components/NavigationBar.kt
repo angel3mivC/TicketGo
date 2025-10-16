@@ -42,11 +42,11 @@ fun RowScope.NavBarItem(navController: NavController, currentRoute: String?, rou
 }
 
 @Composable
-fun NavBar(navController: NavController, currentRoute: String?, middleBottomIcon: ImageVector, middleBottomRoute: String){
+fun NavBar(navController: NavController, currentRoute: String?, middleBottomIcon: ImageVector, middleBottomRoute: String, historialRoute: String = "historial", homeRoute: String){
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.background
     ) {
-        NavBarItem(navController, currentRoute, "inicio", "Inicio", Icons.Default.Home)
+        NavBarItem(navController, currentRoute, homeRoute, "Inicio", Icons.Default.Home)
         FloatingActionButton(
             onClick = {
                 navController.navigate(middleBottomRoute){
@@ -61,6 +61,6 @@ fun NavBar(navController: NavController, currentRoute: String?, middleBottomIcon
         ) {
             Icon(middleBottomIcon, "", tint = MaterialTheme.colorScheme.background)
         }
-        NavBarItem(navController, currentRoute, "historial", "Historial", Icons.Default.Menu)
+        NavBarItem(navController, currentRoute, historialRoute, "Historial", Icons.Default.Menu)
     }
 }

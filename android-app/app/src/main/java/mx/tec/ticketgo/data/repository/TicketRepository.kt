@@ -18,7 +18,15 @@ class TicketRepository() {
 
     suspend fun getTickets(request: TicketFilterRequest): Result<List<Ticket>> =
         safeApiCall {
-            service.getTickets(
+            println("🔍 TicketRepository.getTickets() - Parámetros:")
+            println("  - Estado: ${request.estado}")
+            println("  - Prioridad: ${request.prioridad}")
+            println("  - Técnico: ${request.tecnico}")
+            println("  - Categoría: ${request.categoria}")
+            println("  - Fecha inicio: ${request.fecha_inicio}")
+            println("  - Fecha fin: ${request.fecha_fin}")
+            
+            val result = service.getTickets(
                 request.estado,
                 request.prioridad,
                 request.tecnico,
@@ -26,6 +34,13 @@ class TicketRepository() {
                 request.fecha_inicio,
                 request.fecha_fin
             )
+            
+            println("📡 Respuesta de la API: ${result.body()?.size ?: 0} tickets")
+            result.body()?.forEach { ticket ->
+                println("  - Ticket ${ticket.id_ticket}: ${ticket.titulo} (Estado: ${ticket.estado})")
+            }
+            
+            result
         }
 
     suspend fun getTicketById(id: Int): Result<Ticket> =

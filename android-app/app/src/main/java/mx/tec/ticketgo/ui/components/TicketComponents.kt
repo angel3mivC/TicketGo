@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -81,13 +84,83 @@ fun TicketTop(titulo: String, fechaHora: String, estado: String) {
             .fillMaxWidth()
             .padding(bottom = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .weight(1f, fill = false) // 🔥 IMPORTANTE: fill = false para no expandirse
+                .padding(end = 8.dp) // 🔥 Espacio entre título y chip
+        ) {
             Subtitle(titulo)
             SmallText(fechaHora)
         }
-        DotChip(estado,colorEstado)
+
+        // Chip se adapta al contenido pero no se aplasta
+        DotChip(
+            text = estado,
+            color = colorEstado,
+            modifier = Modifier.wrapContentWidth()
+        )
+    }
+}
+
+@Composable
+fun TicketTopWithSpinner(
+    titulo: String, 
+    fechaHora: String, 
+    estado: String,
+    userType: UserType,
+    hasAssignedTechnician: Boolean = true,
+    onStatusChange: (String, Int) -> Unit,
+    onError: (String) -> Unit = {}
+) {
+    // Estado para mensajes de error
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false) // 🔥 IMPORTANTE: fill = false para no expandirse
+                    .padding(end = 8.dp) // 🔥 Espacio entre título y spinner
+            ) {
+                Subtitle(titulo)
+                SmallText(fechaHora)
+            }
+
+            // Spinner para cambiar estado
+            StatusSpinner(
+                currentStatus = estado,
+                userType = userType,
+                hasAssignedTechnician = hasAssignedTechnician,
+                onStatusChange = onStatusChange,
+                onError = { message -> errorMessage = message },
+                modifier = Modifier.wrapContentWidth()
+            )
+        }
+        
+        // Fila separada para mensajes de error
+        errorMessage?.let { message ->
+            Text(
+                text = message,
+                color = Color(0xFFD32F2F),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFFFFEBEE),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+        }
     }
 }
 
@@ -154,6 +227,42 @@ fun AddButton(
 }
 
 @Composable
+fun GalleryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = modifier.size(width = 100.dp, height = 80.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.background
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.List,
+                contentDescription = "Galería",
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+    }
+}
+
+@Composable
 fun EvidenciasTicket(onClickEvidencias: () -> Unit) {
     Column {
         Row(
@@ -171,6 +280,42 @@ fun EvidenciasTicket(onClickEvidencias: () -> Unit) {
             onClickEvidencias
         )
 
+    }
+}
+
+@Composable
+fun EvidenciasTicketTecnico(
+    onAddEvidence: () -> Unit,
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            AddButton(
+                "Agregar",
+                onAddEvidence
+            )
+            GalleryButton(
+                "Galería",
+                onViewGallery
+            )
+        }
+    }
+}
+
+@Composable
+fun EvidenciasTicketAdmin(
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        GalleryButton(
+            "Galería",
+            onViewGallery
+        )
     }
 }
 
@@ -216,7 +361,7 @@ fun TicketCommentsSection(
 
 @Composable
 fun CommentItem(comment: Comment) {
-    val nombre = if (comment.nombre != null) comment.nombre else "Desconocido"
+    val nombre = if (comment.autor != null) comment.autor else "Desconocido"
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -313,4 +458,48 @@ fun CommentInputField(
         ),
         maxLines = 3
     )
+}
+
+@Composable
+fun EvidenciasTicketTecnicoHistorial(
+    onViewGallery: () -> Unit
+) {
+    Column {
+        Subtitle("Evidencias")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Solo botón de galería, sin botón de agregar
+            GalleryButton(
+                "Galería",
+                onViewGallery
+            )
+        }
+    }
+}
+
+@Composable
+fun TicketCommentsSectionHistorial(
+    comments: List<Comment>
+) {
+    Column {
+        Subtitle("Comentarios")
+        
+        if (comments.isEmpty()) {
+            Text(
+                text = "No hay comentarios",
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        } else {
+            comments.forEach { comment ->
+                Column(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    CommentItem(comment = comment)
+                }
+            }
+        }
+    }
 }

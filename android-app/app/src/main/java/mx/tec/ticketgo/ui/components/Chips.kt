@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ fun DotChip(
         modifier = modifier
             .clip(RoundedCornerShape(50)) // pill shape
             .background(color.copy(alpha = 0.2f)) // fondo suave del mismo color
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -53,7 +54,7 @@ fun Chip(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(color)
-            .padding(4.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SmallText(text = text, color = Color.White)
