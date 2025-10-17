@@ -1,14 +1,10 @@
 import { Router } from "express";
-import {
-    getUsers,
-    getUserById,
-    createUser,
-    updateUser,
-    deleteUser,
-} from "../controllers/users.controller.js";
+import { getUsers, getUserById, createUser, updateUser, deleteUser, getTechnicians } from "../controllers/users.controller.js";
 import { verifyToken, checkRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
+
+router.get("/technicians", verifyToken, checkRole([1, 2]), getTechnicians);
 
 router.get("/", verifyToken, checkRole([1]), getUsers);
 router.get("/:id", verifyToken, checkRole([1]), getUserById);

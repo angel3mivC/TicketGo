@@ -18,7 +18,7 @@ CREATE TABLE usuarios (
     correo VARCHAR(100) NOT NULL UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     id_rol INT NOT NULL,
-    estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
+    estado ENUM('Activo', 'Inactivo', 'Deshabilitado') DEFAULT 'Activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
@@ -126,45 +126,97 @@ END;
 //
 DELIMITER ;
 
---Historial al crear ticket
+-- HISTORIAL al CREAR TICKET + Notificación a admins
+DROP TRIGGER IF EXISTS after_insert_ticket;
 DELIMITER //
 CREATE TRIGGER after_insert_ticket
 AFTER INSERT ON tickets
 FOR EACH ROW
 BEGIN
-    INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
+    -- Registrar historial de creación
+    INSERT INTO historial_tickets (id_ticket, id_usuario, accion, detalle)
     VALUES (NEW.id_ticket, NEW.creado_por, 'Creación de Ticket', CONCAT('Ticket creado con título: ', NEW.titulo));
+
+    -- Notificar a todos los administradores
+    INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+    SELECT id_usuario, NEW.id_ticket,
+           CONCAT('Nuevo ticket creado: "', NEW.titulo, '" por usuario #', NEW.creado_por)
+    FROM usuarios
+    WHERE id_rol = 1 AND estado = 'Activo';
 END;
 //
 DELIMITER ;
 
---Historial y notificación al cambiar estado
+-- HISTORIAL y NOTIFICACIÓN al CAMBIAR ESTADO + Notificación a admins
+DROP TRIGGER IF EXISTS after_update_estado_ticket;
 DELIMITER //
 CREATE TRIGGER after_update_estado_ticket
 AFTER UPDATE ON tickets
 FOR EACH ROW
 BEGIN
     IF NEW.id_estado <> OLD.id_estado THEN
-        INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
-        VALUES (NEW.id_ticket, NEW.asignado_a, 'Cambio de Estado', CONCAT('Estado cambiado de ', OLD.id_estado, ' a ', NEW.id_estado));
-        INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-        VALUES (NEW.creado_por, NEW.id_ticket, CONCAT('El estado del ticket #', NEW.id_ticket, ' cambió a ', NEW.id_estado));
+        -- Registrar cambio de estado
+        INSERT INTO historial_tickets (id_ticket, id_usuario, accion, detalle)
+        VALUES (NEW.id_ticket, NEW.asignado_a, 'Cambio de Estado',
+                CONCAT('Estado cambiado de ', OLD.id_estado, ' a ', NEW.id_estado));
+
+        -- Notificar al creador del ticket
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        VALUES (NEW.creado_por, NEW.id_ticket,
+                CONCAT('El estado del ticket #', NEW.id_ticket, ' cambió a ', NEW.id_estado));
+
+        -- Notificar a todos los administradores
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        SELECT id_usuario, NEW.id_ticket,
+               CONCAT('El ticket #', NEW.id_ticket, ' cambió de estado (', OLD.id_estado, ' → ', NEW.id_estado, ').')
+        FROM usuarios
+        WHERE id_rol = 1 AND estado = 'Activo';
     END IF;
 END;
 //
 DELIMITER ;
 
---Historial y notificación al reasignar técnico
+-- HISTORIAL y NOTIFICACIÓN al REASIGNAR TÉCNICO + Notificación a admins
+DROP TRIGGER IF EXISTS after_update_estado_ticket;
 DELIMITER //
-CREATE TRIGGER after_update_asignacion_ticket
+CREATE TRIGGER after_update_estado_ticket
 AFTER UPDATE ON tickets
 FOR EACH ROW
 BEGIN
-    IF NEW.asignado_a <> OLD.asignado_a THEN
-        INSERT INTO historial_tickets(id_ticket, id_usuario, accion, detalle)
-        VALUES (NEW.id_ticket, NEW.asignado_a, 'Reasignación', CONCAT('Ticket reasignado de usuario ', OLD.asignado_a, ' a usuario ', NEW.asignado_a));
-        INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-        VALUES (NEW.asignado_a, NEW.id_ticket, CONCAT('Se te asignó el ticket #', NEW.id_ticket));
+    DECLARE old_estado_nombre VARCHAR(100);
+    DECLARE new_estado_nombre VARCHAR(100);
+
+    -- Obtener los nombres de los estados
+    SELECT nombre INTO old_estado_nombre FROM estados WHERE id_estado = OLD.id_estado;
+    SELECT nombre INTO new_estado_nombre FROM estados WHERE id_estado = NEW.id_estado;
+
+    -- Si el estado cambió, registrar y notificar
+    IF NEW.id_estado <> OLD.id_estado THEN
+        -- Registrar en historial
+        INSERT INTO historial_tickets (id_ticket, id_usuario, accion, detalle)
+        VALUES (
+            NEW.id_ticket,
+            NEW.asignado_a,
+            'Cambio de Estado',
+            CONCAT('Estado cambiado de "', old_estado_nombre, '" a "', new_estado_nombre, '".')
+        );
+
+        -- Notificar al creador del ticket
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        VALUES (
+            NEW.creado_por,
+            NEW.id_ticket,
+            CONCAT('El estado del ticket #', NEW.id_ticket, ' cambió de "', old_estado_nombre, '" a "', new_estado_nombre, '".')
+        );
+
+        -- Notificar a todos los administradores activos
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        SELECT
+            id_usuario,
+            NEW.id_ticket,
+            CONCAT('El ticket #', NEW.id_ticket, ' cambió de estado (', old_estado_nombre, ' → ', new_estado_nombre, ').')
+        FROM usuarios
+        WHERE id_rol = 1 AND estado = 'Activo';
     END IF;
 END;
 //
@@ -176,12 +228,20 @@ CREATE TRIGGER after_insert_comentario
 AFTER INSERT ON comentarios
 FOR EACH ROW
 BEGIN
-    INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
-    SELECT asignado_a, NEW.id_ticket, CONCAT('Nuevo comentario en el ticket #', NEW.id_ticket, ': ', NEW.comentario)
-    FROM tickets WHERE id_ticket = NEW.id_ticket;
+    DECLARE tecnico INT;
+
+    SELECT asignado_a INTO tecnico
+    FROM tickets
+    WHERE id_ticket = NEW.id_ticket;
+
+    IF tecnico IS NOT NULL THEN
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        VALUES (tecnico, NEW.id_ticket, CONCAT('Nuevo comentario en el ticket #', NEW.id_ticket, ': ', NEW.comentario));
+    END IF;
 END;
 //
 DELIMITER ;
+
 
 --Notificación al subir adjunto
 DELIMITER //
