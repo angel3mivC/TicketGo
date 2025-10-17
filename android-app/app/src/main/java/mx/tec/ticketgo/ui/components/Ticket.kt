@@ -1,11 +1,13 @@
 package mx.tec.ticketgo.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,7 +91,8 @@ fun TicketAdmin(
     comments: List<Comment>,
     onSendComment: (String) -> Unit,
     onViewGallery: () -> Unit = {},
-    onStatusChange: (String, Int) -> Unit = { _, _ -> }
+    onStatusChange: (String, Int) -> Unit = { _, _ -> },
+    onAssignTechnician: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -125,35 +128,61 @@ fun TicketAdmin(
         // 🔹 Avatar del técnico asignado y nombre
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Row interna para avatar y nombre (mantener juntos)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (ticket.asignado_a != null) {
+                    // Técnico asignado - mostrar InitialsAvatar
+                    InitialsAvatar(
+                        nombre = ticket.asignado_a!!,
+                        backgroundColor = getColorForName(ticket.asignado_a!!)
+                    )
+                    BodyText(ticket.asignado_a!!)
+                } else {
+                    // Sin técnico asignado - mostrar círculo con ícono de más clickeable
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                color = Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                            .clickable { onAssignTechnician() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Asignar técnico",
+                            tint = Color(0xFF9E9E9E),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    BodyText("Sin asignar")
+                }
+            }
+            
+            // Botón para reasignar técnico (solo si hay técnico asignado)
             if (ticket.asignado_a != null) {
-                // Técnico asignado - mostrar InitialsAvatar
-                InitialsAvatar(
-                    nombre = ticket.asignado_a!!,
-                    backgroundColor = getColorForName(ticket.asignado_a!!)
-                )
-                BodyText(ticket.asignado_a!!)
-            } else {
-                // Sin técnico asignado - mostrar círculo con ícono de más
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = Color(0xFFE0E0E0),
-                            shape = CircleShape
-                        ),
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0))
+                        .clickable { onAssignTechnician() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Sin asignar",
+                        imageVector = Icons.Default.SwapHoriz,
+                        contentDescription = "Reasignar técnico",
                         tint = Color(0xFF9E9E9E),
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
-                BodyText("Sin asignar")
             }
         }
         
@@ -239,7 +268,8 @@ fun TicketTecnicoHistorial(
 fun TicketAdminHistorial(
     ticket: Ticket,
     comments: List<Comment>,
-    onViewGallery: () -> Unit = {}
+    onViewGallery: () -> Unit = {},
+    onAssignTechnician: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -271,35 +301,61 @@ fun TicketAdminHistorial(
         // 🔹 Avatar del técnico asignado y nombre
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Row interna para avatar y nombre (mantener juntos)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (ticket.asignado_a != null) {
+                    // Técnico asignado - mostrar InitialsAvatar
+                    InitialsAvatar(
+                        nombre = ticket.asignado_a!!,
+                        backgroundColor = getColorForName(ticket.asignado_a!!)
+                    )
+                    BodyText(ticket.asignado_a!!)
+                } else {
+                    // Sin técnico asignado - mostrar círculo con ícono de más clickeable
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                color = Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                            .clickable { onAssignTechnician() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Asignar técnico",
+                            tint = Color(0xFF9E9E9E),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    BodyText("Sin asignar")
+                }
+            }
+            
+            // Botón para reasignar técnico (solo si hay técnico asignado)
             if (ticket.asignado_a != null) {
-                // Técnico asignado - mostrar InitialsAvatar
-                InitialsAvatar(
-                    nombre = ticket.asignado_a!!,
-                    backgroundColor = getColorForName(ticket.asignado_a!!)
-                )
-                BodyText(ticket.asignado_a!!)
-            } else {
-                // Sin técnico asignado - mostrar círculo con ícono de más
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = Color(0xFFE0E0E0),
-                            shape = CircleShape
-                        ),
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0))
+                        .clickable { onAssignTechnician() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Sin asignar",
+                        imageVector = Icons.Default.SwapHoriz,
+                        contentDescription = "Reasignar técnico",
                         tint = Color(0xFF9E9E9E),
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
-                BodyText("Sin asignar")
             }
         }
         

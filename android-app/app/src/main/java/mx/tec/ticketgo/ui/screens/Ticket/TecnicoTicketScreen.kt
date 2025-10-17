@@ -26,17 +26,25 @@ import mx.tec.ticketgo.ui.components.HistoryButton
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 import mx.tec.ticketgo.ui.components.TopBar
+import mx.tec.ticketgo.ui.screens.filters.FilterSection
+import mx.tec.ticketgo.ui.screens.filters.FilterScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TecnicoTicketScreen(
     commentViewModel: CommentsViewModel,
     ticketViewModel: TicketsViewModel,
     navController: NavController,
-    isHistory: Boolean = false
+    isHistory: Boolean = false,
+    filterSections: List<FilterSection> = emptyList()
 ) {
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     val userId = sharedPref.getInt("id_user", -1)
+
+    // Estados para filtros
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var currentFilterSections by remember { mutableStateOf(filterSections) }
 
     // Estados de viewmodels
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
@@ -45,7 +53,6 @@ fun TecnicoTicketScreen(
 
     // Debug: Mostrar cantidad de tickets recibidos
     LaunchedEffect(tickets) {
-        println("📊 Tickets recibidos: ${tickets.size}")
         tickets.forEach { ticket ->
             println("  - Ticket ${ticket.id_ticket}: ${ticket.titulo} (Estado: ${ticket.estado})")
         }
@@ -55,10 +62,8 @@ fun TecnicoTicketScreen(
     LaunchedEffect(userId, isHistory) {
         if (userId != -1) {
             if (isHistory) {
-                println("🔍 Cargando tickets de historial para técnico $userId con estado 'Cerrado'")
                 ticketViewModel.getTickets(technician = userId, state = "Cerrado")
             } else {
-                println("🔍 Cargando tickets activos para técnico $userId")
                 ticketViewModel.getTickets(technician = userId)
             }
         }
@@ -83,7 +88,9 @@ fun TecnicoTicketScreen(
             ) {
                 FilterButton(
                     onClick = {
-                        // TODO: Implementar funcionalidad de filtro
+                        if (currentFilterSections.isNotEmpty()) {
+                            showFilterSheet = true
+                        }
                     }
                 )
                 if (isHistory) {
@@ -158,6 +165,64 @@ fun TecnicoTicketScreen(
                     }
                 }
             }
+        }
+    }
+
+    // Modal de filtros
+    if (showFilterSheet && currentFilterSections.isNotEmpty()) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilterSheet = false }
+        ) {
+            FilterScreen(
+                sections = currentFilterSections,
+                onOptionSelected = { sectionTitle, option, isSelected ->
+                    // Actualizar las secciones de filtro - solo una selección por sección
+                    val updatedSections = currentFilterSections.map { section ->
+                        if (section.title == sectionTitle) {
+                            val newSelectedOptions = if (isSelected) {
+                                setOf(option) // Solo una opción seleccionada
+                            } else {
+                                emptySet() // Si se deselecciona, quitar todas
+                            }
+                            section.copy(selectedOptions = newSelectedOptions)
+                        } else {
+                            section
+                        }
+                    }
+                    
+                    // Actualizar el estado local
+                    currentFilterSections = updatedSections
+                    
+                    // Aplicar filtro inmediatamente con el estado actualizado
+                    val stateString = updatedSections
+                        .find { it.title == "Estado" }
+                        ?.selectedOptions
+                        ?.firstOrNull()
+
+                    val priorityId = updatedSections
+                        .find { it.title == "Prioridad" }
+                        ?.selectedOptions
+                        ?.firstOrNull()
+                        ?.let { option ->
+                            // Buscar el ID correspondiente al string seleccionado
+                            updatedSections
+                                .find { it.title == "Prioridad" }
+                                ?.options
+                                ?.entries
+                                ?.find { it.value == option }
+                                ?.key
+                        }
+
+                    if (isHistory) {
+                        ticketViewModel.getTickets(state = "Cerrado", technician = userId, priority = priorityId)
+                    } else {
+                        ticketViewModel.getTickets(state = stateString, technician = userId, priority = priorityId)
+                    }
+                },
+                onClose = {
+                    showFilterSheet = false
+                }
+            )
         }
     }
 }

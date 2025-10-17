@@ -13,6 +13,9 @@ class UserViewModel(private val repository: UserRepository = UserRepository()): 
     private val _users = MutableStateFlow<List<GetUserResponse>>(emptyList())
     val users: StateFlow<List<GetUserResponse>> = _users
 
+    private val _technicians = MutableStateFlow<List<GetUserResponse>>(emptyList())
+    val technicians: StateFlow<List<GetUserResponse>> = _technicians
+
     private val _user = MutableStateFlow<GetUserResponse?>(null)
     val user: StateFlow<GetUserResponse?> = _user
 
@@ -20,6 +23,13 @@ class UserViewModel(private val repository: UserRepository = UserRepository()): 
         safeCall(
             action = { repository.getUsers() },
             onSuccess = { _users.value = it }
+        )
+    }
+
+    fun getTechnicians(){
+        safeCall(
+            action = { repository.getTechnicians() },
+            onSuccess = { _technicians.value = it }
         )
     }
 

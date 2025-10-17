@@ -5,35 +5,47 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketScreen
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
+import mx.tec.ticketgo.ui.screens.filters.FilterSection
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 val homeFilters = listOf(
     FilterSection(
         "Estado",
-        mapOf(1 to "Abierto", 2 to "En progreso", 3 to "Cerrado", 4 to "Resuelto", 5 to "Reabierto"),
+        mapOf(1 to "Abierto", 2 to "En progreso", 4 to "Resuelto", 5 to "Reabierto"),
         setOf("Abierto")
     ),
     FilterSection(
         "Categoría",
-        mapOf(1 to "En Proceso", 2 to "Daño Inducido", 3 to "Garantía"),
+        mapOf(1 to "En proceso", 2 to "Daño inducido", 3 to "Garantía"),
+        emptySet()
+    )
+)
+
+val tecnicoFilters = listOf(
+    FilterSection(
+        "Estado",
+        mapOf(1 to "Abierto", 2 to "En progreso", 4 to "Resuelto", 5 to "Reabierto"),
+        emptySet()
+    ),
+    FilterSection(
+        "Prioridad",
+        mapOf(1 to "Alta", 2 to "Media", 3 to "Baja"),
         emptySet()
     )
 )
 
 @Composable
-
-
 fun tecnicoHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
-    TecnicoTicketScreen(commentViewModel, ticketViewModel, navController)
+    TecnicoTicketScreen(commentViewModel, ticketViewModel, navController, false, tecnicoFilters)
 }
+
 @Composable
 fun mesaHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
-    AdminTicketScreen(commentViewModel, ticketViewModel, navController, false)
+    AdminTicketScreen(commentViewModel, ticketViewModel, navController, false, homeFilters)
 }
-
 
 @Composable
 fun adminHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
-    AdminTicketScreen(commentViewModel, ticketViewModel, navController)
+    AdminTicketScreen(commentViewModel, ticketViewModel, navController, false, homeFilters)
 }

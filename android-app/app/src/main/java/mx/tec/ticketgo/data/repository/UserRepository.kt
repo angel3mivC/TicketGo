@@ -13,6 +13,9 @@ class UserRepository() {
     suspend fun getUsers(): Result<List<GetUserResponse>> =
         safeApiCall { service.getUsers() }
 
+    suspend fun getTechnicians(): Result<List<GetUserResponse>> =
+        safeApiCall { service.getTechnicians() }
+
     suspend fun getUserById(id: Int): Result<GetUserResponse> =
         safeApiCall { service.getUserByID(id) }
 

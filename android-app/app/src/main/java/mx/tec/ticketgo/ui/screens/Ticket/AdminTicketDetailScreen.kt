@@ -17,6 +17,7 @@ import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.ui.components.*
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
+import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
 @Composable
 fun AdminTicketDetailScreen(
@@ -25,15 +26,24 @@ fun AdminTicketDetailScreen(
     ticketViewModel: TicketsViewModel,
     navController: NavController
 ) {
+    // ViewModels
+    val userViewModel = remember { UserViewModel() }
+    
+    // Estados del modal
+    var showAssignTechnicianModal by remember { mutableStateOf(false) }
     val comments by commentViewModel.comment.collectAsStateWithLifecycle()
     
     // Obtener el ticket específico
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
     val ticket = tickets.find { it.id_ticket == ticketId }
     
-    // Obtener comentarios del ticket
+    // Obtener técnicos para poder acceder a sus nombres
+    val technicians by userViewModel.technicians.collectAsStateWithLifecycle()
+    
+    // Obtener comentarios del ticket y cargar técnicos
     LaunchedEffect(ticketId) {
         commentViewModel.getComments(ticketId)
+        userViewModel.getTechnicians() // Cargar técnicos específicamente
     }
 
     if (ticket != null) {
@@ -63,6 +73,9 @@ fun AdminTicketDetailScreen(
                             // Actualizar estado localmente y hacer llamada a API
                             ticketViewModel.updateTicketStatusLocally(ticket.id_ticket, newStatus)
                             ticketViewModel.changeTicketState(ticket.id_ticket, stateId)
+                        },
+                        onAssignTechnician = {
+                            showAssignTechnicianModal = true
                         }
                     )
                 }
@@ -76,4 +89,23 @@ fun AdminTicketDetailScreen(
             Text("Ticket no encontrado")
         }
     }
+    
+    // Modal para asignar técnico
+    AssignTechnicianModal(
+        isVisible = showAssignTechnicianModal,
+        onDismiss = { showAssignTechnicianModal = false },
+        onAssign = { technicianId ->
+            // Obtener el nombre del técnico antes de asignar
+            val technician = technicians.find { it.id_usuario == technicianId }
+            val technicianName = technician?.nombre
+            
+            // Actualizar localmente con el nombre del técnico
+            ticketViewModel.updateTicketTechnicianLocally(ticketId, technicianId, technicianName)
+            
+            // Llamar a la API
+            ticketViewModel.assignTicket(ticketId, technicianId, technicianName)
+            showAssignTechnicianModal = false
+        },
+        userViewModel = userViewModel
+    )
 }

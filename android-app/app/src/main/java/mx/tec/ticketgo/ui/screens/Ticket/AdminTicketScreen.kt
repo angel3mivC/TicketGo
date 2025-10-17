@@ -50,10 +50,16 @@ import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController,  filterSections: List<FilterSection>) {
-
+fun AdminTicketScreen(
+    commentViewModel: CommentsViewModel, 
+    ticketViewModel: TicketsViewModel, 
+    navController: NavController, 
+    isHistory: Boolean = false,
+    filterSections: List<FilterSection> = emptyList()
+) {
     var selectedTicket by remember { mutableStateOf<Ticket?>(null) }
-    var showFilterSheet by remember { mutableStateOf(false) } //Estado para controlar si se abre la sección de filtros
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var currentFilterSections by remember { mutableStateOf(filterSections) }
 
     // 1. Obtener contexto
     val context = LocalContext.current
@@ -65,7 +71,6 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
 
     // Debug: Mostrar cantidad de tickets recibidos
     LaunchedEffect(tickets) {
-        println("📊 Tickets recibidos: ${tickets.size}")
         tickets.forEach { ticket ->
             println("  - Ticket ${ticket.id_ticket}: ${ticket.titulo} (Estado: ${ticket.estado})")
         }
@@ -74,11 +79,9 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
     // 3. Llamar tickets usando LaunchedEffect para evitar múltiples llamadas
     LaunchedEffect(isHistory) {
         if(isHistory) {
-            println("🔍 Cargando tickets de historial para admin con estado 'Cerrado'")
             ticketViewModel.getTickets(state = "Cerrado")
         }
         else{
-            println("🔍 Cargando tickets activos para admin")
             ticketViewModel.getTickets()
         }
     }
@@ -97,56 +100,65 @@ fun AdminTicketScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
         ) {
             Title("Tickets")
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { showFilterSheet = true }) {
-                        Text("Filtrar")
-                    }
-                    if (showFilterSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = { showFilterSheet = false }
-                        ) {
-                            FilterScreen(
-                                sections = filterSections,
-                                onOptionSelected = { sectionTitle, option, isSelected ->
-                                },
-                                onClose = {
-                                    val stateId = filterSections
-                                        .find { it.title == "Estado" }
-                                        ?.selectedOptions
-                                        ?.firstOrNull()
-                                        ?.let { option ->
-                                            when (option) {
-                                                "Abierto" -> 1
-                                                "En progreso" -> 2
-                                                "Cerrado" -> 3
-                                                "Resuelto" -> 4
-                                                "Reabierto" -> 5
-                                                else -> null
-                                            }
-                                        }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterButton(
+                    onClick = { showFilterSheet = true }
+                )
+            }
+        }
 
-                                    val categoryId = filterSections
-                                        .find { it.title == "Categoría" }
-                                        ?.selectedOptions
-                                        ?.firstOrNull()
-                                        ?.let { option ->
-                                            when (option) {
-                                                "En proceso" -> 1
-                                                "Daño Inducido" -> 2
-                                                "Garantía" -> 3
-                                                else -> null
-                                            }
-                                        }
-
-                                    ticketViewModel.getTickets(state = stateId, category = categoryId)
-
-                                    showFilterSheet = false
+        // Modal de filtros
+        if (showFilterSheet && currentFilterSections.isNotEmpty()) {
+            ModalBottomSheet(
+                onDismissRequest = { showFilterSheet = false }
+            ) {
+                FilterScreen(
+                    sections = currentFilterSections,
+                    onOptionSelected = { sectionTitle, option, isSelected ->
+                        // Actualizar las secciones de filtro - solo una selección por sección
+                        val updatedSections = currentFilterSections.map { section ->
+                            if (section.title == sectionTitle) {
+                                val newSelectedOptions = if (isSelected) {
+                                    setOf(option) // Solo una opción seleccionada
+                                } else {
+                                    emptySet() // Si se deselecciona, quitar todas
                                 }
-                            )
+                                section.copy(selectedOptions = newSelectedOptions)
+                            } else {
+                                section
+                            }
                         }
+                        
+                        // Actualizar el estado local
+                        currentFilterSections = updatedSections
+                        
+                        // Aplicar filtro inmediatamente con el estado actualizado
+                        val stateString = updatedSections
+                            .find { it.title == "Estado" }
+                            ?.selectedOptions
+                            ?.firstOrNull()
+
+                        val categoryId = updatedSections
+                            .find { it.title == "Categoría" }
+                            ?.selectedOptions
+                            ?.firstOrNull()
+                            ?.let { option ->
+                                // Buscar el ID correspondiente al string seleccionado
+                                updatedSections
+                                    .find { it.title == "Categoría" }
+                                    ?.options
+                                    ?.entries
+                                    ?.find { it.value == option }
+                                    ?.key
+                            }
+
+                        ticketViewModel.getTickets(state = stateString, category = categoryId)
+                    },
+                    onClose = {
+                        showFilterSheet = false
                     }
-                }
-            )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

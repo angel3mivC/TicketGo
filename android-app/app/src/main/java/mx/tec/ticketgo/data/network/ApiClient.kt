@@ -7,11 +7,12 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/"
+    private const val BASE_URL = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com"
 
     private val okHttp = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
         .addInterceptor(AuthInterceptor())
         .build()
 

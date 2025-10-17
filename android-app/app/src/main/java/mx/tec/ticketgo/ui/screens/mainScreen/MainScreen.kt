@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.PersonAdd
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
-import mx.tec.ticketgo.ui.screens.Home.usuarioHome
 import mx.tec.ticketgo.ui.screens.forms.CreateUserScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
@@ -118,7 +117,6 @@ fun MainScreen(){
             composable("login") { LoginScreen(loginViewModel, context, navController) }
             //composable("historial") { TicketHistoryScreen() }
             composable("gallery") { GalleryScreen(0, evidenceViewModel) }
-            composable("usuarioHome") { usuarioHome() }
 
             //Tecnico
             composable("tecnicoHome") { tecnicoHomeScreen(commentsViewModel,ticketsViewModel, navController) }

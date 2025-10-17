@@ -19,9 +19,7 @@ object TokenStorage {
 
     suspend fun getToken(): String? {
         val prefs = App.instance.dataStore.data.first()
-        val token = prefs[TOKEN_KEY]
-        println("🔑 TOKEN OBTENIDO: $token")
-        return token
+        return prefs[TOKEN_KEY]
     }
 
     suspend fun saveUserName(userName: String) {
@@ -32,9 +30,7 @@ object TokenStorage {
 
     suspend fun getUserName(): String? {
         val prefs = App.instance.dataStore.data.first()
-        val userName = prefs[USER_NAME_KEY]
-        println("👤 NOMBRE DE USUARIO OBTENIDO: $userName")
-        return userName
+        return prefs[USER_NAME_KEY]
     }
 
     suspend fun clearToken() {

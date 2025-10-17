@@ -16,6 +16,9 @@ interface UserService {
     @GET("users/")
     suspend fun getUsers(): Response<List<GetUserResponse>>
 
+    @GET("users/technicians")
+    suspend fun getTechnicians(): Response<List<GetUserResponse>>
+
     @GET("users/{id}")
     suspend fun getUserByID(@Path("id") id: Int): Response<GetUserResponse>
 

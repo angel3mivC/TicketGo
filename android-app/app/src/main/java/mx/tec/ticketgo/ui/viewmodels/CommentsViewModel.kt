@@ -37,46 +37,59 @@ class CommentsViewModel(private val repository: CommentsRepository = CommentsRep
             
             // 1. Crear comentario temporal para mostrar inmediatamente
             val tempComment = Comment(
-                id_comentario = 0,
+                id_comentario = -1, // ID negativo para identificar comentarios temporales
                 comentario = commentText,
-                fecha = "Ahora",
+                fecha = "Enviando...",
                 autor = userName
             )
             
             // 2. Agregar inmediatamente a la lista (optimistic update)
-            _comments.value = _comments.value + tempComment
+            val currentComments = _comments.value.toMutableList()
+            currentComments.add(tempComment)
+            _comments.value = currentComments
+            
             val request = CreateCommentRequest(commentText)
             try {
-                println("🔍 DEBUG: Enviando comentario para ticket $ticketId con texto: '$commentText'")
-                println("🔍 DEBUG: Request: $request")
-                
                 val result = repository.createComment(ticketId, request)
                 result.onSuccess { response ->
-                    println("✅ DEBUG: Comentario creado exitosamente con ID: ${response.id_comentario}")
                     // 4. Actualizar el comentario temporal con el ID real y datos del servidor
-                    val updatedComment = tempComment.copy(
+                    val updatedComment = Comment(
                         id_comentario = response.id_comentario,
-                        fecha = "Enviado", // O usar fecha real del servidor si está disponible
+                        comentario = commentText,
+                        fecha = "Enviado",
                         autor = userName
                     )
                     
-                    // Reemplazar el comentario temporal con el real
-                    _comments.value = _comments.value.map { comment ->
-                        if (comment == tempComment) updatedComment else comment
+                    // Reemplazar el comentario temporal con el real usando índice
+                    val updatedComments = _comments.value.toMutableList()
+                    val tempIndex = updatedComments.indexOfFirst { it.id_comentario == -1 && it.comentario == commentText }
+                    if (tempIndex != -1) {
+                        updatedComments[tempIndex] = updatedComment
+                        _comments.value = updatedComments
                     }
                     
                     _message.value = response.message
                 }
                 result.onFailure { error ->
-                    println("❌ DEBUG: Error al crear comentario: ${error.message}")
                     // 5. En caso de error, remover el comentario temporal
-                    _comments.value = _comments.value - tempComment
-                    _message.value = "Error al enviar comentario: ${error.message}"
+                    val updatedComments = _comments.value.toMutableList()
+                    updatedComments.removeAll { it.id_comentario == -1 && it.comentario == commentText }
+                    _comments.value = updatedComments
+                    
+                    // Mostrar mensaje de error más específico
+                    val errorMessage = when {
+                        error.message?.contains("403") == true -> "No tienes permisos para comentar en este ticket"
+                        error.message?.contains("401") == true -> "Sesión expirada. Por favor, inicia sesión nuevamente"
+                        error.message?.contains("404") == true -> "Ticket no encontrado"
+                        else -> "Error al enviar comentario: ${error.message}"
+                    }
+                    _message.value = errorMessage
                 }
             } catch (e: Exception) {
-                println("💥 DEBUG: Excepción no controlada: ${e.message}")
                 // 6. Manejar excepciones no controladas
-                _comments.value = _comments.value - tempComment
+                val updatedComments = _comments.value.toMutableList()
+                updatedComments.removeAll { it.id_comentario == -1 && it.comentario == commentText }
+                _comments.value = updatedComments
                 _message.value = "Error al enviar comentario: ${e.message}"
             }
         }
