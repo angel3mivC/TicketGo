@@ -1,3 +1,4 @@
+import e from "express";
 import pool from "../helpers/mysql-config.js";
 
 const getUsers = async (req, res) => {
@@ -28,6 +29,30 @@ const getUserById = async (req, res) => {
         res.json(rows[0]);
     } catch (error) {
         console.error("Error al obtener usuario:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
+const getTechnicians = async (req, res) => {
+    try {
+        const { estado } = req.query;
+        let query = `SELECT id_usuario, nombre, correo, estado FROM usuarios WHERE id_rol = 3`;
+        const params = [];
+
+        if (estado) {
+            query += ` AND estado = ?`;
+            params.push(estado);
+        }
+
+        const [rows] = await pool.query(query, params);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No se encontraron técnicos" });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error("Error al obtener técnicos:", error);
         res.status(500).json({ message: "Error interno del servidor" });
     }
 };
@@ -111,4 +136,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-export { getUsers, getUserById, createUser, updateUser, deleteUser };
+export { getUsers, getUserById, createUser, updateUser, deleteUser, getTechnicians };

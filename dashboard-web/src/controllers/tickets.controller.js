@@ -19,6 +19,10 @@ const getTickets = async (req, res) => {
 
         const params = [];
 
+        if (!estado || (estado !== "Cerrado" && estado !== "3")) {
+            query += " AND t.id_estado != 3";
+        }
+
         if (estado) {
             query += " AND e.nombre = ?";
             params.push(estado);
