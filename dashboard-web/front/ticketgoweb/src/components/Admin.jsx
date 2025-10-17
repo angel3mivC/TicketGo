@@ -6,6 +6,7 @@ import UsuarioTag from './UsuarioTag.jsx'
 import Usuario from './Usuario.jsx'
 import CrearUsuario from './FormularioCrearUsuario.jsx'
 import EditarUsuario from './FormularioEditarUsuario.jsx'
+import Notificaciones from './Notificaciones.jsx'
 import Notificacion from '../assets/notificacion.png'
 import Historial from '../assets/historial.svg'
 import LogOut from '../assets/logout.svg'
@@ -27,6 +28,7 @@ const Admin = () => {
   const [selectedForm, setSelectedForm] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null);
   const [refresh, setRefresh] = useState(false); //Cuando se borre un usuario setRefresh(prev => !prev);
+  const [showNotificaciones, setShowNotificaciones] = useState(false)
 
   // Fetch dinámico según pestaña activa
   useEffect(() => {
@@ -91,7 +93,7 @@ const Admin = () => {
         </div>
 
         <div className="tools">
-          <img src={Notificacion} alt="notificaciones" className="noti" />
+          <img src={Notificacion} alt="notificaciones" className="noti"  onClick={() => setShowNotificaciones(true)} />
           <img
             src={Historial}
             alt="historial"
@@ -137,20 +139,30 @@ const Admin = () => {
       {/* CONTENIDO SCROLL */}
       <div className="scroll-area">
         {activeTab === "tickets" || activeTab === "historial" ? (
-          <div className="tickets-list">
-            {tickets.map((ticket) => (
-              <Ticket
-                key={ticket.id_ticket}
-                id_ticket={ticket.id_ticket}
-                title={ticket.titulo}
-                date={ticket.fecha_creacion}
-                status={ticket.estado}
-                description={ticket.descripcion}
-                category={ticket.categoria}
-                priority={ticket.prioridad}
-                onClick={() => setSelectedTicket(ticket.id_ticket)}
-              />
-            ))}
+          tickets.length === 0 ? (
+            <div className="no-data-message">
+              No se encontraron {activeTab === "historial" ? "tickets cerrados." : "tickets."}
+            </div>
+          ) : (
+            <div className="tickets-list">
+              {tickets.map((ticket) => (
+                <Ticket
+                  key={ticket.id_ticket}
+                  id_ticket={ticket.id_ticket}
+                  title={ticket.titulo}
+                  date={ticket.fecha_creacion}
+                  status={ticket.estado}
+                  description={ticket.descripcion}
+                  category={ticket.categoria}
+                  priority={ticket.prioridad}
+                  onClick={() => setSelectedTicket(ticket.id_ticket)}
+                />
+              ))}
+            </div>
+          )
+        ) : usuarios.length === 0 ? (
+          <div className="no-data-message">
+            No se encontraron usuarios.
           </div>
         ) : (
           <div className="users-list">
@@ -160,15 +172,16 @@ const Admin = () => {
                 id_usuario={user.id_usuario}
                 name={user.nombre}
                 role={getUserRoleLabel(user.id_rol)}
-                 onEdit={() => {
-                    setSelectedForm("editar-usuario");
-                    setSelectedUser(user); // guardamos el usuario actual
+                onEdit={() => {
+                  setSelectedForm("editar-usuario")
+                  setSelectedUser(user)
                 }}
               />
             ))}
           </div>
         )}
       </div>
+
 
       {/* MODAL DE DETALLES */}
       {selectedTicket && (
@@ -204,6 +217,14 @@ const Admin = () => {
             </div>
         </div>
         )}
+
+      
+      {/*NOTIFICACIONES*/}
+
+      {showNotificaciones && (
+        <Notificaciones onClose={() => setShowNotificaciones(false)} />
+      )}
+
     </div>
   )
 }
