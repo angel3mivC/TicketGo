@@ -36,6 +36,8 @@ val tecnicoFilters = listOf(
 )
 
 @Composable
+
+
 fun tecnicoHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
     TecnicoTicketScreen(commentViewModel, ticketViewModel, navController, false, tecnicoFilters)
 }
@@ -44,6 +46,7 @@ fun tecnicoHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: Tick
 fun mesaHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){
     AdminTicketScreen(commentViewModel, ticketViewModel, navController, false, homeFilters)
 }
+
 
 @Composable
 fun adminHomeScreen(commentViewModel: CommentsViewModel, ticketViewModel: TicketsViewModel, navController: NavController){

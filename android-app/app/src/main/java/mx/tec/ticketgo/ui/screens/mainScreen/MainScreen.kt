@@ -17,6 +17,8 @@ import mx.tec.ticketgo.ui.components.NavBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.runtime.collectAsState
+import mx.tec.ticketgo.ui.components.UserTopBar
 //import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
@@ -36,6 +38,7 @@ import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.EvidenceViewModel
 import mx.tec.ticketgo.ui.viewmodels.FileViewModel
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.NotificationsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
@@ -51,17 +54,43 @@ fun MainScreen(){
     val userViewModel: UserViewModel = viewModel()
     val fileViewModel: FileViewModel = viewModel()
     val evidenceViewModel: EvidenceViewModel = viewModel()
-
+    val notificationsViewModel: NotificationsViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
-    
+
+
     // Conectar FileViewModel con EvidenceViewModel
     LaunchedEffect(Unit) {
         fileViewModel.setEvidenceViewModel(evidenceViewModel)
     }
 
+    LaunchedEffect(Unit) {
+        notificationsViewModel.getNotifications()
+    }
+    LaunchedEffect(Unit) {
+        val currentUserId = 1
+        userViewModel.getUser(currentUserId)
+    }
+
+    val notifications by notificationsViewModel.notifications.collectAsState()
+    val userState by userViewModel.user.collectAsState()
+    val unreadCount =  3//notifications.count { !it.leida }
+
+    val userName = userState?.nombre ?: "Nombre"
+    val userRole = "Tecnico" //userState?.id_rol ?: "Sin rol"
+    val initials = userName.split(" ").take(2).joinToString("") { it.first().uppercaseChar().toString() }
+
     Scaffold(
         topBar = {
             when(currentRoute){
+                "adminHome", "mesaHome", "tecnicoHome" -> {
+                    UserTopBar(
+                        initials = initials,
+                        name = userName,
+                        role = userRole,
+                        notificationCount = unreadCount,
+                        navController = navController
+                    )
+                }
                 "gallery" -> TopBar("Galeria", navController)
                 "historial" -> TopBar("Crear ticket", navController)
                 "ticketDetail" -> TopBar("Detalle del ticket", navController)
