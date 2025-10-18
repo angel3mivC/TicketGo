@@ -78,6 +78,9 @@ fun TecnicoTicketDetailHistorialScreen(
                         comments = comments,
                         onViewGallery = {
                             navController.navigate("gallery/${ticket.id_ticket}")
+                        },
+                        onStatusChange = { status, statusId ->
+                            ticketViewModel.updateTicketStatus(ticket.id_ticket, statusId)
                         }
                     )
                 }
@@ -172,6 +175,9 @@ fun AdminTicketDetailHistorialScreen(
                         },
                         onAssignTechnician = {
                             showAssignTechnicianModal = true
+                        },
+                        onStatusChange = { status, statusId ->
+                            ticketViewModel.updateTicketStatus(ticket.id_ticket, statusId)
                         }
                     )
                 }

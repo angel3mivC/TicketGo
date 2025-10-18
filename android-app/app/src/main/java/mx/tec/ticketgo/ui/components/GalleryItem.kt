@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import mx.tec.ticketgo.data.models.Evidence
 import mx.tec.ticketgo.ui.theme.EmptyElement
+import mx.tec.ticketgo.utils.DateFormatter
 import android.util.Log
 import androidx.compose.ui.text.style.TextAlign
 
@@ -121,18 +122,22 @@ fun GalleryItem(
             
             Spacer(modifier = Modifier.height(4.dp))
             
-            // Fecha y hora
+            // Fecha y hora formateadas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = evidence.uploadDate,
+                    text = DateFormatter.formatDateShort(evidence.uploadDate),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
                 Text(
-                    text = evidence.uploadTime,
+                    text = if (evidence.uploadTime.isNotEmpty()) {
+                        DateFormatter.formatDate(evidence.uploadTime)
+                    } else {
+                        DateFormatter.formatDate(evidence.uploadDate)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

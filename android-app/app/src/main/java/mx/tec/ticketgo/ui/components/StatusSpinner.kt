@@ -38,14 +38,25 @@ fun StatusSpinner(
 ) {
     var expanded by remember { mutableStateOf(false) }
     
-    // Obtener estados permitidos según el tipo de usuario
+    // Obtener estados permitidos según el tipo de usuario y estado actual
     val allowedStatuses = when (userType) {
-        UserType.ADMIN -> listOf(
-            TicketStatus.ABIERTO,
-            TicketStatus.EN_PROGRESO,
-            TicketStatus.RESUELTO,
-            TicketStatus.CERRADO
-        )
+        UserType.ADMIN -> {
+            if (currentStatus == "Cerrado") {
+                // Si el ticket está cerrado, solo permitir Cerrado y Reabierto
+                listOf(
+                    TicketStatus.CERRADO,
+                    TicketStatus.REABIERTO
+                )
+            } else {
+                // Para otros estados, permitir todos los estados excepto Reabierto
+                listOf(
+                    TicketStatus.ABIERTO,
+                    TicketStatus.EN_PROGRESO,
+                    TicketStatus.RESUELTO,
+                    TicketStatus.CERRADO
+                )
+            }
+        }
         UserType.TECNICO -> listOf(
             TicketStatus.ABIERTO,
             TicketStatus.EN_PROGRESO,
@@ -111,7 +122,7 @@ fun StatusSpinnerPreview() {
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Admin Spinner:")
+        Text("Admin Spinner (Estado: $currentStatus):")
         StatusSpinner(
             currentStatus = currentStatus,
             userType = UserType.ADMIN,
@@ -126,6 +137,15 @@ fun StatusSpinnerPreview() {
             userType = UserType.TECNICO,
             hasAssignedTechnician = true,
             onStatusChange = { status, _ -> currentStatus = status },
+            onError = { error -> println("Error: $error") }
+        )
+        
+        Text("Admin con ticket Cerrado (solo Cerrado/Reabierto):")
+        StatusSpinner(
+            currentStatus = "Cerrado",
+            userType = UserType.ADMIN,
+            hasAssignedTechnician = true,
+            onStatusChange = { status, _ -> println("Cambio a: $status") },
             onError = { error -> println("Error: $error") }
         )
         

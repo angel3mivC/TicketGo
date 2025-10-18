@@ -168,8 +168,8 @@ fun CategoryChangeModal(
                     ) {
                         val categories = listOf(
                             Pair("En proceso", 1),
-                            Pair("Daño inducido", 2),
-                            Pair("Garantía", 3)
+                            Pair("Garantia", 2),
+                            Pair("Daño inducido", 3)
                         )
                         
                         categories.forEach { (name, id) ->
@@ -235,8 +235,8 @@ fun CategoryChangeModal(
 private fun getCategoryId(category: String): Int {
     return when(category) {
         "En proceso" -> 1
-        "Daño inducido" -> 2
-        "Garantía" -> 3
+        "Garantia" -> 2
+        "Daño inducido" -> 3
         else -> 1
     }
 }

@@ -28,6 +28,10 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import mx.tec.ticketgo.data.models.Evidence
+import mx.tec.ticketgo.utils.DateFormatter
+import android.os.Build
+import android.provider.MediaStore
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
@@ -110,42 +114,67 @@ fun EvidenceDetailModal(
                         
                         Log.i("DOWNLOAD_DEBUG", "📡 Código de respuesta: ${connection.responseCode}")
                         if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                            
-                            // Asegurar que el directorio existe
-                            if (!downloadsDir.exists()) {
-                                downloadsDir.mkdirs()
-                            }
-                            
-                            val destinationFile = File(downloadsDir, evidence.fileName)
-                            
-                            // Si el archivo ya existe, agregar número
-                            var counter = 1
-                            var finalDestinationFile = destinationFile
-                            while (finalDestinationFile.exists()) {
-                                val nameWithoutExt = evidence.fileName.substringBeforeLast(".")
-                                val extension = evidence.fileName.substringAfterLast(".", "")
-                                finalDestinationFile = File(downloadsDir, "${nameWithoutExt}_${counter}.${extension}")
-                                counter++
-                            }
-                            
-                            // Descargar el archivo
                             val inputStream = connection.inputStream
-                            val outputStream = FileOutputStream(finalDestinationFile)
+                            var success = false
                             
-                            val buffer = ByteArray(4096)
-                            var bytesRead: Int
-                            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                                outputStream.write(buffer, 0, bytesRead)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                // Para Android 10+, usar MediaStore
+                                val resolver = context.contentResolver
+                                val contentValues = ContentValues().apply {
+                                    put(MediaStore.MediaColumns.DISPLAY_NAME, evidence.fileName)
+                                    put(MediaStore.MediaColumns.MIME_TYPE, getMimeType(evidence.fileType))
+                                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                                }
+                                
+                                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                                uri?.let { fileUri ->
+                                    resolver.openOutputStream(fileUri)?.use { outputStream ->
+                                        val buffer = ByteArray(4096)
+                                        var bytesRead: Int
+                                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                            outputStream.write(buffer, 0, bytesRead)
+                                        }
+                                        success = true
+                                    }
+                                }
+                            } else {
+                                // Para versiones anteriores, usar External Storage
+                                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                                
+                                // Asegurar que el directorio existe
+                                if (!downloadsDir.exists()) {
+                                    downloadsDir.mkdirs()
+                                }
+                                
+                                val destinationFile = File(downloadsDir, evidence.fileName)
+                                
+                                // Si el archivo ya existe, agregar número
+                                var counter = 1
+                                var finalDestinationFile = destinationFile
+                                while (finalDestinationFile.exists()) {
+                                    val nameWithoutExt = evidence.fileName.substringBeforeLast(".")
+                                    val extension = evidence.fileName.substringAfterLast(".", "")
+                                    finalDestinationFile = File(downloadsDir, "${nameWithoutExt}_${counter}.${extension}")
+                                    counter++
+                                }
+                                
+                                FileOutputStream(finalDestinationFile).use { outputStream ->
+                                    val buffer = ByteArray(4096)
+                                    var bytesRead: Int
+                                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                        outputStream.write(buffer, 0, bytesRead)
+                                    }
+                                }
+                                
+                                // Verificar que la descarga fue exitosa
+                                success = finalDestinationFile.exists() && finalDestinationFile.length() > 0L
                             }
                             
                             inputStream.close()
-                            outputStream.close()
                             connection.disconnect()
                             
-                            // Verificar que la descarga fue exitosa
-                            if (finalDestinationFile.exists() && finalDestinationFile.length() > 0L) {
-                                Log.i("DOWNLOAD_DEBUG", "✅ Descarga exitosa: ${finalDestinationFile.absolutePath}")
+                            if (success) {
+                                Log.i("DOWNLOAD_DEBUG", "✅ Descarga exitosa")
                                 true
                             } else {
                                 Log.e("DOWNLOAD_DEBUG", "❌ Archivo descargado pero no existe o está vacío")
@@ -159,10 +188,15 @@ fun EvidenceDetailModal(
                     
                     // Actualizar el estado en el hilo principal
                     if (result) {
-                        // Notificar al sistema que se agregó un archivo
-                        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-                        intent.data = Uri.fromFile(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), evidence.fileName))
-                        context.sendBroadcast(intent)
+                        // Notificar al sistema que se agregó un archivo (solo para versiones anteriores a Android 10)
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                            val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                            val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), evidence.fileName)
+                            if (file.exists()) {
+                                intent.data = Uri.fromFile(file)
+                                context.sendBroadcast(intent)
+                            }
+                        }
                         
                         downloadState = "completed"
                         Log.i("DOWNLOAD_DEBUG", "🎉 Estado cambiado a completed")
@@ -408,12 +442,16 @@ fun EvidenceDetailModal(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = evidence.uploadDate,
+                            text = DateFormatter.formatDateShort(evidence.uploadDate),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )
                         Text(
-                            text = evidence.uploadTime,
+                            text = if (evidence.uploadTime.isNotEmpty()) {
+                                DateFormatter.formatDate(evidence.uploadTime)
+                            } else {
+                                DateFormatter.formatDate(evidence.uploadDate)
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray
                         )

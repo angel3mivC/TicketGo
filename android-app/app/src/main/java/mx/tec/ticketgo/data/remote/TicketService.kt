@@ -23,7 +23,7 @@ interface TicketService {
         @Query("estado") state: String? = null,
         @Query("prioridad") priority: Int? = null,
         @Query("tecnico") technician: Int? = null,
-        @Query("categoria") category: Int? = null,
+        @Query("categoria") category: String? = null,
         @Query("fecha_inicio") startDate: String? = null,
         @Query("fecha_fin") limitDate: String? = null
     ): Response<List<Ticket>>

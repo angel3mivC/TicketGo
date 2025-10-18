@@ -16,13 +16,15 @@ import mx.tec.ticketgo.ui.components.TopBar
 import mx.tec.ticketgo.ui.components.NavBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Group
 //import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
+import mx.tec.ticketgo.ui.screens.Home.historyFilters
 import mx.tec.ticketgo.ui.screens.forms.CreateUserScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
+import mx.tec.ticketgo.ui.screens.users.UsersScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketDetailScreen
@@ -82,8 +84,8 @@ fun MainScreen(){
                 "adminHome" -> NavBar(
                     navController = navController,
                     currentRoute = currentRoute,
-                    middleBottomIcon = Icons.Default.PersonAdd,
-                    middleBottomRoute = "createUserForm",
+                    middleBottomIcon = Icons.Default.Group,
+                    middleBottomRoute = "usersScreen",
                     historialRoute = "adminTicketHistory",
                     homeRoute = "adminHome"
                 )
@@ -92,16 +94,24 @@ fun MainScreen(){
                     currentRoute = currentRoute,
                     middleBottomIcon = Icons.Default.Add,
                     middleBottomRoute = "TicketForm",
-                    historialRoute = "adminTicketHistory",
+                    historialRoute = "mesaTicketHistory",
                     homeRoute = "mesaHome"
                 )
                 "adminTicketHistory" -> NavBar(
                     navController = navController,
                     currentRoute = currentRoute,
-                    middleBottomIcon = Icons.Default.PersonAdd,
-                    middleBottomRoute = "createUserForm",
+                    middleBottomIcon = Icons.Default.Group,
+                    middleBottomRoute = "usersScreen",
                     historialRoute = "adminTicketHistory",
                     homeRoute = "adminHome"
+                )
+                "mesaTicketHistory" -> NavBar(
+                    navController = navController,
+                    currentRoute = currentRoute,
+                    middleBottomIcon = Icons.Default.Add,
+                    middleBottomRoute = "TicketForm",
+                    historialRoute = "mesaTicketHistory",
+                    homeRoute = "mesaHome"
                 )
                 else -> null
             }
@@ -124,7 +134,7 @@ fun MainScreen(){
                 val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
                 TecnicoTicketDetailScreen(ticketId, commentsViewModel, ticketsViewModel, fileViewModel, navController)
             }
-            composable("tecnicoTicketHistory") { TecnicoTicketScreen(commentsViewModel, ticketsViewModel, navController, true) }
+            composable("tecnicoTicketHistory") { TecnicoTicketScreen(commentsViewModel, ticketsViewModel, navController, true, historyFilters) }
             composable("tecnicoTicketDetailHistorial/{ticketId}") { backStackEntry ->
                 val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
                 TecnicoTicketDetailHistorialScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
@@ -132,7 +142,8 @@ fun MainScreen(){
 
             //Mesa
             composable("mesaHome") { mesaHomeScreen(commentsViewModel, ticketsViewModel, navController) }
-            composable ("TicketForm") { TicketFormScreen(commentsViewModel, ticketsViewModel) }
+            composable("mesaTicketHistory") { AdminTicketScreen(commentsViewModel, ticketsViewModel, navController, true, historyFilters) }
+            composable ("TicketForm") { TicketFormScreen(commentsViewModel, ticketsViewModel, navController) }
 
             //Admin
             composable("adminHome") { adminHomeScreen(commentsViewModel,ticketsViewModel, navController) }
@@ -140,12 +151,13 @@ fun MainScreen(){
                 val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
                 AdminTicketDetailScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
             }
-            composable("adminTicketHistory") { AdminTicketScreen(commentsViewModel, ticketsViewModel, navController, true) }
+            composable("adminTicketHistory") { AdminTicketScreen(commentsViewModel, ticketsViewModel, navController, true, historyFilters) }
             composable("adminTicketDetailHistorial/{ticketId}") { backStackEntry ->
                 val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
                 AdminTicketDetailHistorialScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
             }
             composable("createUserForm") { CreateUserScreen(userViewModel) }
+            composable("usersScreen") { UsersScreen(userViewModel, navController) }
             
             // File Upload
             composable("fileUpload/{ticketId}") { backStackEntry ->

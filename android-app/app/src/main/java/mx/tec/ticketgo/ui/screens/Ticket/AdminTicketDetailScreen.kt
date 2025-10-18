@@ -1,5 +1,6 @@
 package mx.tec.ticketgo.ui.screens.Ticket
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -28,18 +29,28 @@ fun AdminTicketDetailScreen(
 ) {
     // ViewModels
     val userViewModel = remember { UserViewModel() }
-    
+
     // Estados del modal
     var showAssignTechnicianModal by remember { mutableStateOf(false) }
     val comments by commentViewModel.comment.collectAsStateWithLifecycle()
     
+    // Estados para los modales
+    var showPriorityModal by remember { mutableStateOf(false) }
+    var showCategoryModal by remember { mutableStateOf(false) }
+
+    // Obtener el tipo de usuario
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val userRole = sharedPref.getInt("id_role", -1)
+    val isAdmin = userRole == 1 // Solo admin puede cambiar prioridad/categoría
+
     // Obtener el ticket específico
     val tickets by ticketViewModel.tickets.collectAsStateWithLifecycle()
     val ticket = tickets.find { it.id_ticket == ticketId }
     
     // Obtener técnicos para poder acceder a sus nombres
     val technicians by userViewModel.technicians.collectAsStateWithLifecycle()
-    
+
     // Obtener comentarios del ticket y cargar técnicos
     LaunchedEffect(ticketId) {
         commentViewModel.getComments(ticketId)
@@ -76,10 +87,41 @@ fun AdminTicketDetailScreen(
                         },
                         onAssignTechnician = {
                             showAssignTechnicianModal = true
-                        }
+                        },
+                        onPriorityClick = if (isAdmin) { { showPriorityModal = true } } else { {} },
+                        onCategoryClick = if (isAdmin) { { showCategoryModal = true } } else { {} }
                     )
                 }
             }
+        }
+
+        // Modales para cambiar prioridad y categoría (solo para admin)
+        if (isAdmin) {
+            PriorityChangeModal(
+                isVisible = showPriorityModal,
+                currentPriority = ticket.prioridad ?: "Media",
+                onDismiss = { showPriorityModal = false },
+                onConfirm = { newPriority, priorityId ->
+                    // Actualizar localmente primero para feedback inmediato
+                    ticketViewModel.updateTicketPriorityLocally(ticket.id_ticket, newPriority)
+                    // Luego hacer la llamada a la API
+                    ticketViewModel.changeTicketPriority(ticket.id_ticket, priorityId)
+                    showPriorityModal = false
+                }
+            )
+
+            CategoryChangeModal(
+                isVisible = showCategoryModal,
+                currentCategory = ticket.categoria ?: "En proceso",
+                onDismiss = { showCategoryModal = false },
+                onConfirm = { newCategory, categoryId ->
+                    // Actualizar localmente primero para feedback inmediato
+                    ticketViewModel.updateTicketCategoryLocally(ticket.id_ticket, newCategory)
+                    // Luego hacer la llamada a la API
+                    ticketViewModel.changeTicketCategory(ticket.id_ticket, categoryId)
+                    showCategoryModal = false
+                }
+            )
         }
     } else {
         Box(
@@ -89,7 +131,7 @@ fun AdminTicketDetailScreen(
             Text("Ticket no encontrado")
         }
     }
-    
+
     // Modal para asignar técnico
     AssignTechnicianModal(
         isVisible = showAssignTechnicianModal,
@@ -98,10 +140,10 @@ fun AdminTicketDetailScreen(
             // Obtener el nombre del técnico antes de asignar
             val technician = technicians.find { it.id_usuario == technicianId }
             val technicianName = technician?.nombre
-            
+
             // Actualizar localmente con el nombre del técnico
             ticketViewModel.updateTicketTechnicianLocally(ticketId, technicianId, technicianName)
-            
+
             // Llamar a la API
             ticketViewModel.assignTicket(ticketId, technicianId, technicianName)
             showAssignTechnicianModal = false

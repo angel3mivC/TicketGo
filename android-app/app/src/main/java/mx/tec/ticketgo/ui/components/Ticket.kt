@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.data.models.Ticket
+import mx.tec.ticketgo.utils.DateFormatter
 
 
 @Composable
@@ -44,7 +45,7 @@ fun TicketTecnico(
         // 🔹 Cabecera del ticket (título, fecha y estado)
         TicketTopWithSpinner(
             titulo = ticket.titulo,
-            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
+            fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
             estado = ticket.estado!!,
             userType = UserType.TECNICO,
             hasAssignedTechnician = ticket.asignado_a != null,
@@ -92,7 +93,9 @@ fun TicketAdmin(
     onSendComment: (String) -> Unit,
     onViewGallery: () -> Unit = {},
     onStatusChange: (String, Int) -> Unit = { _, _ -> },
-    onAssignTechnician: () -> Unit = {}
+    onAssignTechnician: () -> Unit = {},
+    onPriorityClick: () -> Unit = {},
+    onCategoryClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -107,7 +110,194 @@ fun TicketAdmin(
         // 🔹 Cabecera del ticket (título, fecha y estado)
         TicketTopWithSpinner(
             titulo = ticket.titulo,
-            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
+            fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
+            estado = ticket.estado!!,
+            userType = UserType.ADMIN,
+            hasAssignedTechnician = ticket.asignado_a != null,
+            onStatusChange = onStatusChange,
+            onError = { /* Manejar error si es necesario */ }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 🔹 Chips de prioridad y categoría
+        TicketButtomChipsClickable(
+            prioridad = ticket.prioridad!!,
+            categoria = ticket.categoria!!,
+            onPriorityClick = onPriorityClick,
+            onCategoryClick = onCategoryClick,
+            isPriorityClickable = onPriorityClick != {},
+            isCategoryClickable = onCategoryClick != {}
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 🔹 Avatar del técnico asignado y nombre
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Row interna para avatar y nombre (mantener juntos)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (ticket.asignado_a != null) {
+                    // Técnico asignado - mostrar InitialsAvatar
+                    InitialsAvatar(
+                        nombre = ticket.asignado_a!!,
+                        backgroundColor = getColorForName(ticket.asignado_a!!)
+                    )
+                    BodyText(ticket.asignado_a!!)
+                } else {
+                    // Sin técnico asignado - mostrar círculo con ícono de más clickeable
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                color = Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                            .clickable { onAssignTechnician() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Asignar técnico",
+                            tint = Color(0xFF9E9E9E),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    BodyText("Sin asignar")
+                }
+            }
+
+            // Botón para reasignar técnico (solo si hay técnico asignado y el ticket no está cerrado)
+            if (ticket.asignado_a != null && ticket.estado != "Cerrado") {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0))
+                        .clickable { onAssignTechnician() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SwapHoriz,
+                        contentDescription = "Reasignar técnico",
+                        tint = Color(0xFF9E9E9E),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Descripción del ticket
+        BodyText(ticket.descripcion)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Evidencias
+        EvidenciasTicketAdmin(
+            onViewGallery = onViewGallery
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LineaPunteada()
+
+        // 🔹 Sección de comentarios
+        TicketCommentsSection(
+            comments = comments,
+            onSendComment = onSendComment
+        )
+    }
+}
+
+@Composable
+fun TicketTecnicoHistorial(
+    ticket: Ticket,
+    comments: List<Comment>,
+    onViewGallery: () -> Unit = {},
+    onStatusChange: (String, Int) -> Unit = { _, _ -> }
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentHeight() // ✅ evita que se alargue feo
+            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .shadow(6.dp, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        // 🔹 Cabecera del ticket (título, fecha y estado) - CON SPINNER
+        TicketTopWithSpinner(
+            titulo = ticket.titulo,
+            fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
+            estado = ticket.estado!!,
+            userType = UserType.TECNICO,
+            hasAssignedTechnician = ticket.asignado_a != null,
+            onStatusChange = onStatusChange,
+            onError = { /* Manejar error si es necesario */ }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 🔹 Chips de prioridad y categoría
+        TicketButtomChips(
+            prioridad = ticket.prioridad!!,
+            categoria = ticket.categoria!!
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 🔹 Descripción del ticket
+        BodyText(ticket.descripcion)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Evidencias - SOLO VER, NO SUBIR
+        EvidenciasTicketTecnicoHistorial(
+            onViewGallery = onViewGallery
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LineaPunteada()
+
+        // 🔹 Sección de comentarios - SOLO LECTURA
+        TicketCommentsSectionHistorial(
+            comments = comments
+        )
+    }
+}
+
+@Composable
+fun TicketAdminHistorial(
+    ticket: Ticket,
+    comments: List<Comment>,
+    onViewGallery: () -> Unit = {},
+    onAssignTechnician: () -> Unit = {},
+    onStatusChange: (String, Int) -> Unit = { _, _ -> }
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentHeight() // ✅ evita que se alargue feo
+            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .shadow(6.dp, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        // 🔹 Cabecera del ticket (título, fecha y estado) - CON SPINNER
+        TicketTopWithSpinner(
+            titulo = ticket.titulo,
+            fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
             estado = ticket.estado!!,
             userType = UserType.ADMIN,
             hasAssignedTechnician = ticket.asignado_a != null,
@@ -165,182 +355,9 @@ fun TicketAdmin(
                     BodyText("Sin asignar")
                 }
             }
-            
-            // Botón para reasignar técnico (solo si hay técnico asignado)
-            if (ticket.asignado_a != null) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE0E0E0))
-                        .clickable { onAssignTechnician() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.SwapHoriz,
-                        contentDescription = "Reasignar técnico",
-                        tint = Color(0xFF9E9E9E),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Descripción del ticket
-        BodyText(ticket.descripcion)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 🔹 Evidencias
-        EvidenciasTicketAdmin(
-            onViewGallery = onViewGallery
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LineaPunteada()
-
-        // 🔹 Sección de comentarios
-        TicketCommentsSection(
-            comments = comments,
-            onSendComment = onSendComment
-        )
-    }
-}
-
-@Composable
-fun TicketTecnicoHistorial(
-    ticket: Ticket,
-    comments: List<Comment>,
-    onViewGallery: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .wrapContentHeight() // ✅ evita que se alargue feo
-            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .shadow(6.dp, RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        // 🔹 Cabecera del ticket (título, fecha y estado) - SIN SPINNER
-        TicketTop(
-            titulo = ticket.titulo,
-            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
-            estado = ticket.estado!!
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 🔹 Chips de prioridad y categoría
-        TicketButtomChips(
-            prioridad = ticket.prioridad!!,
-            categoria = ticket.categoria!!
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // 🔹 Descripción del ticket
-        BodyText(ticket.descripcion)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 🔹 Evidencias - SOLO VER, NO SUBIR
-        EvidenciasTicketTecnicoHistorial(
-            onViewGallery = onViewGallery
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LineaPunteada()
-
-        // 🔹 Sección de comentarios - SOLO LECTURA
-        TicketCommentsSectionHistorial(
-            comments = comments
-        )
-    }
-}
-
-@Composable
-fun TicketAdminHistorial(
-    ticket: Ticket,
-    comments: List<Comment>,
-    onViewGallery: () -> Unit = {},
-    onAssignTechnician: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .wrapContentHeight() // ✅ evita que se alargue feo
-            .fillMaxWidth(0.95f) // ✅ que no ocupe todo el ancho
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .shadow(6.dp, RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        // 🔹 Cabecera del ticket (título, fecha y estado) - SIN SPINNER
-        TicketTop(
-            titulo = ticket.titulo,
-            fechaHora = ticket.fecha_creacion ?: "Sin fecha",
-            estado = ticket.estado!!
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 🔹 Chips de prioridad y categoría
-        TicketButtomChips(
-            prioridad = ticket.prioridad!!,
-            categoria = ticket.categoria!!
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // 🔹 Avatar del técnico asignado y nombre
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Row interna para avatar y nombre (mantener juntos)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (ticket.asignado_a != null) {
-                    // Técnico asignado - mostrar InitialsAvatar
-                    InitialsAvatar(
-                        nombre = ticket.asignado_a!!,
-                        backgroundColor = getColorForName(ticket.asignado_a!!)
-                    )
-                    BodyText(ticket.asignado_a!!)
-                } else {
-                    // Sin técnico asignado - mostrar círculo con ícono de más clickeable
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                color = Color(0xFFE0E0E0),
-                                shape = CircleShape
-                            )
-                            .clickable { onAssignTechnician() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Asignar técnico",
-                            tint = Color(0xFF9E9E9E),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    BodyText("Sin asignar")
-                }
-            }
-            
-            // Botón para reasignar técnico (solo si hay técnico asignado)
-            if (ticket.asignado_a != null) {
+            // Botón para reasignar técnico (solo si hay técnico asignado y el ticket no está cerrado)
+            if (ticket.asignado_a != null && ticket.estado != "Cerrado") {
                 Box(
                     modifier = Modifier
                         .size(32.dp)

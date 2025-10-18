@@ -199,24 +199,17 @@ fun TecnicoTicketScreen(
                         ?.selectedOptions
                         ?.firstOrNull()
 
-                    val priorityId = updatedSections
-                        .find { it.title == "Prioridad" }
+                    val categoryString = updatedSections
+                        .find { it.title == "Categoría" }
                         ?.selectedOptions
                         ?.firstOrNull()
-                        ?.let { option ->
-                            // Buscar el ID correspondiente al string seleccionado
-                            updatedSections
-                                .find { it.title == "Prioridad" }
-                                ?.options
-                                ?.entries
-                                ?.find { it.value == option }
-                                ?.key
-                        }
 
                     if (isHistory) {
-                        ticketViewModel.getTickets(state = "Cerrado", technician = userId, priority = priorityId)
+                        // En historial filtramos por categoría, estado siempre es "Cerrado"
+                        ticketViewModel.getTickets(state = "Cerrado", technician = userId, category = categoryString)
                     } else {
-                        ticketViewModel.getTickets(state = stateString, technician = userId, priority = priorityId)
+                        // En pantalla normal filtramos por estado y categoría
+                        ticketViewModel.getTickets(state = stateString, technician = userId, category = categoryString)
                     }
                 },
                 onClose = {

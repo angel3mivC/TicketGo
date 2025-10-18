@@ -138,21 +138,18 @@ fun AdminTicketScreen(
                             ?.selectedOptions
                             ?.firstOrNull()
 
-                        val categoryId = updatedSections
+                        val categoryString = updatedSections
                             .find { it.title == "Categoría" }
                             ?.selectedOptions
                             ?.firstOrNull()
-                            ?.let { option ->
-                                // Buscar el ID correspondiente al string seleccionado
-                                updatedSections
-                                    .find { it.title == "Categoría" }
-                                    ?.options
-                                    ?.entries
-                                    ?.find { it.value == option }
-                                    ?.key
-                            }
 
-                        ticketViewModel.getTickets(state = stateString, category = categoryId)
+                        if (isHistory) {
+                            // En historial solo filtramos por categoría, estado siempre es "Cerrado"
+                            ticketViewModel.getTickets(state = "Cerrado", category = categoryString)
+                        } else {
+                            // En pantalla normal filtramos por estado y categoría
+                            ticketViewModel.getTickets(state = stateString, category = categoryString)
+                        }
                     },
                     onClose = {
                         showFilterSheet = false

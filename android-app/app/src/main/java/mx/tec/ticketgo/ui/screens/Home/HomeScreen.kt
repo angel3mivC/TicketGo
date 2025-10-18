@@ -17,7 +17,7 @@ val homeFilters = listOf(
     ),
     FilterSection(
         "Categoría",
-        mapOf(1 to "En proceso", 2 to "Daño inducido", 3 to "Garantía"),
+        mapOf(1 to "En proceso", 2 to "Garantia", 3 to "Daño inducido"),
         emptySet()
     )
 )
@@ -29,8 +29,16 @@ val tecnicoFilters = listOf(
         emptySet()
     ),
     FilterSection(
-        "Prioridad",
-        mapOf(1 to "Alta", 2 to "Media", 3 to "Baja"),
+        "Categoría",
+        mapOf(1 to "En proceso", 2 to "Garantia", 3 to "Daño inducido"),
+        emptySet()
+    )
+)
+
+val historyFilters = listOf(
+    FilterSection(
+        "Categoría",
+        mapOf(1 to "En proceso", 2 to "Garantia", 3 to "Daño inducido"),
         emptySet()
     )
 )

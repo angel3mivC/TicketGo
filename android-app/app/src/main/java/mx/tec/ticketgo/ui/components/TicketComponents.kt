@@ -2,6 +2,7 @@ package mx.tec.ticketgo.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import mx.tec.ticketgo.ui.theme.ChipsGray
 import mx.tec.ticketgo.ui.theme.ChipsGreen
 import mx.tec.ticketgo.ui.theme.ChipsRed
 import mx.tec.ticketgo.ui.theme.ChipsYellow
+import mx.tec.ticketgo.utils.DateFormatter
 
 @Composable
 fun TicketButtomChips(prioridad: String, categoria: String) {
@@ -66,6 +68,51 @@ fun TicketButtomChips(prioridad: String, categoria: String) {
             modifier = Modifier.padding(end = 8.dp)
         )
         DotChip(prioridad, colorPrioridad)
+    }
+}
+
+@Composable
+fun TicketButtomChipsClickable(
+    prioridad: String, 
+    categoria: String,
+    onPriorityClick: () -> Unit,
+    onCategoryClick: () -> Unit,
+    isPriorityClickable: Boolean = true,
+    isCategoryClickable: Boolean = true
+) {
+    val colorPrioridad = when(prioridad) {
+        "Baja" -> MaterialTheme.colorScheme.ChipsGreen
+        "Media" -> MaterialTheme.colorScheme.ChipsYellow
+        "Alta" -> MaterialTheme.colorScheme.ChipsRed
+        else -> MaterialTheme.colorScheme.outline
+    }
+    Row(
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+        Chip(
+            text = categoria,
+            color = Color.DarkGray,
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .then(
+                    if (isCategoryClickable) {
+                        Modifier.clickable { onCategoryClick() }
+                    } else {
+                        Modifier
+                    }
+                )
+        )
+        DotChip(
+            text = prioridad,
+            color = colorPrioridad,
+            modifier = Modifier.then(
+                if (isPriorityClickable) {
+                    Modifier.clickable { onPriorityClick() }
+                } else {
+                    Modifier
+                }
+            )
+        )
     }
 }
 
@@ -92,7 +139,7 @@ fun TicketTop(titulo: String, fechaHora: String, estado: String) {
                 .padding(end = 8.dp) // 🔥 Espacio entre título y chip
         ) {
             Subtitle(titulo)
-            SmallText(fechaHora)
+            SmallText(DateFormatter.formatDate(fechaHora))
         }
 
         // Chip se adapta al contenido pero no se aplasta
@@ -131,7 +178,7 @@ fun TicketTopWithSpinner(
                     .padding(end = 8.dp) // 🔥 Espacio entre título y spinner
             ) {
                 Subtitle(titulo)
-                SmallText(fechaHora)
+                SmallText(DateFormatter.formatDate(fechaHora))
             }
 
             // Spinner para cambiar estado
@@ -390,7 +437,7 @@ fun CommentItem(comment: Comment) {
                 )
 
                 Text(
-                    text = comment.fecha,
+                    text = DateFormatter.formatDate(comment.fecha),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFF9E9E9E),
                     fontSize = 12.sp

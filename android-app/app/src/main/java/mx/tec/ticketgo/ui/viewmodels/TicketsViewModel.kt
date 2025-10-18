@@ -26,7 +26,7 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
         state: String? = null,
         priority: Int? = null,
         technician: Int? = null,
-        category: Int? = null,
+        category: String? = null,
         startDate: String? = null,
         endDate: String? = null
     ){
@@ -52,6 +52,10 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
             action = { repository.getTicketById(id) },
             onSuccess = { _ticket.value = it}
         )
+    }
+
+    fun resetTicketId() {
+        _ticketId.value = null
     }
 
     fun createTicket(title: String, description: String, categoryId: Int, priorityId: Int){
@@ -135,6 +139,23 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
         )
     }
 
+    // Método para actualizar el estado del ticket (API + local)
+    fun updateTicketStatus(ticketId: Int, statusId: Int) {
+        // Primero actualizar localmente para respuesta inmediata
+        val statusName = when (statusId) {
+            1 -> "Abierto"
+            2 -> "En Progreso"
+            3 -> "Cerrado"
+            4 -> "Resuelto"
+            5 -> "Reabierto"
+            else -> "Abierto"
+        }
+        updateTicketStatusLocally(ticketId, statusName)
+        
+        // Luego hacer la llamada a la API
+        changeTicketState(ticketId, statusId)
+    }
+
     // Método para actualizar el estado del ticket localmente (sin llamada a API)
     fun updateTicketStatusLocally(ticketId: Int, newStatus: String) {
         val currentTickets = _tickets.value.toMutableList()
@@ -142,6 +163,40 @@ class TicketsViewModel(private val repository: TicketRepository = TicketReposito
         
         if (ticketIndex != -1) {
             val updatedTicket = currentTickets[ticketIndex].copy(estado = newStatus)
+            currentTickets[ticketIndex] = updatedTicket
+            _tickets.value = currentTickets
+            
+            // También actualizar el ticket individual si es el mismo
+            if (_ticket.value?.id_ticket == ticketId) {
+                _ticket.value = updatedTicket
+            }
+        }
+    }
+
+    // Método para actualizar la prioridad del ticket localmente
+    fun updateTicketPriorityLocally(ticketId: Int, newPriority: String) {
+        val currentTickets = _tickets.value.toMutableList()
+        val ticketIndex = currentTickets.indexOfFirst { it.id_ticket == ticketId }
+        
+        if (ticketIndex != -1) {
+            val updatedTicket = currentTickets[ticketIndex].copy(prioridad = newPriority)
+            currentTickets[ticketIndex] = updatedTicket
+            _tickets.value = currentTickets
+            
+            // También actualizar el ticket individual si es el mismo
+            if (_ticket.value?.id_ticket == ticketId) {
+                _ticket.value = updatedTicket
+            }
+        }
+    }
+
+    // Método para actualizar la categoría del ticket localmente
+    fun updateTicketCategoryLocally(ticketId: Int, newCategory: String) {
+        val currentTickets = _tickets.value.toMutableList()
+        val ticketIndex = currentTickets.indexOfFirst { it.id_ticket == ticketId }
+        
+        if (ticketIndex != -1) {
+            val updatedTicket = currentTickets[ticketIndex].copy(categoria = newCategory)
             currentTickets[ticketIndex] = updatedTicket
             _tickets.value = currentTickets
             

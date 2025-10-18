@@ -17,7 +17,7 @@ data class TicketFilterRequest(
     val estado: String? = null,
     val prioridad: Int? = null,
     val tecnico: Int? = null,
-    val categoria: Int? = null,
+    val categoria: String? = null,
     val fecha_inicio: String? = null,
     val fecha_fin: String? = null
 )
