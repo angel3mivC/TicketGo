@@ -28,6 +28,7 @@ const Login = () => {
             localStorage.setItem("token", data.token)
             localStorage.setItem("user", data.user.nombre)
             localStorage.setItem("rol", data.user.rol)
+            localStorage.setItem("id_usuario", data.user.id)
          }else{
             setError(true)
             return

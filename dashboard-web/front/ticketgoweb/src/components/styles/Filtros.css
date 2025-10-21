@@ -1,0 +1,168 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-filtros {
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.filtros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.filtros-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+.filtro-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.close-filtros {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.close-filtros:hover {
+    background-color: #f5f5f5;
+}
+
+.filtros-content {
+    padding: 24px;
+}
+
+.filtro-section {
+    margin-bottom: 24px;
+}
+
+.filtro-section:last-child {
+    margin-bottom: 0;
+}
+
+.filtro-section-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.filtro-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.filtro-option {
+    padding: 8px 16px;
+    border: 1px solid #e5e5e5;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.filtro-option:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.filtro-option.selected {
+    background: #000;
+    color: white;
+    border-color: #000;
+}
+
+.filtros-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e5e5;
+    justify-content: flex-end;
+}
+
+.btn-limpiar,
+.btn-aplicar {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+}
+
+.btn-limpiar {
+    background: white;
+    color: #666;
+    border-color: #e5e5e5;
+}
+
+.btn-limpiar:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.btn-aplicar {
+    background: #000;
+    color: white;
+    border-color: #000;
+}
+
+.btn-aplicar:hover {
+    background: #333;
+    border-color: #333;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .modal-filtros {
+        width: 95vw;
+        margin: 20px;
+    }
+    
+    .filtro-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .filtros-actions {
+        flex-direction: column;
+    }
+    
+    .btn-limpiar,
+    .btn-aplicar {
+        width: 100%;
+    }
+}

@@ -7,6 +7,9 @@ import Usuario from './Usuario.jsx'
 import CrearUsuario from './FormularioCrearUsuario.jsx'
 import EditarUsuario from './FormularioEditarUsuario.jsx'
 import Notificaciones from './Notificaciones.jsx'
+import Filtros from './Filtros.jsx'
+import FiltrosUsuarios from './FiltrosUsuarios.jsx'
+
 import Notificacion from '../assets/notificacion.png'
 import Historial from '../assets/historial.svg'
 import LogOut from '../assets/logout.svg'
@@ -27,16 +30,21 @@ const Admin = () => {
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [selectedForm, setSelectedForm] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null);
-  const [refresh, setRefresh] = useState(false); //Cuando se borre un usuario setRefresh(prev => !prev);
+  const [refresh, setRefresh] = useState(false);
   const [showNotificaciones, setShowNotificaciones] = useState(false)
+  const [showFiltros, setShowFiltros] = useState(false)
+  const [filtrosAplicados, setFiltrosAplicados] = useState({ estado: '', categoria: '' })
+  const [ticketsFiltrados, setTicketsFiltrados] = useState([])
+  const [filtrosUsuarios, setFiltrosUsuarios] = useState({ rol: '' }) // ✅ Nuevo estado
+  const [usuariosFiltrados, setUsuariosFiltrados] = useState([]) // ✅ Lista filtrada de usuarios
 
-  // Fetch dinámico según pestaña activa
+  // --- 🔹 Fetch dinámico según pestaña activa ---
   useEffect(() => {
     let url = ""
 
     if (activeTab === "tickets") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/tickets"
     else if (activeTab === "usuarios") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/users"
-    else if (activeTab === "historial") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/tickets?estado=Cerrado" // 👈 endpoint para historial
+    else if (activeTab === "historial") url = "http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/tickets?estado=Cerrado"
 
     if (!url) return
 
@@ -50,15 +58,15 @@ const Admin = () => {
       .then((res) => res.json())
       .then((data) => {
         if (activeTab === "usuarios") {
-            // Filtra el usuario actual
-            const filtered = data.filter(user => user.nombre !== userName)
-            setUsuarios(filtered)
+          const filtered = data.filter(user => user.nombre !== userName)
+          setUsuarios(filtered)
+          setUsuariosFiltrados(filtered) // ✅ Inicializa usuarios filtrados
         } else {
-            setTickets(data)
+          setTickets(data)
         }
       })
       .catch((err) => console.error(`Error al obtener datos (${activeTab}):`, err))
-  }, [activeTab, refresh ,token])
+  }, [activeTab, refresh, token])
 
   const logout = () => {
     localStorage.clear()
@@ -71,6 +79,53 @@ const Admin = () => {
     if (r === 2) return "Mesa de Trabajo"
     return "Técnico"
   }
+
+  // --- 🔹 Función para aplicar filtros de tickets ---
+  const aplicarFiltros = (filtros) => {
+    setFiltrosAplicados(filtros)
+    
+    const sinFiltros = (filtros.estado === '' || filtros.estado === undefined) && 
+                      (filtros.categoria === '' || filtros.categoria === undefined)
+    
+    if (sinFiltros) {
+      setTicketsFiltrados(tickets)
+    } else {
+      const filtrados = tickets.filter(ticket => {
+        const cumpleEstado = !filtros.estado || filtros.estado === '' || ticket.estado === filtros.estado
+        const cumpleCategoria = !filtros.categoria || filtros.categoria === '' || ticket.categoria === filtros.categoria
+        return cumpleEstado && cumpleCategoria
+      })
+      setTicketsFiltrados(filtrados)
+    }
+  }
+
+  // --- 🔹 Función para aplicar filtros de usuarios ---
+  const aplicarFiltrosUsuarios = (filtros) => {
+    setFiltrosUsuarios(filtros)
+
+    if (!filtros.rol) {
+      setUsuariosFiltrados(usuarios)
+    } else {
+      const filtrados = usuarios.filter(u => String(u.id_rol) === filtros.rol)
+      setUsuariosFiltrados(filtrados)
+    }
+  }
+
+  // --- 🔹 Actualizar listas filtradas cuando cambian los datos ---
+  useEffect(() => {
+    const sinFiltrosTickets = (filtrosAplicados.estado === '' || filtrosAplicados.estado === undefined) && 
+                              (filtrosAplicados.categoria === '' || filtrosAplicados.categoria === undefined)
+    if (sinFiltrosTickets) {
+      setTicketsFiltrados(tickets)
+    } else {
+      aplicarFiltros(filtrosAplicados)
+    }
+  }, [tickets])
+
+  useEffect(() => {
+    if (!filtrosUsuarios.rol) setUsuariosFiltrados(usuarios)
+    else aplicarFiltrosUsuarios(filtrosUsuarios)
+  }, [usuarios])
 
   return (
     <div className="admin-container">
@@ -97,18 +152,23 @@ const Admin = () => {
           <img
             src={Historial}
             alt="historial"
-            className={`historial ${activeTab === "historial" ? "active" : ""}`} // destacar si está activo
+            className={`historial ${activeTab === "historial" ? "active" : ""}`}
             onClick={() => setActiveTab("historial")}
           />
           <img src={LogOut} alt="logout" className="logout" onClick={logout} />
         </div>
       </div>
 
-      {/* TÍTULOS */}
+      {/* 🔹 Encabezados según pestaña */}
       {activeTab === "tickets" && (
         <div className="textsAreaTickets">
-          <div className="title">Tickets</div>
-          <div className="subtitle">Consulta todos los tickets.</div>
+          <div>
+            <div className="title">Tickets</div>
+            <div className="subtitle">Consulta todos los tickets.</div>
+          </div>
+          <button className="filters" onClick={() => setShowFiltros(true)}>
+            <img src={Filtro} /> Filtrar
+          </button>
         </div>
       )}
 
@@ -122,7 +182,7 @@ const Admin = () => {
             <button className="create-User" onClick={() => setSelectedForm("crear-usuario")}>
               <img src={Mas} /> Crear Usuario
             </button>
-            <button className="filters">
+            <button className="filters" onClick={() => setShowFiltros(true)}>
               <img src={Filtro} /> Filtrar
             </button>
           </div>
@@ -131,21 +191,26 @@ const Admin = () => {
 
       {activeTab === "historial" && (
         <div className="textsAreaTickets">
-          <div className="title">Historial</div>
-          <div className="subtitle">Consulta todos los tickets cerrados.</div>
+          <div>
+            <div className="title">Historial</div>
+            <div className="subtitle">Consulta todos los tickets cerrados.</div>
+          </div>
+          <button className="filters" onClick={() => setShowFiltros(true)}>
+            <img src={Filtro} /> Filtrar
+          </button>
         </div>
       )}
 
-      {/* CONTENIDO SCROLL */}
+      {/* 🔹 Contenido principal */}
       <div className="scroll-area">
         {activeTab === "tickets" || activeTab === "historial" ? (
-          tickets.length === 0 ? (
+          ticketsFiltrados.length === 0 ? (
             <div className="no-data-message">
               No se encontraron {activeTab === "historial" ? "tickets cerrados." : "tickets."}
             </div>
           ) : (
             <div className="tickets-list">
-              {tickets.map((ticket) => (
+              {ticketsFiltrados.map((ticket) => (
                 <Ticket
                   key={ticket.id_ticket}
                   id_ticket={ticket.id_ticket}
@@ -160,13 +225,11 @@ const Admin = () => {
               ))}
             </div>
           )
-        ) : usuarios.length === 0 ? (
-          <div className="no-data-message">
-            No se encontraron usuarios.
-          </div>
+        ) : usuariosFiltrados.length === 0 ? (
+          <div className="no-data-message">No se encontraron usuarios.</div>
         ) : (
           <div className="users-list">
-            {usuarios.map((user) => (
+            {usuariosFiltrados.map((user) => (
               <Usuario
                 key={user.id_usuario}
                 id_usuario={user.id_usuario}
@@ -182,8 +245,7 @@ const Admin = () => {
         )}
       </div>
 
-
-      {/* MODAL DE DETALLES */}
+      {/* 🔹 Modales */}
       {selectedTicket && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -195,36 +257,47 @@ const Admin = () => {
         </div>
       )}
 
-      {/* MODAL DE FORMULARIO DE CREACION DE USUARIOS */}
-        {selectedForm === "crear-usuario" && (
+      {selectedForm === "crear-usuario" && (
         <div className="modal-overlay">
-            <div className="modal-create-user">
+          <div className="modal-create-user">
             <button className="close-create-user" onClick={() => setSelectedForm(null)}>✕</button>
             <CrearUsuario onClose={() => setSelectedForm(null)} onSuccess={() => setRefresh(prev => !prev)} />
-            </div>
+          </div>
         </div>
-        )}
+      )}
 
-        {selectedForm === "editar-usuario" && selectedUser && (
+      {selectedForm === "editar-usuario" && selectedUser && (
         <div className="modal-overlay">
-            <div className="modal-edit-user">
+          <div className="modal-edit-user">
             <button className="close-edit-user" onClick={() => setSelectedForm(null)}>✕</button>
             <EditarUsuario 
-                usuario={selectedUser} 
-                onClose={() => setSelectedForm(null)} 
-                onSuccess={() => setRefresh(prev => !prev)} 
+              usuario={selectedUser} 
+              onClose={() => setSelectedForm(null)} 
+              onSuccess={() => setRefresh(prev => !prev)} 
             />
-            </div>
+          </div>
         </div>
-        )}
-
-      
-      {/*NOTIFICACIONES*/}
+      )}
 
       {showNotificaciones && (
         <Notificaciones onClose={() => setShowNotificaciones(false)} />
       )}
 
+      {/* 🔹 Filtros dinámicos según pestaña */}
+      {showFiltros && activeTab === "usuarios" && (
+        <FiltrosUsuarios 
+          onClose={() => setShowFiltros(false)} 
+          onApplyFilters={aplicarFiltrosUsuarios}
+        />
+      )}
+
+      {showFiltros && (activeTab === "tickets" || activeTab === "historial") && (
+        <Filtros 
+          onClose={() => setShowFiltros(false)} 
+          onApplyFilters={aplicarFiltros}
+          soloCategoria={activeTab === "historial"}
+        />
+      )}
     </div>
   )
 }

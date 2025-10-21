@@ -26,12 +26,12 @@ const CrearUsuario = () => {
             return res.json();
         })
         .then((data) => {
-            alert("Usuario creado correctamente");
+            console.log("Usuario creado correctamente");
             window.location.reload();
         })
         .catch((err) => {
             console.error("Error al crear usuario:", err);
-            alert("Hubo un error al crear el usuario");
+            console.log("Hubo un error al crear el usuario");
         })
 
     }
