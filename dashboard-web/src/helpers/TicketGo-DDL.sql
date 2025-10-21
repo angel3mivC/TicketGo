@@ -18,7 +18,7 @@ CREATE TABLE usuarios (
     correo VARCHAR(100) NOT NULL UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     id_rol INT NOT NULL,
-    estado ENUM('Activo', 'Inactivo', 'Deshabilitado') DEFAULT 'Activo',
+    estado ENUM('Activo', 'Inactivo', 'Deshabilitado') DEFAULT 'Inactivo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
@@ -55,6 +55,8 @@ CREATE TABLE tickets (
     FOREIGN KEY (creado_por) REFERENCES usuarios(id_usuario),
     FOREIGN KEY (asignado_a) REFERENCES usuarios(id_usuario)
 );
+
+ALTER TABLE tickets ADD COLUMN aceptado BOOLEAN NULL DEFAULT NULL;
 
 CREATE TABLE historial_tickets (
     id_historial INT AUTO_INCREMENT PRIMARY KEY,
@@ -102,7 +104,7 @@ CREATE TABLE adjuntos (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
---Encriptar contraseña antes de insertar
+-- Encriptar contraseña antes de insertar
 DELIMITER //
 CREATE TRIGGER before_insert_usuario
 BEFORE INSERT ON usuarios
@@ -113,7 +115,7 @@ END;
 //
 DELIMITER ;
 
---Encriptar contraseña antes de actualizar
+-- Encriptar contraseña antes de actualizar
 DELIMITER //
 CREATE TRIGGER before_update_usuario
 BEFORE UPDATE ON usuarios
@@ -222,7 +224,7 @@ END;
 //
 DELIMITER ;
 
---Notificación al agregar comentario
+-- Notificación al agregar comentario
 DELIMITER //
 CREATE TRIGGER after_insert_comentario
 AFTER INSERT ON comentarios
@@ -243,7 +245,7 @@ END;
 DELIMITER ;
 
 
---Notificación al subir adjunto
+-- Notificación al subir adjunto
 DELIMITER //
 CREATE TRIGGER after_insert_adjunto
 AFTER INSERT ON adjuntos
@@ -251,6 +253,68 @@ FOR EACH ROW
 BEGIN
     INSERT INTO notificaciones(id_usuario, id_ticket, mensaje)
     VALUES (NEW.id_usuario, NEW.id_ticket, CONCAT('Se adjuntó un nuevo archivo: ', NEW.nombre_archivo));
+END;
+//
+DELIMITER ;
+
+-- Técnico pasa a ACTIVO al asignarle ticket
+DELIMITER //
+CREATE TRIGGER after_assign_ticket_activate_tech
+AFTER UPDATE ON tickets
+FOR EACH ROW
+BEGIN
+    IF NEW.asignado_a IS NOT NULL AND OLD.asignado_a IS NULL THEN
+        UPDATE usuarios
+        SET estado = 'Activo'
+        WHERE id_usuario = NEW.asignado_a AND id_rol = 3;
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- Rechazo de ticket
+DELIMITER //
+CREATE TRIGGER after_reject_ticket
+AFTER UPDATE ON tickets
+FOR EACH ROW
+BEGIN
+    -- Cuando el técnico rechaza el ticket
+    IF OLD.aceptado IS NULL AND NEW.aceptado = FALSE THEN
+
+        -- Notificar a la mesa que creó el ticket
+        INSERT INTO notificaciones (id_usuario, id_ticket, mensaje)
+        VALUES (
+            NEW.creado_por,
+            NEW.id_ticket,
+            CONCAT('El técnico rechazó el ticket #', NEW.id_ticket, '. Debe asignarse a otro técnico.')
+        );
+
+        -- Liberar asignación
+        UPDATE tickets
+        SET asignado_a = NULL, aceptado = NULL
+        WHERE id_ticket = NEW.id_ticket;
+
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- Trigger para volver inactivo al técnico si ya no tiene tickets
+DELIMITER //
+CREATE TRIGGER after_ticket_closed_check_tech
+AFTER UPDATE ON tickets
+FOR EACH ROW
+BEGIN
+    IF NEW.id_estado = 3 THEN -- estado = Cerrado
+        UPDATE usuarios
+        SET estado = 'Inactivo'
+        WHERE id_usuario = NEW.asignado_a
+        AND NOT EXISTS (
+            SELECT 1 FROM tickets
+            WHERE asignado_a = NEW.asignado_a
+            AND id_estado != 3
+        );
+    END IF;
 END;
 //
 DELIMITER ;

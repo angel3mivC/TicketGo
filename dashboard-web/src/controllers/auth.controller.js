@@ -14,12 +14,12 @@ const login = async (req, res) => {
         }
 
         const [rows] = await pool.query(
-            "SELECT id_usuario, nombre, correo, contraseña, id_rol, estado FROM usuarios WHERE correo = ? AND estado = 'Activo'",
+            "SELECT id_usuario, nombre, correo, contraseña, id_rol, estado FROM usuarios WHERE correo = ? AND estado != 'Deshabilitado'",
             [correo]
         );
 
         if (rows.length === 0) {
-            return res.status(401).json({ message: "Usuario no encontrado o inactivo" });
+            return res.status(401).json({ message: "Usuario no encontrado o deshabilitado" });
         }
 
         const user = rows[0];

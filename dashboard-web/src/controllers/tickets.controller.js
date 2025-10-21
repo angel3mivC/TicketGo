@@ -234,6 +234,43 @@ const changeCategory = async (req, res) => {
     }
 };
 
+const acceptTicket = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { aceptado } = req.body;
+        const id_usuario = req.user.id_usuario;
+
+        if (aceptado === undefined) {
+            return res.status(400).json({ message: "Debe enviar aceptado: true o false" });
+        }
+
+        const [ticket] = await pool.query(
+            "SELECT * FROM tickets WHERE id_ticket = ? AND asignado_a = ?",
+            [id, id_usuario]
+        );
+
+        if (ticket.length === 0) {
+            return res.status(403).json({ message: "No puedes aceptar este ticket" });
+        }
+
+        await pool.query(
+            "UPDATE tickets SET aceptado = ? WHERE id_ticket = ?",
+            [aceptado, id]
+        );
+
+        return res.json({
+            message: aceptado
+                ? "Has aceptado el ticket correctamente"
+                : "Has rechazado el ticket"
+        });
+
+    } catch (error) {
+        console.error("Error al aceptar/rechazar ticket:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
+
 export {
     getTickets,
     getTicketById,
@@ -243,5 +280,6 @@ export {
     assignTicket,
     changeState,
     changePriority,
-    changeCategory
+    changeCategory,
+    acceptTicket,
 };

@@ -4,7 +4,7 @@ import pool from "../helpers/mysql-config.js";
 const getUsers = async (req, res) => {
     try {
         const [rows] = await pool.query(
-            "SELECT id_usuario, nombre, correo, id_rol, estado, fecha_creacion FROM usuarios"
+            "SELECT id_usuario, nombre, correo, id_rol, estado, fecha_creacion FROM usuarios WHERE estado != 'Deshabilitado'"
         );
         res.json(rows);
     } catch (error) {
@@ -42,8 +42,9 @@ const getTechnicians = async (req, res) => {
         if (estado) {
             query += ` AND estado = ?`;
             params.push(estado);
+        } else {
+            query += ` AND estado != 'Deshabilitado'`;
         }
-
         const [rows] = await pool.query(query, params);
 
         if (rows.length === 0) {

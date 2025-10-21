@@ -9,6 +9,7 @@ import {
     changeState,
     changePriority,
     changeCategory,
+    acceptTicket,
 } from "../controllers/tickets.controller.js";
 import { verifyToken, checkRole } from "../middlewares/auth.middleware.js";
 
@@ -22,6 +23,7 @@ router.get("/:id", verifyToken, checkRole([1, 2, 3]), getTicketById);
 router.post("/", verifyToken, checkRole([2]), createTicket);
 router.put("/:id", verifyToken, checkRole([1, 2]), updateTicket);
 router.delete("/:id", verifyToken, checkRole([1]), deleteTicket);
+router.put("/:id/accept", verifyToken, checkRole([3]), acceptTicket);
 router.put("/:id/assign", verifyToken, checkRole([1, 2]), assignTicket);
 router.put("/:id/state", verifyToken, checkRole([1, 2, 3]), changeState);
 router.put("/:id/priority", verifyToken, checkRole([1]), changePriority);
