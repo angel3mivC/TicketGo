@@ -5,7 +5,7 @@ import DetallesTickets from './DetallesTickets.jsx'
 import UsuarioTag from './UsuarioTag.jsx'
 import Notificaciones from './Notificaciones.jsx'
 import Filtros from './Filtros.jsx'
-
+import CrearTicket from './FormularioCrearTicket.jsx'
 import Notificacion from '../assets/notificacion.png'
 import LogOut from '../assets/logout.svg'
 import Filtro from '../assets/filtro.svg'
@@ -20,6 +20,8 @@ const MesaTrabajo = () => {
 
   const [activeTab, setActiveTab] = useState("tickets")
   const [tickets, setTickets] = useState([])
+  const [createTicket, setCreateTicket] = useState(false)
+  const [refresh, setRefresh] = useState(false);
   const [ticketsFiltrados, setTicketsFiltrados] = useState([])
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [showNotificaciones, setShowNotificaciones] = useState(false)
@@ -128,7 +130,7 @@ const MesaTrabajo = () => {
             </div>
           </div>
           <div className="buttons">
-            <button className="create-Ticket" onClick={() => setSelectedForm("crear-usuario")}>
+            <button className="create-Ticket" onClick={() => setCreateTicket(true)}>
               <img src={Mas} /> Crear Ticket
             </button>
             <button className="filters" onClick={() => setShowFiltros(true)}>
@@ -182,6 +184,19 @@ const MesaTrabajo = () => {
           onApplyFilters={aplicarFiltros}
           soloCategoria={activeTab === "historial"}
         />
+      )}
+
+      {/* MODAL DE CREAR TICKET */}
+      {createTicket && (
+         <div className="modal-overlay">
+         <div className="modal-create-ticket">
+           <button className="close-modal" onClick={() => setCreateTicket(false)}>✕</button>
+           <CrearTicket 
+             onClose={() => setCreateTicket(false)} 
+             onSuccess={() => setRefresh(prev => !prev)} 
+           />
+         </div>
+       </div>
       )}
     </div>
   )
