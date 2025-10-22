@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.use(
     fileUpload({
-        limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+        limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
         abortOnLimit: true,
     })
 );

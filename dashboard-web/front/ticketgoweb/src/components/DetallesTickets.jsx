@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import "./styles/DetallesTickets.css";
+import Gallery from "./Gallery.jsx";
 
 const estadosDisponibles = [
   { id: 1, nombre: "Abierto", color: "limegreen" },
@@ -18,9 +19,28 @@ const DetallesTickets = ({ id_ticket }) => {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fileToUpload, setFileToUpload] = useState(null);
+
+  // Nuevos estados para asignación de técnico
+  const [showAssignPanel, setShowAssignPanel] = useState(false);
+  const [technicians, setTechnicians] = useState([]);
+  const [selectedTechId, setSelectedTechId] = useState(null);
 
   const token = localStorage.getItem("token");
   const comentarioInput = useRef(null);
+
+  // Decodifica payload del JWT (intenta obtener id_rol)
+  const getRoleFromToken = (t) => {
+    try {
+      if (!t) return null;
+      const payload = t.split(".")[1];
+      const json = JSON.parse(atob(payload));
+      return json.id_rol || json.role || null;
+    } catch {
+      return null;
+    }
+  };
+  const role = getRoleFromToken(token);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +67,9 @@ const DetallesTickets = ({ id_ticket }) => {
         setTicket(ticketData);
         setComentarios(normalizedComments);
         setEvidencias(filesData);
+
+        // Si el ticket trae asignado el id y nombre, inicializa selectedTechId
+        if (ticketData.asignado_id) setSelectedTechId(ticketData.asignado_id);
       } catch (err) {
         console.error("Error al obtener datos del ticket:", err);
       } finally {
@@ -56,6 +79,42 @@ const DetallesTickets = ({ id_ticket }) => {
 
     fetchData();
   }, [id_ticket, token]);
+
+  const refreshFiles = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API_URL}/tickets/${id_ticket}/files`, {
+        headers,
+      });
+      const data = await res.json();
+      setEvidencias(data);
+    } catch (err) {
+      console.error("Error al refrescar archivos:", err);
+    }
+  };
+
+  const fetchTechnicians = async () => {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      let res = await fetch(`${API_URL}/users?rol=3`, { headers });
+      if (!res.ok) {
+        res = await fetch(`${API_URL}/users`, { headers });
+      }
+      if (!res.ok) {
+        console.error("No se pudo obtener la lista de técnicos");
+        setTechnicians([]);
+        return;
+      }
+      const list = await res.json();
+      const techs = list.filter(
+        (u) => u.id_rol === 3 || u.rol === 3 || u.role === 3
+      );
+      setTechnicians(techs.length ? techs : list);
+    } catch (err) {
+      console.error("Error al obtener técnicos:", err);
+      setTechnicians([]);
+    }
+  };
 
   const cambiarEstado = async (nuevoEstado) => {
     try {
@@ -80,6 +139,37 @@ const DetallesTickets = ({ id_ticket }) => {
     }
   };
 
+  const asignarTecnico = async (tecnico_id) => {
+    try {
+      const response = await fetch(`${API_URL}/tickets/${id_ticket}/assign`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tecnico_id }), // si tecnico_id es null => quitar asignación
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Actualiza la UI: usa nombre disponible en la respuesta o busca en lista local
+        const techObj = technicians.find(
+          (t) => t.id_usuario === tecnico_id || t.id === tecnico_id
+        );
+        const nombre =
+          tecnico_id === null
+            ? null
+            : techObj?.nombre || techObj?.name || data.asignado || "Técnico";
+        setTicket((prev) => ({ ...prev, asignado_a: nombre }));
+        setSelectedTechId(tecnico_id);
+        setShowAssignPanel(false);
+      } else {
+        console.error("Error al asignar técnico:", data);
+      }
+    } catch (err) {
+      console.error("Error al asignar técnico:", err);
+    }
+  };
+
   const enviarComentario = async () => {
     const comentario = nuevoComentario.trim();
     if (!comentario) return;
@@ -99,7 +189,7 @@ const DetallesTickets = ({ id_ticket }) => {
         setComentarios((prev) => [
           ...prev,
           {
-            usuario: localStorage.getItem("user"),
+            usuario: localStorage.getItem("user") || "Yo",
             fecha: new Date().toLocaleDateString(),
             hora: new Date().toLocaleTimeString(),
             descripcion: comentario,
@@ -112,6 +202,40 @@ const DetallesTickets = ({ id_ticket }) => {
       }
     } catch (error) {
       console.error("Error al enviar comentario:", error);
+    }
+  };
+
+  const subirArchivo = async (e) => {
+    e.preventDefault();
+    if (!fileToUpload) return;
+
+    const form = new FormData();
+    form.append("file", fileToUpload);
+
+    try {
+      const res = await fetch(`${API_URL}/tickets/${id_ticket}/files`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        await refreshFiles();
+        setFileToUpload(null);
+      } else {
+        console.error("Error al subir archivo:", data);
+      }
+    } catch (err) {
+      console.error("Error al subir archivo:", err);
+    }
+  };
+
+  const toggleAssignPanel = async () => {
+    // Solo Admin (1) y Mesa (2) pueden abrir el panel
+    if (role === 1 || role === 2) {
+      if (!showAssignPanel) await fetchTechnicians();
+      setShowAssignPanel((v) => !v);
     }
   };
 
@@ -169,7 +293,7 @@ const DetallesTickets = ({ id_ticket }) => {
             {ticket.estado}
           </div>
 
-          {menuAbierto && (
+          {menuAbierto && (role === 1 || role === 2 || role === 3) && (
             <div className="status-menu">
               {estadosDisponibles.map((estado) => (
                 <button
@@ -196,59 +320,83 @@ const DetallesTickets = ({ id_ticket }) => {
         </span>
       </div>
 
+      {/* Mostrar nombre del técnico y botón para cambiar (solo Admin y Mesa) */}
+      <div className="ticket-tecnico">
+        <div className="tecnico-info">
+          <div className="user-avatar small"></div>
+          <div className="tecnico-text">
+            <div className="tecnico-nombre">
+              {ticket.asignado_a || "— Sin asignar —"}
+            </div>
+          </div>
+        </div>
+
+        {(role === 1 || role === 2) && (
+          <div className="tecnico-actions">
+            <button onClick={toggleAssignPanel}>
+              {showAssignPanel ? "Cerrar" : "Asignar / Reasignar"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Panel de asignación (visible para Admin/Mesa) */}
+      {showAssignPanel && (role === 1 || role === 2) && (
+        <div className="assign-panel">
+          <label>Seleccionar técnico:</label>
+          <select
+            value={selectedTechId ?? ""}
+            onChange={(e) =>
+              setSelectedTechId(e.target.value ? Number(e.target.value) : null)
+            }
+          >
+            <option value="">-- Sin asignar --</option>
+            {technicians.map((t) => (
+              <option key={t.id_usuario ?? t.id} value={t.id_usuario ?? t.id}>
+                {t.nombre ??
+                  t.name ??
+                  `${t.email ?? "Técnico"} (${t.id_usuario ?? t.id})`}
+              </option>
+            ))}
+          </select>
+          <div className="assign-buttons">
+            <button onClick={() => asignarTecnico(selectedTechId ?? null)}>
+              Aplicar
+            </button>
+            <button onClick={() => asignarTecnico(null)}>
+              Quitar asignación
+            </button>
+          </div>
+        </div>
+      )}
+
       <p className="ticket-description">{ticket.descripcion}</p>
 
-      {/* Evidencias */}
+      {/* Galería - visible para todos los perfiles */}
       <div className="ticket-evidencias">
         <div className="evidencias-header">
           <h3>Evidencias</h3>
         </div>
-        <div className="evidencias-grid">
-          {evidencias.length > 0 ? (
-            evidencias.map((file, index) => {
-              const isImage = file.tipo_mime.startsWith("image/");
-              const isPDF = file.tipo_mime === "application/pdf";
-
-              return (
-                <div key={index} className="evidencia-card">
-                  {isImage ? (
-                    <img
-                      src={`data:${file.tipo_mime};base64,${file.archivo}`}
-                      alt={file.nombre_original}
-                      className="evidencia-preview"
-                    />
-                  ) : isPDF ? (
-                    <div className="evidencia-pdf">
-                      <i className="fa-solid fa-file-pdf"></i>
-                      <span>PDF</span>
-                    </div>
-                  ) : (
-                    <div className="evidencia-file">
-                      <i className="fa-solid fa-file"></i>
-                      <span>
-                        {file.nombre_original.split(".").pop().toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="evidencia-footer">
-                    <p className="evidencia-nombre">{file.nombre_original}</p>
-                    <a
-                      href={`data:${file.tipo_mime};base64,${file.archivo}`}
-                      download={file.nombre_original}
-                      className="evidencia-descargar"
-                    >
-                      Descargar
-                    </a>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <p>No hay evidencias adjuntas.</p>
-          )}
-        </div>
+        <Gallery
+          evidencias={evidencias}
+          ticketId={id_ticket}
+          apiUrl={API_URL}
+          token={token}
+        />
       </div>
+
+      {/* Subida de archivos - solo para Técnico */}
+      {role === 3 && (
+        <div className="upload-section">
+          <form onSubmit={subirArchivo}>
+            <input
+              type="file"
+              onChange={(e) => setFileToUpload(e.target.files[0])}
+            />
+            <button type="submit">Subir archivo</button>
+          </form>
+        </div>
+      )}
 
       <hr className="divider" />
 
@@ -268,19 +416,21 @@ const DetallesTickets = ({ id_ticket }) => {
         </div>
       ))}
 
-      {/* Agregar comentario */}
-      <div className="comentario-input">
-        <input
-          type="text"
-          placeholder="Ingresa un comentario"
-          className="input-text"
-          ref={comentarioInput}
-          onChange={(e) => setNuevoComentario(e.target.value)}
-        />
-        <button className="send-button" onClick={enviarComentario}>
-          ↑
-        </button>
-      </div>
+      {/* Agregar comentario - Admin/Mesa/Técnico */}
+      {(role === 1 || role === 2 || role === 3) && (
+        <div className="comentario-input">
+          <input
+            type="text"
+            placeholder="Ingresa un comentario"
+            className="input-text"
+            ref={comentarioInput}
+            onChange={(e) => setNuevoComentario(e.target.value)}
+          />
+          <button className="send-button" onClick={enviarComentario}>
+            ↑
+          </button>
+        </div>
+      )}
     </div>
   );
 };

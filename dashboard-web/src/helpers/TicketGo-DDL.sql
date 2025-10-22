@@ -272,13 +272,13 @@ END;
 //
 DELIMITER ;
 
--- Rechazo de ticket
+DROP TRIGGER IF EXISTS after_reject_ticket;
 DELIMITER //
-CREATE TRIGGER after_reject_ticket
-AFTER UPDATE ON tickets
+CREATE TRIGGER before_reject_ticket
+BEFORE UPDATE ON tickets
 FOR EACH ROW
 BEGIN
-    -- Cuando el técnico rechaza el ticket
+    -- Cuando el técnico intenta rechazar (antes estaba NULL y ahora intenta poner FALSE)
     IF OLD.aceptado IS NULL AND NEW.aceptado = FALSE THEN
 
         -- Notificar a la mesa que creó el ticket
@@ -289,11 +289,9 @@ BEGIN
             CONCAT('El técnico rechazó el ticket #', NEW.id_ticket, '. Debe asignarse a otro técnico.')
         );
 
-        -- Liberar asignación
-        UPDATE tickets
-        SET asignado_a = NULL, aceptado = NULL
-        WHERE id_ticket = NEW.id_ticket;
-
+        -- Quitar asignación y restablecer aceptado en la misma operación (evita otro UPDATE sobre tickets)
+        SET NEW.asignado_a = NULL;
+        SET NEW.aceptado = NULL;
     END IF;
 END;
 //

@@ -5,7 +5,7 @@ const getTickets = async (req, res) => {
         const { estado, prioridad, tecnico, categoria, fecha_inicio, fecha_fin } = req.query;
 
         let query = `
-        SELECT t.id_ticket, t.titulo, t.descripcion, t.fecha_creacion, t.fecha_actualizacion,
+        SELECT t.id_ticket, t.titulo, t.descripcion, t.fecha_creacion, t.fecha_actualizacion, t.aceptado, 
         u1.nombre AS creado_por, u2.nombre AS asignado_a,
         c.nombre AS categoria, p.nivel AS prioridad, e.nombre AS estado
         FROM tickets t
@@ -238,32 +238,37 @@ const acceptTicket = async (req, res) => {
     try {
         const { id } = req.params;
         const { aceptado } = req.body;
-        const id_usuario = req.user.id_usuario;
+        const id_usuario = req.user?.id_usuario;
 
         if (aceptado === undefined) {
             return res.status(400).json({ message: "Debe enviar aceptado: true o false" });
         }
 
-        const [ticket] = await pool.query(
-            "SELECT * FROM tickets WHERE id_ticket = ? AND asignado_a = ?",
-            [id, id_usuario]
-        );
+        // Log para depuración
+        console.log("acceptTicket -> params:", { id });
+        console.log("acceptTicket -> body:", { aceptado });
+        console.log("acceptTicket -> usuario:", { id_usuario });
 
-        if (ticket.length === 0) {
+        // Obtener ticket por id (no filtrar por asignado en la query)
+        const [rows] = await pool.query("SELECT * FROM tickets WHERE id_ticket = ?", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Ticket no encontrado" });
+        }
+
+        const ticket = rows[0];
+        console.log("acceptTicket -> ticket db:", ticket);
+
+        // Comparación en JS para evitar problemas de tipo (NULL, string vs number)
+        if (ticket.asignado_a === null || Number(ticket.asignado_a) !== Number(id_usuario)) {
             return res.status(403).json({ message: "No puedes aceptar este ticket" });
         }
 
-        await pool.query(
-            "UPDATE tickets SET aceptado = ? WHERE id_ticket = ?",
-            [aceptado, id]
-        );
+        await pool.query("UPDATE tickets SET aceptado = ? WHERE id_ticket = ?", [aceptado ? 1 : 0, id]);
 
         return res.json({
-            message: aceptado
-                ? "Has aceptado el ticket correctamente"
-                : "Has rechazado el ticket"
+            message: aceptado ? "Has aceptado el ticket correctamente" : "Has rechazado el ticket"
         });
-
     } catch (error) {
         console.error("Error al aceptar/rechazar ticket:", error);
         res.status(500).json({ message: "Error interno del servidor" });
