@@ -63,7 +63,6 @@ const Login = () => {
                     <img src={password} className="login-iconspassword" alt="Password" />
                     <input type="password" name="contraseña" placeholder="Contraseña" className="login-input"/>
                 </div>
-                <button type="button" className="login-forgotpass" onClick={() => navigate("/recuperar-contra")}>¿Olvidaste tu contraseña?</button>
                 {error && (<div className="login-error">
                     <img src={icons_error} className="icon-error" alt="error" />
                     Usuario o contraseña incorrectos</div>)}

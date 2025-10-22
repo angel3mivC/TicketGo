@@ -3,6 +3,8 @@ import './styles/Usuario.css'
 import { useState } from 'react'
 
 const Usuario = ({id_usuario,name,role, onEdit}) => {
+    const userName = name
+     const initials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : ''
     const [showConfirmModal, setShowConfirmModal] = useState(false)
 
     const showDeleteConfirmation = () => {
@@ -37,7 +39,7 @@ const Usuario = ({id_usuario,name,role, onEdit}) => {
     return (
         <>
             <div className='User'>
-                <div className='User-Avatar'/>
+                <div className='User-Avatar'>{initials}</div>
                 <div className='User-Info'>
                     <div className='User-Name'>{name}</div>
                     <div className='User-Role'>{role}</div>

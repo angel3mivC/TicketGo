@@ -197,12 +197,8 @@ html, body, #root {
 .modal-content {
   background: #ffffff;
   border-radius: 20px;
-  padding: 0;
-  width: 40vw; /* ancho proporcional */
-  max-width: 700px;
-  height: 100vh; /* usa todo el alto visible */
-  max-height: 100vh;
-  overflow-y: auto; /* scroll solo vertical si el contenido lo necesita */
+  width: 600px;
+  height: 100px; 
   position: relative;
   box-shadow: none;
   display: flex;

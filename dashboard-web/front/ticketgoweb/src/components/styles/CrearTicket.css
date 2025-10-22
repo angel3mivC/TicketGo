@@ -1,0 +1,82 @@
+.form-create-ticket {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    width: auto;
+    height: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .form-create-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-create-description {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+  }
+  
+  .form-create-forms {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .input-row {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .input-create,
+  .spinner-create,
+  .textarea-create {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    border: 1px solid #cfcfcf;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: white;
+    transition: border-color 0.2s ease;
+  }
+  
+  .input-create:focus,
+  .spinner-create:focus,
+  .textarea-create:focus {
+    border-color: #000;
+    outline: none;
+  }
+  
+  .spinner-create {
+    cursor: pointer;
+  }
+  
+  .textarea-create {
+    min-height: 120px;
+    resize: none;
+  }
+  
+  .create-button {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+  }
+  
+  .create-button:hover {
+    background: #333;
+  }
+  

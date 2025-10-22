@@ -207,3 +207,14 @@ html, body, #root {
   color: #444;
   z-index: 10;
 }
+
+.modal-create-ticket {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 650px;
+  height: auto;
+  position: relative;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  }
