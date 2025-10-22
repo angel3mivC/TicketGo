@@ -9,6 +9,8 @@ import EditarUsuario from './FormularioEditarUsuario.jsx'
 import Notificaciones from './Notificaciones.jsx'
 import Filtros from './Filtros.jsx'
 import FiltrosUsuarios from './FiltrosUsuarios.jsx'
+import TotalCard from './TotalCard.jsx'
+import TecnicosCard from './CardTecnicos.jsx'
 
 import Notificacion from '../assets/notificacion.png'
 import Historial from '../assets/historial.svg'
@@ -16,6 +18,10 @@ import LogOut from '../assets/logout.svg'
 import Mas from '../assets/mas.svg'
 import Filtro from '../assets/filtro.svg'
 import './styles/Admin.css'
+import IconTecnico from '../assets/icon-tecnico.png'
+import IconTicketGris from '../assets/icon-ticket-gris.png'
+import IconTicketCerrado from '../assets/icon-ticket-rojo.png'
+import IconTicketAbierto from '../assets/icon-ticket-verde.png'
 
 const Admin = () => {
   const token = localStorage.getItem("token")
@@ -33,10 +39,12 @@ const Admin = () => {
   const [refresh, setRefresh] = useState(false);
   const [showNotificaciones, setShowNotificaciones] = useState(false)
   const [showFiltros, setShowFiltros] = useState(false)
+  const [totales, setTotales] = useState({totalTecnicos: 0,totalTickets: 0,ticketsAbiertos: 0,ticketsCerrados: 0});
   const [filtrosAplicados, setFiltrosAplicados] = useState({ estado: '', categoria: '' })
   const [ticketsFiltrados, setTicketsFiltrados] = useState([])
   const [filtrosUsuarios, setFiltrosUsuarios] = useState({ rol: '' }) // ✅ Nuevo estado
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]) // ✅ Lista filtrada de usuarios
+  const tecnicosData = {activos: 8,inactivos: 4};
 
   // --- 🔹 Fetch dinámico según pestaña activa ---
   useEffect(() => {
@@ -123,9 +131,26 @@ const Admin = () => {
   }, [tickets])
 
   useEffect(() => {
-    if (!filtrosUsuarios.rol) setUsuariosFiltrados(usuarios)
-    else aplicarFiltrosUsuarios(filtrosUsuarios)
-  }, [usuarios])
+  const token = localStorage.getItem("token");
+  
+  fetch("http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/dashboard/summary", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      setTotales({
+        totalTecnicos: 0, 
+        totalTickets: data.total,
+        ticketsAbiertos: data.abiertos,
+        ticketsCerrados: data.cerrados
+      });
+    })
+    .catch(err => console.error("Error al obtener dashboard:", err));
+  }, [refresh]);
 
   return (
     <div className="admin-container">
@@ -243,7 +268,39 @@ const Admin = () => {
             ))}
           </div>
         )}
-      </div>
+        <div className= "total-card-container">
+          <TotalCard
+            title="Total de Técnicos"
+            count={totales.totalTecnicos}
+            icon={IconTecnico}
+            circleColor="#E5E5E5"
+          />
+          <TotalCard
+            title="Total de Tickets"
+            count={totales.totalTickets}
+            icon={IconTicketGris}
+            circleColor="#E5E5E5"
+          />
+          <TotalCard
+            title="Tickets Abiertos"
+            count={totales.ticketsAbiertos}
+            icon={IconTicketAbierto}
+            circleColor="#DFF4CC"
+          />
+          <TotalCard
+            title="Tickets Cerrados"
+            count={totales.ticketsCerrados}
+            icon={IconTicketCerrado}
+            circleColor="#FFCCCC"
+            />
+        </div>
+        <div>
+          <TecnicosCard activos={tecnicosData.activos} inactivos={tecnicosData.inactivos} />
+        </div>
+    </div>
+
+        
+      
 
       {/* 🔹 Modales */}
       {selectedTicket && (

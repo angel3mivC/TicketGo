@@ -1,5 +1,4 @@
 import './styles/Ticket.css'
-
 const formatDateTime = (isoString) => {
     const dateObj = new Date(isoString)
     const fecha = dateObj.toLocaleDateString('es-MX', {
