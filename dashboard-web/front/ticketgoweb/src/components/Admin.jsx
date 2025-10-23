@@ -1,5 +1,5 @@
 import Ticket from './Ticket.jsx'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, act } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DetallesTickets from './DetallesTickets.jsx'
 import UsuarioTag from './UsuarioTag.jsx'
@@ -9,6 +9,7 @@ import EditarUsuario from './FormularioEditarUsuario.jsx'
 import Notificaciones from './Notificaciones.jsx'
 import Filtros from './Filtros.jsx'
 import FiltrosUsuarios from './FiltrosUsuarios.jsx'
+import Dashboard from './Dashboard.jsx'
 
 import Notificacion from '../assets/notificacion.png'
 import Historial from '../assets/historial.svg'
@@ -145,6 +146,12 @@ const Admin = () => {
           >
             Usuarios
           </div>
+          <div
+            className={`tab ${activeTab === "dashboard" ? "active" : ""}`}
+            onClick={() => setActiveTab("dashboard")}
+          >
+            Dashboard
+          </div>
         </div>
 
         <div className="tools">
@@ -160,50 +167,57 @@ const Admin = () => {
       </div>
 
       {/* 🔹 Encabezados según pestaña */}
-      {activeTab === "tickets" && (
-        <div className="textsAreaTickets">
-          <div>
-            <div className="title">Tickets</div>
-            <div className="subtitle">Consulta todos los tickets.</div>
-          </div>
-          <button className="filters" onClick={() => setShowFiltros(true)}>
-            <img src={Filtro} /> Filtrar
-          </button>
-        </div>
+      {activeTab !== "dashboard" && (
+        <>
+          {activeTab === "tickets" && (
+            <div className="textsAreaTickets">
+              <div>
+                <div className="title">Tickets</div>
+                <div className="subtitle">Consulta todos los tickets.</div>
+              </div>
+              <button className="filters" onClick={() => setShowFiltros(true)}>
+                <img src={Filtro} /> Filtrar
+              </button>
+            </div>
+          )}
+
+          {activeTab === "usuarios" && (
+            <div className="textsArea">
+              <div className="Titles">
+                <div className="title">Mis usuarios</div>
+                <div className="subtitle">Consulta todos los usuarios creados.</div>
+              </div>
+              <div className="buttons">
+                <button className="create-User" onClick={() => setSelectedForm("crear-usuario")}>
+                  <img src={Mas} /> Crear Usuario
+                </button>
+                <button className="filters" onClick={() => setShowFiltros(true)}>
+                  <img src={Filtro} /> Filtrar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "historial" && (
+            <div className="textsAreaTickets">
+              <div>
+                <div className="title">Historial</div>
+                <div className="subtitle">Consulta todos los tickets cerrados.</div>
+              </div>
+              <button className="filters" onClick={() => setShowFiltros(true)}>
+                <img src={Filtro} /> Filtrar
+              </button>
+            </div>
+          )}
+        </>
       )}
 
-      {activeTab === "usuarios" && (
-        <div className="textsArea">
-          <div className="Titles">
-            <div className="title">Mis usuarios</div>
-            <div className="subtitle">Consulta todos los usuarios creados.</div>
-          </div>
-          <div className="buttons">
-            <button className="create-User" onClick={() => setSelectedForm("crear-usuario")}>
-              <img src={Mas} /> Crear Usuario
-            </button>
-            <button className="filters" onClick={() => setShowFiltros(true)}>
-              <img src={Filtro} /> Filtrar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {activeTab === "historial" && (
-        <div className="textsAreaTickets">
-          <div>
-            <div className="title">Historial</div>
-            <div className="subtitle">Consulta todos los tickets cerrados.</div>
-          </div>
-          <button className="filters" onClick={() => setShowFiltros(true)}>
-            <img src={Filtro} /> Filtrar
-          </button>
-        </div>
-      )}
 
       {/* 🔹 Contenido principal */}
       <div className="scroll-area">
-        {activeTab === "tickets" || activeTab === "historial" ? (
+        {activeTab === "dashboard" ? (
+          <Dashboard />
+        ) : activeTab === "tickets" || activeTab === "historial" ? (
           ticketsFiltrados.length === 0 ? (
             <div className="no-data-message">
               No se encontraron {activeTab === "historial" ? "tickets cerrados." : "tickets."}
@@ -244,6 +258,7 @@ const Admin = () => {
           </div>
         )}
       </div>
+
 
       {/* 🔹 Modales */}
       {selectedTicket && (
