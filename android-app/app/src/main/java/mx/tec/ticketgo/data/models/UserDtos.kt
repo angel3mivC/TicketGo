@@ -27,3 +27,11 @@ data class CreateUserResponse(
     val message: String,
     val user: User
 )
+
+data class UpdateUserRequest(
+    val nombre: String,
+    val correo: String,
+    val contraseña: String,
+    val id_rol: Int,
+    val estado: String
+)

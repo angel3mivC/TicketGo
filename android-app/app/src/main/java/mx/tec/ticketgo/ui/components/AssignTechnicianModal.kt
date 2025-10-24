@@ -23,13 +23,19 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,48 +57,125 @@ fun AssignTechnicianModal(
     val technicians by userViewModel.technicians.collectAsStateWithLifecycle()
     val isLoading by userViewModel.isLoading.collectAsStateWithLifecycle()
     
+    var searchQuery by remember { mutableStateOf("") }
+    var filteredTechnicians by remember { mutableStateOf<List<GetUserResponse>>(emptyList()) }
+    
+    // Filtrar técnicos basado en la búsqueda
+    LaunchedEffect(technicians, searchQuery) {
+        filteredTechnicians = if (searchQuery.isBlank()) {
+            technicians
+        } else {
+            technicians.filter { 
+                it.nombre.contains(searchQuery, ignoreCase = true) 
+            }
+        }
+    }
     
     if (isVisible) {
         AlertDialog(
             onDismissRequest = onDismiss,
+            containerColor = Color.White,
             title = {
-                Text(
-                    text = "Técnicos Disponibles",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            },
-            text = {
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(24.dp)
                     ) {
-                        CircularProgressIndicator(
-                            color = Color(0xFFD32F2F)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar",
+                            tint = Color.Black,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
-                } else {
-                    // Lista de técnicos
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        technicians.forEach { technician ->
-                            TechnicianItem(
-                                technician = technician,
-                                onAssign = { onAssign(technician.id_usuario) }
+                    
+                    Text(
+                        text = "Técnicos Disponibles",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    
+                    Spacer(modifier = Modifier.size(24.dp)) // Espacio para centrar el título
+                }
+            },
+            text = {
+                Column {
+                    // Barra de búsqueda
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text(
+                                text = "Buscar",
+                                color = Color.Gray
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Buscar",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFE0E0E0),
+                            unfocusedBorderColor = Color(0xFFE0E0E0),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        ),
+                        singleLine = true
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = Color(0xFFD32F2F)
                             )
                         }
-                        
-                        if (technicians.isEmpty()) {
-                            Text(
-                                text = "No hay técnicos disponibles",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
+                    } else {
+                        // Lista de técnicos filtrados
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                        ) {
+                            filteredTechnicians.forEachIndexed { index, technician ->
+                                TechnicianItem(
+                                    technician = technician,
+                                    onAssign = { onAssign(technician.id_usuario) }
+                                )
+                                
+                                // Agregar línea divisoria entre técnicos (excepto el último)
+                                if (index < filteredTechnicians.size - 1) {
+                                    androidx.compose.material3.Divider(
+                                        color = Color(0xFFBDBDBD),
+                                        thickness = 1.dp,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
+                            }
+                            
+                            if (filteredTechnicians.isEmpty()) {
+                                Text(
+                                    text = if (searchQuery.isBlank()) "No hay técnicos disponibles" else "No se encontraron técnicos",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -120,7 +203,7 @@ fun TechnicianItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF5F5F5))
+            .background(Color.White)
             .clickable { onAssign() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -20,6 +20,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 data class FileItem(
     val id: String,
@@ -52,6 +53,40 @@ class FileViewModel : ViewModel() {
         this.evidenceViewModel = evidenceViewModel
     }
     
+    // Función para extraer solo el mensaje útil de los errores
+    private fun cleanErrorMessage(errorMessage: String?): String {
+        if (errorMessage == null) return "Error desconocido"
+        
+        return try {
+            // Buscar JSON en el mensaje
+            val jsonRegex = Regex("""\{[^}]*"message"[^}]*\}""")
+            val jsonMatch = jsonRegex.find(errorMessage)
+            
+            if (jsonMatch != null) {
+                // Extraer y parsear el JSON encontrado
+                try {
+                    JSONObject(jsonMatch.value).optString("message", errorMessage)
+                } catch (_: Exception) {
+                    errorMessage
+                }
+            } else {
+                // Si no hay JSON, limpiar prefijos comunes
+                when {
+                    errorMessage.startsWith("error->") -> errorMessage.substring(7)
+                    errorMessage.startsWith("Error al subir") -> errorMessage
+                    errorMessage.contains("HTTP") -> {
+                        // Para mensajes HTTP, intentar extraer la parte útil después del guion
+                        val parts = errorMessage.split(" - ")
+                        if (parts.size > 1) parts.last() else errorMessage
+                    }
+                    else -> errorMessage
+                }
+            }
+        } catch (_: Exception) {
+            errorMessage
+        }
+    }
+    
     fun addFile(context: Context, uri: Uri, ticketId: Int) {
         viewModelScope.launch {
             try {
@@ -81,7 +116,7 @@ class FileViewModel : ViewModel() {
                     _uploadMessage.value = null
                 }
             } catch (e: Exception) {
-                _uploadMessage.value = "Error al procesar el archivo: ${e.message}"
+                _uploadMessage.value = "Error al procesar el archivo: ${cleanErrorMessage(e.message)}"
             }
         }
     }
@@ -159,7 +194,7 @@ class FileViewModel : ViewModel() {
                                             Log.e("FILE_UPLOAD", "❌ Error con campo '$fieldName': ${error.message}")
                                             if (fieldName == fieldNames.last()) {
                                                 errorCount++
-                                                _uploadMessage.value = "Error al subir ${file.name}: ${error.message}"
+                                                _uploadMessage.value = "Error al subir ${file.name}: ${cleanErrorMessage(error.message)}"
                                             }
                                         }
                                     )
@@ -177,7 +212,7 @@ class FileViewModel : ViewModel() {
                     } catch (e: Exception) {
                         Log.e("FILE_UPLOAD", "💥 Excepción al procesar ${file.name}: ${e.message}", e)
                         errorCount++
-                        _uploadMessage.value = "Error al procesar ${file.name}: ${e.message}"
+                        _uploadMessage.value = "Error al procesar ${file.name}: ${cleanErrorMessage(e.message)}"
                     }
                 }
                 
@@ -199,7 +234,7 @@ class FileViewModel : ViewModel() {
                 
             } catch (e: Exception) {
                 Log.e("FILE_UPLOAD", "💥 Error general al subir archivos: ${e.message}", e)
-                _uploadMessage.value = "Error general al subir archivos: ${e.message}"
+                _uploadMessage.value = "Error general al subir archivos: ${cleanErrorMessage(e.message)}"
             } finally {
                 _isUploading.value = false
             }

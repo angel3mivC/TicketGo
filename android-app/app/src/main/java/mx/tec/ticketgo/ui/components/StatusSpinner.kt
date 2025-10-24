@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 // Enum para definir los tipos de usuario y sus estados permitidos
 enum class UserType {
     ADMIN,
+    MESA,
     TECNICO
 }
 
@@ -32,6 +33,7 @@ fun StatusSpinner(
     currentStatus: String,
     userType: UserType,
     hasAssignedTechnician: Boolean = true,
+    isHistory: Boolean = false,
     onStatusChange: (String, Int) -> Unit,
     onError: (String) -> Unit = {},
     modifier: Modifier = Modifier
@@ -57,11 +59,31 @@ fun StatusSpinner(
                 )
             }
         }
-        UserType.TECNICO -> listOf(
-            TicketStatus.ABIERTO,
-            TicketStatus.EN_PROGRESO,
-            TicketStatus.RESUELTO
-        )
+        UserType.MESA -> {
+            if (currentStatus == "Cerrado") {
+                // Mesa de ayuda puede cambiar de Cerrado a Reabierto
+                listOf(
+                    TicketStatus.CERRADO,
+                    TicketStatus.REABIERTO
+                )
+            } else {
+                // Mesa de ayuda no puede cambiar otros estados
+                emptyList()
+            }
+        }
+        UserType.TECNICO -> {
+            if (isHistory) {
+                // Los técnicos NO pueden cambiar estados en tickets históricos
+                emptyList()
+            } else {
+                // Solo en tickets activos pueden cambiar estos estados
+                listOf(
+                    TicketStatus.ABIERTO,
+                    TicketStatus.EN_PROGRESO,
+                    TicketStatus.RESUELTO
+                )
+            }
+        }
     }
     
     // Encontrar el estado actual
@@ -75,10 +97,12 @@ fun StatusSpinner(
             text = currentTicketStatus.displayName,
             color = currentTicketStatus.color,
             modifier = Modifier.clickable { 
-                if (hasAssignedTechnician) {
+                if (hasAssignedTechnician && allowedStatuses.isNotEmpty()) {
                     expanded = true
-                } else {
+                } else if (!hasAssignedTechnician) {
                     onError("No se puede modificar el estado de un ticket que aún no tiene técnico asignado")
+                } else if (allowedStatuses.isEmpty()) {
+                    onError("No se puede modificar el estado de tickets históricos")
                 }
             }
         )

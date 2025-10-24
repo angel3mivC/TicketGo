@@ -49,6 +49,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mx.tec.ticketgo.data.network.TokenStorage
+import java.util.UUID
 
 private fun getMimeType(fileType: String): String {
     return when (fileType.uppercase()) {
@@ -64,9 +65,29 @@ private fun getMimeType(fileType: String): String {
     }
 }
 
+private fun generateUniqueFileName(originalFileName: String, ticketId: Int): String {
+    // Generar identificador único (primeros 8 caracteres del UUID)
+    val uniqueId = UUID.randomUUID().toString().substring(0, 8)
+    
+    // Obtener extensión del archivo
+    val extension = if (originalFileName.contains(".")) {
+        originalFileName.substringAfterLast(".")
+    } else {
+        ""
+    }
+    
+    // Crear nombre con formato: Evidencia_TicketID_IdentificadorUnico.extensión
+    return if (extension.isNotEmpty()) {
+        "Evidencia_${ticketId}_${uniqueId}.${extension}"
+    } else {
+        "Evidencia_${ticketId}_${uniqueId}"
+    }
+}
+
 @Composable
 fun EvidenceDetailModal(
     evidence: Evidence,
+    ticketId: Int,
     onDismiss: () -> Unit,
     onDownload: () -> Unit,
     modifier: Modifier = Modifier
@@ -76,7 +97,10 @@ fun EvidenceDetailModal(
     var downloadState by remember { mutableStateOf("idle") } // idle, downloading, completed
     
     suspend fun downloadFile() {
+        val uniqueFileName = generateUniqueFileName(evidence.fileName, ticketId)
         Log.i("DOWNLOAD_DEBUG", "🚀 Iniciando descarga para: ${evidence.fileName}")
+        Log.i("DOWNLOAD_DEBUG", "📝 Nombre único generado: $uniqueFileName")
+        Log.i("DOWNLOAD_DEBUG", "🎫 Ticket ID: $ticketId")
         Log.i("DOWNLOAD_DEBUG", "📁 FileUrl: ${evidence.fileUrl}")
         Log.i("DOWNLOAD_DEBUG", "📂 LocalPath: ${evidence.localPath}")
         Log.i("DOWNLOAD_DEBUG", "📊 Estado actual: $downloadState")
@@ -120,8 +144,9 @@ fun EvidenceDetailModal(
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                 // Para Android 10+, usar MediaStore
                                 val resolver = context.contentResolver
+                                val uniqueFileName = generateUniqueFileName(evidence.fileName, ticketId)
                                 val contentValues = ContentValues().apply {
-                                    put(MediaStore.MediaColumns.DISPLAY_NAME, evidence.fileName)
+                                    put(MediaStore.MediaColumns.DISPLAY_NAME, uniqueFileName)
                                     put(MediaStore.MediaColumns.MIME_TYPE, getMimeType(evidence.fileType))
                                     put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                                 }
@@ -146,19 +171,11 @@ fun EvidenceDetailModal(
                                     downloadsDir.mkdirs()
                                 }
                                 
-                                val destinationFile = File(downloadsDir, evidence.fileName)
+                                // Generar nombre único para el archivo
+                                val uniqueFileName = generateUniqueFileName(evidence.fileName, ticketId)
+                                val destinationFile = File(downloadsDir, uniqueFileName)
                                 
-                                // Si el archivo ya existe, agregar número
-                                var counter = 1
-                                var finalDestinationFile = destinationFile
-                                while (finalDestinationFile.exists()) {
-                                    val nameWithoutExt = evidence.fileName.substringBeforeLast(".")
-                                    val extension = evidence.fileName.substringAfterLast(".", "")
-                                    finalDestinationFile = File(downloadsDir, "${nameWithoutExt}_${counter}.${extension}")
-                                    counter++
-                                }
-                                
-                                FileOutputStream(finalDestinationFile).use { outputStream ->
+                                FileOutputStream(destinationFile).use { outputStream ->
                                     val buffer = ByteArray(4096)
                                     var bytesRead: Int
                                     while (inputStream.read(buffer).also { bytesRead = it } != -1) {
@@ -167,7 +184,7 @@ fun EvidenceDetailModal(
                                 }
                                 
                                 // Verificar que la descarga fue exitosa
-                                success = finalDestinationFile.exists() && finalDestinationFile.length() > 0L
+                                success = destinationFile.exists() && destinationFile.length() > 0L
                             }
                             
                             inputStream.close()

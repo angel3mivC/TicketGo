@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import mx.tec.ticketgo.data.models.Evidence
 import mx.tec.ticketgo.ui.theme.EmptyElement
-import mx.tec.ticketgo.utils.DateFormatter
 import android.util.Log
 import androidx.compose.ui.text.style.TextAlign
+import mx.tec.ticketgo.ui.theme.CardBackground
 
 @Composable
 fun GalleryItem(
@@ -42,7 +42,10 @@ fun GalleryItem(
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.CardBackground
+        )
     ) {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -122,22 +125,18 @@ fun GalleryItem(
             
             Spacer(modifier = Modifier.height(4.dp))
             
-            // Fecha y hora formateadas
+            // Fecha y hora
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = DateFormatter.formatDateShort(evidence.uploadDate),
+                    text = evidence.uploadDate,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
                 Text(
-                    text = if (evidence.uploadTime.isNotEmpty()) {
-                        DateFormatter.formatDate(evidence.uploadTime)
-                    } else {
-                        DateFormatter.formatDate(evidence.uploadDate)
-                    },
+                    text = evidence.uploadTime,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

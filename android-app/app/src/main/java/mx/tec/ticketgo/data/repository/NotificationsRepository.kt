@@ -9,8 +9,13 @@ import mx.tec.ticketgo.data.utils.safeApiCall
 class NotificationsRepository() {
     private val service: NotificationsService = ApiClient.retrofit.create(NotificationsService::class.java)
 
-    suspend fun getNotifications(): Result<List<Notification>> =
-        safeApiCall { service.getNotifications() }
+    suspend fun getNotifications(): Result<List<Notification>> {
+        println("🔔 NotificationsRepository: Iniciando llamada a API")
+        return safeApiCall { 
+            println("🔔 NotificationsRepository: Llamando a service.getNotifications()")
+            service.getNotifications() 
+        }
+    }
 
     suspend fun markAsRead(id: Int): Result<GenericResponse> =
         safeApiCall { service.markAsRead(id) }

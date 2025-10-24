@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.utils.DateFormatter
@@ -32,6 +34,9 @@ fun TicketTecnico(
     onViewGallery: () -> Unit = {},
     onStatusChange: (String, Int) -> Unit = { _, _ -> }
 ) {
+    // Si el ticket no ha sido aceptado (aceptado == null), mostrar en modo solo lectura
+    val isReadOnly = ticket.aceptado == null
+    
     Column(
         modifier = Modifier
             .wrapContentHeight() // ✅ evita que se alargue feo
@@ -42,16 +47,47 @@ fun TicketTecnico(
             .background(Color.White)
             .padding(16.dp)
     ) {
+        // 🔹 Mensaje informativo cuando el ticket está en modo solo lectura
+        if (isReadOnly) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = Color(0xFFFFF3E0),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = "⚠️ Debes aceptar o rechazar este ticket antes de poder realizar cambios",
+                    color = Color(0xFFE65100),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+        
         // 🔹 Cabecera del ticket (título, fecha y estado)
-        TicketTopWithSpinner(
-            titulo = ticket.titulo,
-            fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
-            estado = ticket.estado!!,
-            userType = UserType.TECNICO,
-            hasAssignedTechnician = ticket.asignado_a != null,
-            onStatusChange = onStatusChange,
-            onError = { /* Manejar error si es necesario */ }
-        )
+        if (isReadOnly) {
+            // Modo solo lectura: mostrar estado sin spinner
+            TicketTop(
+                titulo = ticket.titulo,
+                fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
+                estado = ticket.estado!!
+            )
+        } else {
+            // Modo editable: mostrar spinner de estado
+            TicketTopWithSpinner(
+                titulo = ticket.titulo,
+                fechaHora = DateFormatter.formatDate(ticket.fecha_creacion),
+                estado = ticket.estado!!,
+                userType = UserType.TECNICO,
+                hasAssignedTechnician = ticket.asignado_a != null,
+                onStatusChange = onStatusChange,
+                onError = { /* Manejar error si es necesario */ }
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -69,20 +105,36 @@ fun TicketTecnico(
         Spacer(modifier = Modifier.height(16.dp))
 
         // 🔹 Evidencias
-        EvidenciasTicketTecnico(
-            onAddEvidence = onAddEvidence,
-            onViewGallery = onViewGallery
-        )
+        if (isReadOnly) {
+            // Modo solo lectura: solo ver galería
+            EvidenciasTicketTecnicoHistorial(
+                onViewGallery = onViewGallery
+            )
+        } else {
+            // Modo editable: agregar y ver evidencias
+            EvidenciasTicketTecnico(
+                onAddEvidence = onAddEvidence,
+                onViewGallery = onViewGallery
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         LineaPunteada()
 
         // 🔹 Sección de comentarios
-        TicketCommentsSection(
-            comments = comments,
-            onSendComment = onSendComment
-        )
+        if (isReadOnly) {
+            // Modo solo lectura: solo ver comentarios
+            TicketCommentsSectionHistorial(
+                comments = comments
+            )
+        } else {
+            // Modo editable: agregar y ver comentarios
+            TicketCommentsSection(
+                comments = comments,
+                onSendComment = onSendComment
+            )
+        }
     }
 }
 
@@ -241,6 +293,7 @@ fun TicketTecnicoHistorial(
             estado = ticket.estado!!,
             userType = UserType.TECNICO,
             hasAssignedTechnician = ticket.asignado_a != null,
+            isHistory = true,
             onStatusChange = onStatusChange,
             onError = { /* Manejar error si es necesario */ }
         )
@@ -301,6 +354,7 @@ fun TicketAdminHistorial(
             estado = ticket.estado!!,
             userType = UserType.ADMIN,
             hasAssignedTechnician = ticket.asignado_a != null,
+            isHistory = true,
             onStatusChange = onStatusChange,
             onError = { /* Manejar error si es necesario */ }
         )

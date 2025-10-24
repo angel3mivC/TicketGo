@@ -158,6 +158,7 @@ fun TicketTopWithSpinner(
     estado: String,
     userType: UserType,
     hasAssignedTechnician: Boolean = true,
+    isHistory: Boolean = false,
     onStatusChange: (String, Int) -> Unit,
     onError: (String) -> Unit = {}
 ) {
@@ -186,6 +187,7 @@ fun TicketTopWithSpinner(
                 currentStatus = estado,
                 userType = userType,
                 hasAssignedTechnician = hasAssignedTechnician,
+                isHistory = isHistory,
                 onStatusChange = onStatusChange,
                 onError = { message -> errorMessage = message },
                 modifier = Modifier.wrapContentWidth()
@@ -425,33 +427,46 @@ fun CommentItem(comment: Comment) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            // Nombre y fecha juntos
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = nombre,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Text(
-                    text = DateFormatter.formatDate(comment.fecha),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF9E9E9E),
-                    fontSize = 12.sp
-                )
-            }
+            // Solo el nombre del usuario
+            Text(
+                text = nombre,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Texto del comentario
-            Text(
-                text = comment.comentario,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF424242)
-            )
+            // Texto del comentario y fecha en la misma fila
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = comment.comentario,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+                ) {
+                    val (date, time) = DateFormatter.formatNotificationDate(comment.fecha)
+                    Text(
+                        text = date,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF9E9E9E),
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = time,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF9E9E9E),
+                        fontSize = 12.sp
+                    )
+                }
+            }
         }
     }
 }

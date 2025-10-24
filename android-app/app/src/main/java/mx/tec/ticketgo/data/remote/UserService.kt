@@ -4,6 +4,7 @@ import mx.tec.ticketgo.data.models.CreateUserResponse
 import mx.tec.ticketgo.data.models.GenericResponse
 import mx.tec.ticketgo.data.models.GetUserResponse
 import mx.tec.ticketgo.data.models.CreateUserRequest
+import mx.tec.ticketgo.data.models.UpdateUserRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -26,7 +27,7 @@ interface UserService {
     suspend fun createUser(@Body request: CreateUserRequest): Response<CreateUserResponse>
 
     @PUT("users/{id}")
-    suspend fun updateUser(@Path("id") id: Int, @Body request: CreateUserRequest): Response<GenericResponse>
+    suspend fun updateUser(@Path("id") id: Int, @Body request: UpdateUserRequest): Response<GenericResponse>
 
     @DELETE("users/{id}")
     suspend fun deleteUser(@Path("id") id: Int): Response<GenericResponse>

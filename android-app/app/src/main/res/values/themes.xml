@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.TicketGo" parent="android:Theme.Material.Light.NoActionBar" />
+    
+    <style name="Theme.TicketGo.Splash" parent="Theme.TicketGo">
+        <item name="android:windowBackground">@color/splash_red</item>
+        <item name="android:statusBarColor">@color/splash_red</item>
+        <item name="android:navigationBarColor">@color/splash_red</item>
+    </style>
 </resources>

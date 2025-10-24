@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mx.tec.ticketgo.ui.components.EmptyState
 import mx.tec.ticketgo.ui.components.EvidenceDetailModal
 import mx.tec.ticketgo.ui.components.GalleryItem
 import mx.tec.ticketgo.ui.viewmodels.EvidenceViewModel
@@ -76,18 +77,12 @@ fun GalleryScreen(
             }
             
             evidences.isEmpty() -> {
-                // Mostrar mensaje cuando no hay evidencias
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No hay archivos para mostrar",
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        color = Color.Gray
-                    )
-                }
+                // Mostrar estado vacío con imagen
+                EmptyState(
+                    imageRes = mx.tec.ticketgo.R.drawable.sin_archivos,
+                    title = "Sin archivos",
+                    subtitle = "Cuando se carguen evidencias,\naparecerán en este espacio."
+                )
             }
             
             else -> {
@@ -115,6 +110,7 @@ fun GalleryScreen(
         selectedEvidence?.let { evidence ->
             EvidenceDetailModal(
                 evidence = evidence,
+                ticketId = ticketId,
                 onDismiss = {
                     selectedEvidence = null
                 },

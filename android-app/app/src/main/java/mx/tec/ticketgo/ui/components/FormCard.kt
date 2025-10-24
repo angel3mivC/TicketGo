@@ -1,5 +1,7 @@
 package mx.tec.ticketgo.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -20,7 +23,7 @@ fun FormCard(
     content: @Composable ColumnScope.() -> Unit
 ){
     Card (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.9f),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(
@@ -56,5 +59,12 @@ fun FormAction(
         Modifier.fillMaxWidth()
     ) { onCreate() }
 
-    if (isLoading) CircularProgressIndicator()
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
 }

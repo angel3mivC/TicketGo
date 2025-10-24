@@ -4,6 +4,7 @@ import mx.tec.ticketgo.data.models.GetUserResponse
 import mx.tec.ticketgo.data.models.CreateUserRequest
 import mx.tec.ticketgo.data.models.CreateUserResponse
 import mx.tec.ticketgo.data.models.GenericResponse
+import mx.tec.ticketgo.data.models.UpdateUserRequest
 import mx.tec.ticketgo.data.network.ApiClient
 import mx.tec.ticketgo.data.remote.UserService
 import mx.tec.ticketgo.data.utils.safeApiCall
@@ -22,7 +23,7 @@ class UserRepository() {
     suspend fun createUser(request: CreateUserRequest): Result<CreateUserResponse> =
         safeApiCall { service.createUser(request) }
 
-    suspend fun updateUser(id: Int, request: CreateUserRequest): Result<GenericResponse> =
+    suspend fun updateUser(id: Int, request: UpdateUserRequest): Result<GenericResponse> =
         safeApiCall { service.updateUser(id, request) }
 
     suspend fun deleteUser(id: Int): Result<GenericResponse> =

@@ -70,6 +70,45 @@ fun TecnicoTicketDetailScreen(
                             ticketViewModel.changeTicketState(ticket.id_ticket, stateId)
                         }
                     )
+
+                    // 🔹 Botones de Aceptar/Rechazar FUERA del componente del ticket
+                    println("🎫 Ticket ${ticket.id_ticket} - aceptado: ${ticket.aceptado}")
+                    if (ticket.aceptado == null) {
+                        println("📌 Mostrando botones de Aceptar/Rechazar")
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            AcceptButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    println("🟢 Botón Aceptar presionado")
+                                    ticketViewModel.acceptTicket(ticket.id_ticket, true)
+                                }
+                            )
+                            RejectButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    println("🔴 Botón Rechazar presionado")
+                                    ticketViewModel.acceptTicket(
+                                        id = ticket.id_ticket,
+                                        accepted = false,
+                                        onRejected = {
+                                            // Navegar hacia atrás cuando se rechaza
+                                            println("⬅️ Navegando hacia atrás después de rechazar")
+                                            navController.popBackStack()
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    } else {
+                        println("✓ Ticket ya ${if (ticket.aceptado == 1) "aceptado" else "rechazado"}")
+                    }
                 }
             }
         }

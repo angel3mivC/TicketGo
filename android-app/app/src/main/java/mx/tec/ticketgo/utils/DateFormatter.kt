@@ -93,8 +93,6 @@ object DateFormatter {
                 val calendar = Calendar.getInstance(localTimeZone)
                 calendar.time = parsedDate
                 
-                // NO ajustar manualmente el offset - Calendar ya maneja la conversión de zona horaria
-                
                 val day = calendar.get(Calendar.DAY_OF_MONTH)
                 val month = monthNames[calendar.get(Calendar.MONTH) + 1] ?: "ene"
                 val year = calendar.get(Calendar.YEAR)
@@ -105,6 +103,52 @@ object DateFormatter {
             }
         } catch (e: Exception) {
             dateString
+        }
+    }
+    
+    fun formatNotificationDate(dateString: String?): Pair<String, String> {
+        if (dateString.isNullOrEmpty()) return Pair("Sin fecha", "")
+        
+        return try {
+            // Intentar parsear con diferentes formatos (asumiendo UTC)
+            var parsedDate: Date? = null
+            for (format in inputFormats) {
+                try {
+                    parsedDate = format.parse(dateString)
+                    break
+                } catch (e: Exception) {
+                    // Continuar con el siguiente formato
+                }
+            }
+            
+            if (parsedDate != null) {
+                // Convertir de UTC a zona horaria local
+                val calendar = Calendar.getInstance(localTimeZone)
+                calendar.time = parsedDate
+                
+                val day = calendar.get(Calendar.DAY_OF_MONTH)
+                val month = monthNames[calendar.get(Calendar.MONTH) + 1] ?: "ene"
+                val year = calendar.get(Calendar.YEAR)
+                val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                val minute = calendar.get(Calendar.MINUTE)
+                val ampm = if (calendar.get(Calendar.AM_PM) == Calendar.AM) "am" else "pm"
+                
+                // Convertir a formato 12 horas
+                val displayHour = when {
+                    hour == 0 -> 12
+                    hour > 12 -> hour - 12
+                    else -> hour
+                }
+                
+                val date = "$day $month $year"
+                val time = "$displayHour:${String.format("%02d", minute)} $ampm"
+                
+                Pair(date, time)
+            } else {
+                Pair(dateString, "")
+            }
+        } catch (e: Exception) {
+            Pair(dateString, "")
         }
     }
 }

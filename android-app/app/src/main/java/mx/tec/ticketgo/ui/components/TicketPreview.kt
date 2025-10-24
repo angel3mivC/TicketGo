@@ -33,7 +33,7 @@ fun TicketTecnicoPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         TicketTop(
             titulo = ticket.titulo,
             fechaHora = ticket.fecha_creacion,
-            estado = ticket.estado!!
+            estado = ticket.estado ?: "Abierto"
         )
 
         BodyText(
@@ -42,8 +42,8 @@ fun TicketTecnicoPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         )
 
         TicketButtomChips(
-            prioridad = ticket.prioridad!!,
-            categoria = ticket.categoria!!
+            prioridad = ticket.prioridad ?: "Media",
+            categoria = ticket.categoria ?: "General"
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -68,7 +68,7 @@ fun TicketAdminPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         TicketTop(
             titulo = ticket.titulo,
             fechaHora = ticket.fecha_creacion,
-            estado = ticket.estado!!
+            estado = ticket.estado ?: "Abierto"
         )
 
         Row(
@@ -97,8 +97,8 @@ fun TicketAdminPreview(ticket: Ticket, onClick: (Ticket) -> Unit) {
         }
 
         TicketButtomChips(
-            prioridad = ticket.prioridad!!,  // Temporal hasta que arregles el backend
-            categoria = ticket.categoria!!   // Temporal hasta que arregles el backend
+            prioridad = ticket.prioridad ?: "Media",
+            categoria = ticket.categoria ?: "General"
         )
         LineaPunteada()
     }

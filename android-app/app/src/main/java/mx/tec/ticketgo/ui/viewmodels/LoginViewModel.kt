@@ -40,5 +40,34 @@ class LoginViewModel(private val repository: AuthRepository = AuthRepository()):
         )
     }
 
-    fun logout(){}
+    fun logout(context: Context, onLogoutSuccess: () -> Unit = {}) {
+        safeCall(
+            action = { repository.logout() },
+            onSuccess = {
+                _message.value = it.message
+                // Limpiar SharedPreferences específicamente
+                val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                sharedPref.edit {
+                    remove("auth_token")
+                    remove("id_user")
+                    remove("id_role")
+                    remove("user_name")
+                    apply()
+                }
+                // Limpiar DataStore
+                viewModelScope.launch {
+                    TokenStorage.clearToken()
+                }
+                // Limpiar estados locales
+                _token.value = null
+                _userRole.value = null
+                // Ejecutar callback de éxito
+                onLogoutSuccess()
+            }
+        )
+    }
+
+    fun clearMessage() {
+        _message.value = null
+    }
 }

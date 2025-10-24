@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import mx.tec.ticketgo.data.models.GetUserResponse
+import mx.tec.ticketgo.ui.components.EmptyState
 import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
 @Composable
@@ -26,78 +28,147 @@ fun UsersScreen(
 ) {
     val users by userViewModel.users.collectAsStateWithLifecycle()
     val isLoading by userViewModel.isLoading.collectAsStateWithLifecycle()
+    val message by userViewModel.message.collectAsStateWithLifecycle()
+    
+    // Estado para el diálogo de confirmación
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var userToDelete by remember { mutableStateOf<GetUserResponse?>(null) }
 
+    // Recargar usuarios cada vez que se entra a la pantalla
     LaunchedEffect(Unit) {
         userViewModel.getUsers()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header con título y botón crear usuario
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Mis usuarios",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Button(
-                onClick = { navController.navigate("createUserForm") },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )
-            ) {
-                Text(
-                    text = "Crear usuario",
-                    color = Color.White
-                )
-            }
+    // Mostrar mensaje de éxito/error
+    LaunchedEffect(message) {
+        if (message != null) {
+            // Recargar la lista de usuarios después de eliminar
+            userViewModel.getUsers()
+            userViewModel.clearMessage()
         }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Lista de usuarios
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            users.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+    Scaffold(
+        topBar = {
+            UsersTopBar(
+                title = "Mis usuarios",
+                navController = navController
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            // Mostrar mensaje de éxito/error
+            message?.let { msg ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (msg.contains("éxito") || msg.contains("eliminado")) Color(0xFF4CAF50) else Color(0xFFF44336)
+                    )
                 ) {
                     Text(
-                        text = "No hay usuarios disponibles",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = msg,
+                        modifier = Modifier.padding(16.dp),
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(users) { user ->
-                        UserItem(
-                            user = user,
-                            onEdit = { /* TODO: Implementar edición */ },
-                            onDelete = { /* TODO: Implementar eliminación */ }
-                        )
+
+            // Lista de usuarios
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                users.isEmpty() -> {
+                    EmptyState(
+                        imageRes = mx.tec.ticketgo.R.drawable.sin_usuarios,
+                        title = "Sin usuarios",
+                        subtitle = "Empieza a crear nuevos\nusuarios y aquí aparecerán."
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(users) { user ->
+                            UserItem(
+                                user = user,
+                                onEdit = { 
+                                    navController.navigate("editUserForm/${user.id_usuario}")
+                                },
+                                onDelete = { 
+                                    // Mostrar diálogo de confirmación
+                                    userToDelete = user
+                                    showDeleteDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+    
+    // Diálogo de confirmación para eliminar usuario
+    if (showDeleteDialog && userToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { 
+                showDeleteDialog = false
+                userToDelete = null
+            },
+            title = {
+                Text(
+                    text = "Confirmar eliminación",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text("¿Estás seguro de que deseas deshabilitar al usuario ${userToDelete?.nombre}?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        userToDelete?.let { user ->
+                            userViewModel.disableUser(
+                                id = user.id_usuario,
+                                name = user.nombre,
+                                email = user.correo,
+                                password = "", // No necesitamos la contraseña para deshabilitar
+                                roleId = user.id_rol
+                            )
+                        }
+                        showDeleteDialog = false
+                        userToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.Red
+                    )
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        userToDelete = null
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
@@ -186,4 +257,48 @@ private fun getRoleName(roleId: Int?): String {
         3 -> "Técnico"
         else -> "Sin rol"
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UsersTopBar(
+    title: String,
+    navController: NavController
+) {
+    TopAppBar(
+        title = { 
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = { 
+                    navController.navigate("adminHome") {
+                        popUpTo("adminHome") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            ) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
+        },
+        actions = {
+            Button(
+                onClick = { navController.navigate("createUserForm") },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                ),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Crear usuario",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    )
 }

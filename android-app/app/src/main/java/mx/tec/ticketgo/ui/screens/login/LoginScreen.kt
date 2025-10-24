@@ -78,7 +78,10 @@ fun LoginScreen(viewModel: LoginViewModel, context: Context, navController: NavC
                     1 -> navController.navigate("adminHome")
                     2 -> navController.navigate("mesaHome")
                     3 -> navController.navigate("tecnicoHome")
-                    else -> navController.navigate("usuarioHome")
+                    else -> {
+                        // Si no hay rol válido, quedarse en login
+                        // No navegar a ninguna parte
+                    }
                 }
             }
         }

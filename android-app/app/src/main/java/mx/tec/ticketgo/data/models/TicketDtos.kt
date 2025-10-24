@@ -10,7 +10,8 @@ data class Ticket(
     val asignado_a: String?,
     val categoria: String?,
     val prioridad: String?,
-    val estado: String?
+    val estado: String?,
+    val aceptado: Int? // 1 = aceptado, 0 = rechazado, null = pendiente
 )
 
 data class TicketFilterRequest(
@@ -47,4 +48,8 @@ data class ChangeTicketPriorityRequest(
 
 data class ChangeTicketCategoryRequest(
     val categoria_id: Int
+)
+
+data class AcceptTicketRequest(
+    val aceptado: Boolean
 )

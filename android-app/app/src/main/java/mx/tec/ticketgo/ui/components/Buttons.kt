@@ -54,3 +54,13 @@ fun TertiaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> U
         style = TextStyle(textDecoration = TextDecoration.Underline)
     )
 }
+
+@Composable
+fun AcceptButton(text: String = "Aceptar", modifier: Modifier = Modifier, onClick: () -> Unit){
+    GenericButton(text, modifier, Color.Black, Color.White, onClick)
+}
+
+@Composable
+fun RejectButton(text: String = "Rechazar", modifier: Modifier = Modifier, onClick: () -> Unit){
+    GenericButton(text, modifier, Color.Red, Color.White, onClick)
+}

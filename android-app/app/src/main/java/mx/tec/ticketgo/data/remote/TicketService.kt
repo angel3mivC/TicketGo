@@ -1,5 +1,6 @@
 package mx.tec.ticketgo.data.remote
 
+import mx.tec.ticketgo.data.models.AcceptTicketRequest
 import mx.tec.ticketgo.data.models.AssignTicketRequest
 import mx.tec.ticketgo.data.models.ChangeTicketCategoryRequest
 import mx.tec.ticketgo.data.models.ChangeTicketPriorityRequest
@@ -65,5 +66,11 @@ interface TicketService {
     suspend fun changeTicketCategory(
         @Path("id") id: Int,
         @Body request: ChangeTicketCategoryRequest
+    ): Response<GenericResponse>
+
+    @PUT("tickets/{id}/accept")
+    suspend fun acceptTicket(
+        @Path("id") id: Int,
+        @Body request: AcceptTicketRequest
     ): Response<GenericResponse>
 }

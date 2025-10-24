@@ -1,5 +1,6 @@
 package mx.tec.ticketgo.data.repository
 
+import mx.tec.ticketgo.data.models.AcceptTicketRequest
 import mx.tec.ticketgo.data.models.AssignTicketRequest
 import mx.tec.ticketgo.data.models.ChangeTicketCategoryRequest
 import mx.tec.ticketgo.data.models.ChangeTicketPriorityRequest
@@ -49,4 +50,7 @@ class TicketRepository() {
 
     suspend fun changeTicketCategory(id: Int, request: ChangeTicketCategoryRequest): Result<GenericResponse> =
         safeApiCall { service.changeTicketCategory(id, request) }
+
+    suspend fun acceptTicket(id: Int, request: AcceptTicketRequest): Result<GenericResponse> =
+        safeApiCall { service.acceptTicket(id, request) }
 }

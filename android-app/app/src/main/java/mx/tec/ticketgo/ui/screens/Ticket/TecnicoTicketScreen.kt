@@ -25,6 +25,7 @@ import mx.tec.ticketgo.ui.components.FilterButton
 import mx.tec.ticketgo.ui.components.HistoryButton
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
+import mx.tec.ticketgo.ui.components.EmptyState
 import mx.tec.ticketgo.ui.components.TopBar
 import mx.tec.ticketgo.ui.screens.filters.FilterSection
 import mx.tec.ticketgo.ui.screens.filters.FilterScreen
@@ -61,6 +62,9 @@ fun TecnicoTicketScreen(
     // Cargar tickets dependiendo si es historial o activos
     LaunchedEffect(userId, isHistory) {
         if (userId != -1) {
+            // Limpiar tickets anteriores al cambiar de contexto
+            ticketViewModel.clearTickets()
+            
             if (isHistory) {
                 ticketViewModel.getTickets(technician = userId, state = "Cerrado")
             } else {
@@ -74,7 +78,7 @@ fun TecnicoTicketScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -129,7 +133,7 @@ fun TecnicoTicketScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
-            isLoading && tickets.isEmpty() -> {
+            isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -139,12 +143,11 @@ fun TecnicoTicketScreen(
             }
             
             tickets.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No hay tickets disponibles")
-                }
+                EmptyState(
+                    imageRes = mx.tec.ticketgo.R.drawable.sin_tickets,
+                    title = "Sin tickets",
+                    subtitle = "Cuando haya algún\nticket, aparecerá aquí."
+                )
             }
 
             else -> {

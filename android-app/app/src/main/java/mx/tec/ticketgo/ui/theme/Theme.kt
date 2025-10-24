@@ -51,6 +51,8 @@ val ColorScheme.ChipsBlue: Color get() = Color(0xFF0080FF)
 val ColorScheme.ChipsRed: Color get() = Color(0xFFFF3B3E)
 @Suppress("UnusedReceiverParameter")
 val ColorScheme.ChipsGray: Color get() = Color(0xFF8B8B8B)
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.CardBackground: Color get() = Color.White
 
 
 @Composable

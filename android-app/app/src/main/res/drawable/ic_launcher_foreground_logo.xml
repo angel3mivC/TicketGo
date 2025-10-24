@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <inset 
+            android:insetTop="32dp"
+            android:insetBottom="32dp"
+            android:insetLeft="32dp"
+            android:insetRight="32dp">
+            <bitmap 
+                android:src="@drawable/logo_mac"
+                android:gravity="center" />
+        </inset>
+    </item>
+</layer-list>
+

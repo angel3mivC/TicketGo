@@ -16,26 +16,35 @@ import mx.tec.ticketgo.ui.components.TopBar
 import mx.tec.ticketgo.ui.components.NavBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.runtime.collectAsState
+import mx.tec.ticketgo.ui.components.UserTopBar
 //import mx.tec.ticketgo.ui.screens.history.TicketHistoryScreen
 import mx.tec.ticketgo.ui.screens.Home.adminHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.mesaHomeScreen
 import mx.tec.ticketgo.ui.screens.Home.tecnicoHomeScreen
 import mx.tec.ticketgo.ui.screens.forms.CreateUserScreen
+import mx.tec.ticketgo.ui.screens.forms.EditUserScreen
 import mx.tec.ticketgo.ui.screens.forms.TicketFormScreen
 import mx.tec.ticketgo.ui.screens.gallery.GalleryScreen
 import mx.tec.ticketgo.ui.screens.login.LoginScreen
+import mx.tec.ticketgo.ui.screens.splash.SplashScreen
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketDetailScreen
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketScreen
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketDetailScreen
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketScreen
 import mx.tec.ticketgo.ui.screens.FileUpload.FileUploadScreen
+import mx.tec.ticketgo.ui.screens.Home.historyFilters
 import mx.tec.ticketgo.ui.screens.Ticket.AdminTicketDetailHistorialScreen
 import mx.tec.ticketgo.ui.screens.Ticket.TecnicoTicketDetailHistorialScreen
+import mx.tec.ticketgo.ui.screens.users.UsersScreen
+import mx.tec.ticketgo.ui.screens.notifcations.NotificationsScreen
 import mx.tec.ticketgo.ui.viewmodels.CommentsViewModel
 import mx.tec.ticketgo.ui.viewmodels.EvidenceViewModel
 import mx.tec.ticketgo.ui.viewmodels.FileViewModel
 import mx.tec.ticketgo.ui.viewmodels.LoginViewModel
+import mx.tec.ticketgo.ui.viewmodels.NotificationsViewModel
 import mx.tec.ticketgo.ui.viewmodels.TicketsViewModel
 import mx.tec.ticketgo.ui.viewmodels.UserViewModel
 
@@ -60,28 +69,35 @@ fun MainScreen(){
         fileViewModel.setEvidenceViewModel(evidenceViewModel)
     }
 
-    LaunchedEffect(Unit) {
-        notificationsViewModel.getNotifications()
-    }
-    LaunchedEffect(Unit) {
-        val currentUserId = 1
-        userViewModel.getUser(currentUserId)
+    // Solo hacer peticiones API cuando el usuario esté en pantallas autenticadas
+    LaunchedEffect(currentRoute) {
+        when (currentRoute) {
+            "adminHome", "mesaHome", "tecnicoHome" -> {
+                notificationsViewModel.getNotifications()
+                userViewModel.getUser(context)
+            }
+        }
     }
 
     val notifications by notificationsViewModel.notifications.collectAsState()
     val userState by userViewModel.user.collectAsState()
-    val unreadCount =  3//notifications.count { !it.leida }
+    val unreadCount = notifications.count { it.leido == 0 } // 0 = no leído, 1 = leído
 
     val userName = userState?.nombre ?: "Nombre"
-    val userRole = "Tecnico" //userState?.id_rol ?: "Sin rol"
-    val initials = userName.split(" ").take(2).joinToString("") { it.first().uppercaseChar().toString() }
+    val userRole = when (userState?.id_rol) {
+        1 -> "Administrador"
+        2 -> "Mesa de Ayuda"
+        3 -> "Técnico"
+        else -> "Sin rol"
+    }
 
     Scaffold(
         topBar = {
-            when(currentRoute){
+            // No mostrar topBar en splash
+            if (currentRoute != "splash" && currentRoute != "login") {
+                when(currentRoute){
                 "adminHome", "mesaHome", "tecnicoHome" -> {
                     UserTopBar(
-                        initials = initials,
                         name = userName,
                         role = userRole,
                         notificationCount = unreadCount,
@@ -101,10 +117,13 @@ fun MainScreen(){
                     }
                 }
             }
+            }
         },
         bottomBar = {
-            // Mostrar NavBar en homes y pantallas de historial
-            when (currentRoute) {
+            // No mostrar bottomBar en splash ni login
+            if (currentRoute != "splash" && currentRoute != "login") {
+                // Mostrar NavBar en homes y pantallas de historial
+                when (currentRoute) {
                 "adminHome" -> NavBar(
                     navController = navController,
                     currentRoute = currentRoute,
@@ -138,16 +157,18 @@ fun MainScreen(){
                     homeRoute = "mesaHome"
                 )
                 else -> null
+                }
             }
         }
     ) {innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "login",
+            startDestination = "splash",
             modifier = Modifier.padding(innerPadding)
         ) {
 
             //Rutas comunes
+            composable("splash") { SplashScreen(navController) }
             composable("login") { LoginScreen(loginViewModel, context, navController) }
             //composable("historial") { TicketHistoryScreen() }
             composable("gallery") { GalleryScreen(0, evidenceViewModel) }
@@ -180,8 +201,13 @@ fun MainScreen(){
                 val ticketId = backStackEntry.arguments?.getString("ticketId")?.toIntOrNull() ?: 0
                 AdminTicketDetailHistorialScreen(ticketId, commentsViewModel, ticketsViewModel, navController)
             }
-            composable("createUserForm") { CreateUserScreen(userViewModel) }
-            composable("usersScreen") { UsersScreen(userViewModel, navController) }
+                   composable("createUserForm") { CreateUserScreen(userViewModel, navController) }
+                   composable("usersScreen") { UsersScreen(userViewModel, navController) }
+                   composable("editUserForm/{userId}") { backStackEntry ->
+                       val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0
+                       EditUserScreen(userId, userViewModel, navController)
+                   }
+            composable("notificaciones") { NotificationsScreen(notificationsViewModel, navController) }
 
             // File Upload
             composable("fileUpload/{ticketId}") { backStackEntry ->

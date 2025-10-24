@@ -22,14 +22,17 @@ open class BaseViewModel : ViewModel() {
         onSuccess: (T) -> Unit
     ) {
         viewModelScope.launch {
+            println("🔵 BaseViewModel.safeCall - Iniciando...")
             _isLoading.value = true
             try {
                 val result = action()
                 result.onSuccess {
+                    println("🟢 BaseViewModel.safeCall - Éxito")
                     _error.value = false
                     onSuccess(it)
                 }
                 result.onFailure { e ->
+                    println("🔴 BaseViewModel.safeCall - Error: ${e.message}")
                     _error.value = true
                     _message.value = try {
                         e.message?.let { message ->

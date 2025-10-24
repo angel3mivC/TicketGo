@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import mx.tec.ticketgo.data.models.Comment
 import mx.tec.ticketgo.data.models.Ticket
 import mx.tec.ticketgo.ui.components.BodyText
+import mx.tec.ticketgo.ui.components.EmptyState
 import mx.tec.ticketgo.ui.components.FilterButton
 import mx.tec.ticketgo.ui.components.TicketAdmin
 import mx.tec.ticketgo.ui.components.TicketAdminPreview
@@ -78,6 +79,9 @@ fun AdminTicketScreen(
 
     // 3. Llamar tickets usando LaunchedEffect para evitar múltiples llamadas
     LaunchedEffect(isHistory) {
+        // Limpiar tickets anteriores al cambiar de contexto
+        ticketViewModel.clearTickets()
+        
         if(isHistory) {
             ticketViewModel.getTickets(state = "Cerrado")
         }
@@ -91,7 +95,7 @@ fun AdminTicketScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -161,7 +165,7 @@ fun AdminTicketScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
-            isLoading && tickets.isEmpty() -> {
+            isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -171,16 +175,11 @@ fun AdminTicketScreen(
             }
 
             tickets.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    BodyText("No hay tickets disponibles")
-                }
+                EmptyState(
+                    imageRes = mx.tec.ticketgo.R.drawable.sin_tickets,
+                    title = if (isHistory) "Sin tickets" else "Sin tickets",
+                    subtitle = if (isHistory) "Consulta los tickets cerrados." else "Cuando haya algún\nticket, aparecerá aquí."
+                )
             }
 
             else -> {
