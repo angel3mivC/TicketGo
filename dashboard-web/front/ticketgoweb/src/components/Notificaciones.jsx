@@ -8,26 +8,32 @@ const Notificaciones = ({ onClose }) => {
   useEffect(() => {
     if (!token) return;
 
-    fetch(`http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/notifications`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://e3ljh2zo7k.execute-api.us-east-1.amazonaws.com/notifications`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => setNotificaciones(data))
       .catch((err) => console.error("Error al obtener notificaciones:", err));
   }, [token]);
 
   const marcarComoLeida = (idNotificacion) => {
-    fetch(`http://ticket-env.eba-3gvvmzhz.us-east-1.elasticbeanstalk.com/notifications/${idNotificacion}/read`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `https://e3ljh2zo7k.execute-api.us-east-1.amazonaws.com/notifications/${idNotificacion}/read`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => {
         if (res.ok) {
           setNotificaciones((prev) =>
@@ -42,7 +48,9 @@ const Notificaciones = ({ onClose }) => {
     <div className="notificaciones-panel">
       <div className="notificaciones-header">
         <h3>Notificaciones</h3>
-        <div className="close-noti" onClick={onClose}>✕</div>
+        <div className="close-noti" onClick={onClose}>
+          ✕
+        </div>
       </div>
 
       <div className="notificaciones-list">

@@ -12,6 +12,10 @@
     height: 50px;
     border-radius: 50%;
     display: flex;
+    font-weight: bold;
+    font-size: 20px;
+    align-items: center;
+    justify-content: center;    
 }
 
 .User-Info{
@@ -38,4 +42,80 @@
 .User-Elimination{
     cursor: pointer;
     margin-left: 10px;
+}
+
+/* Modal de confirmación */
+.modal-overlay-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    height: auto;
+}
+
+.modal-content-confirm {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 350px;
+    width: auto;
+    min-width: 280px;
+    height: auto;
+    text-align: center;
+}
+
+.modal-content-confirm h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.modal-content-confirm p {
+    margin: 8px 0;
+    color: #666;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-cancel, .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-cancel:hover {
+    background-color: #e8e8e8;
+}
+
+.btn-confirm {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: #c82333;
 }
